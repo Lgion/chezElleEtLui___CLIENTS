@@ -1,0 +1,19 @@
+Informations Générales
+ * Quel est le nom exact de votre établissement ?
+ * Quelle est votre activité principale et quels types de services ou produits proposez-vous ?
+ * Quelle est votre adresse exacte et vos horaires d'ouverture ?
+ * Quels sont vos moyens de contact (téléphone, WhatsApp, email, réseaux sociaux) ?
+Offre & Tarifs
+ * Quels sont vos services ou produits phares ? Quels sont leurs prix (ou une fourchette de prix) ?
+ * Proposez-vous des formules, promotions ou abonnements particuliers ?
+ * Faut-il prendre rendez-vous pour bénéficier de vos services, ou 11111 sans rendez-vous ?
+Identité & Différenciation
+ * Qu'est-ce qui vous distingue de vos concurrents (vitesse, prix, qualité, accueil) ?
+ * Quel style ou quelle ambiance souhaitez-vous refléter sur votre site (professionnel, chaleureux, moderne, familial) ?
+ * Avez-vous des couleurs particulières, un logo ou des photos de votre commerce à inclure ?
+Actions Attendu par le Client
+ * Quelle est l'action principale que le visiteur doit faire sur votre site (appeler, envoyer un message WhatsApp, réserver, venir en boutique) ?
+ * Proposez-vous la livraison ou le service à domicile ?
+
+
+Ça c'est le modèle de question proposé par gemini

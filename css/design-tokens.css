@@ -1,0 +1,147 @@
+/* ==========================================================================
+   DESIGN TOKENS - SALON DE COIFFURE ET BEAUTÉ "ELLE & LUI"
+   Palette : Or Chaud, Terracotta Ivoirien, Ivoire Doux, Noir Ébène & Sauge Spa
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap');
+
+:root {
+  /* Palette de couleurs primaires */
+  --color-gold-400: #e6be68;
+  --color-gold-500: #d4a373;
+  --color-gold-600: #b8860b;
+  --color-gold-700: #8c6507;
+
+  --color-terracotta-400: #f28b6d;
+  --color-terracotta-500: #e07a5f;
+  --color-terracotta-600: #c45b41;
+
+  --color-spa-400: #a3bda9;
+  --color-spa-500: #819b88;
+  --color-spa-600: #5d7563;
+
+  /* Teintes de fond et de surface */
+  --bg-primary: #faf8f5;
+  --bg-surface: #ffffff;
+  --bg-surface-soft: #f4ede4;
+  --bg-dark: #1a1614;
+  --bg-dark-surface: #26201c;
+  --bg-dark-card: #2f2723;
+
+  /* Typographie et contrastes de texte */
+  --text-main: #2b2523;
+  --text-muted: #6e645e;
+  --text-light: #9c918a;
+  --text-inverse: #ffffff;
+  --text-inverse-muted: #d6cfc8;
+
+  /* Dégradés premium */
+  --gradient-gold: linear-gradient(135deg, #d4a373 0%, #e6be68 50%, #b8860b 100%);
+  --gradient-terracotta: linear-gradient(135deg, #e07a5f 0%, #f28b6d 100%);
+  --gradient-dark: linear-gradient(180deg, rgba(26, 22, 20, 0.94) 0%, rgba(26, 22, 20, 0.98) 100%);
+  --gradient-hero: linear-gradient(180deg, rgba(26, 22, 20, 0.5) 0%, rgba(26, 22, 20, 0.85) 100%);
+  --gradient-card-overlay: linear-gradient(180deg, transparent 40%, rgba(26, 22, 20, 0.85) 100%);
+
+  /* Polices de caractères */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-subheading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Ombres portées */
+  --shadow-sm: 0 2px 8px rgba(43, 37, 35, 0.06);
+  --shadow-md: 0 8px 24px rgba(43, 37, 35, 0.08), 0 2px 6px rgba(43, 37, 35, 0.04);
+  --shadow-lg: 0 16px 36px rgba(43, 37, 35, 0.12), 0 4px 12px rgba(43, 37, 35, 0.06);
+  --shadow-gold: 0 8px 25px rgba(212, 163, 115, 0.35);
+  --shadow-dark: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+  /* Rayons de bordure */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Transitions et animations */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Tailles et contraintes */
+  --container-width: 1240px;
+  --container-padding: 1.5rem;
+  --header-height: 80px;
+
+  /* WhatsApp Official Brand */
+  --color-whatsapp: #25D366;
+  --color-whatsapp-dark: #128C7E;
+}
+
+/* Reset standard et base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+/* Utilitaires typographiques */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-main);
+}
+
+.text-gold {
+  color: var(--color-gold-600);
+}
+
+.text-terracotta {
+  color: var(--color-terracotta-500);
+}
+
+.text-spa {
+  color: var(--color-spa-600);
+}
+
+.bg-dark-section {
+  background-color: var(--bg-dark);
+  color: var(--text-inverse);
+}

@@ -1,0 +1,359 @@
+/* ==========================================================================
+   DASHBOARD CSS - ESPACE SALON & GESTION DES RENDEZ-VOUS
+   Accessible par le personnel d'Elle & Lui (Blandine & Judith)
+   ========================================================================== */
+
+.dashboard-modal {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  max-width: 1100px;
+  width: 95vw;
+  max-height: 90vh;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-dark);
+  margin: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-modal::backdrop {
+  background: rgba(26, 22, 20, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.dash-header {
+  background: var(--bg-dark);
+  color: var(--text-inverse);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-gold-600);
+}
+
+.dash-header-title h3 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash-header-title p {
+  color: var(--text-inverse-muted);
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.dash-body {
+  padding: 1.75rem 2rem;
+  overflow-y: auto;
+  flex-grow: 1;
+  background-color: var(--bg-primary);
+}
+
+/* Cartes de KPI / Statistiques */
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: var(--bg-surface);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--color-gold-500);
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-card.today {
+  border-left-color: var(--color-terracotta-500);
+}
+
+.kpi-card.confirmed {
+  border-left-color: #25d366;
+}
+
+.kpi-card.revenue {
+  border-left-color: var(--color-gold-600);
+}
+
+.kpi-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-value {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* Barre d'actions du tableau */
+.dash-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-surface);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.dash-select, .dash-search-input {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  background: var(--bg-primary);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.dash-actions-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-dash-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: var(--gradient-gold);
+  color: #1a1614;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.btn-dash-action:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-dash-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+}
+
+/* Tableau des rendez-vous */
+.dash-table-wrapper {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  border: 1px solid rgba(212, 163, 115, 0.2);
+}
+
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.dash-table th {
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+  font-weight: 700;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid rgba(212, 163, 115, 0.3);
+  white-space: nowrap;
+}
+
+.dash-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--bg-surface-soft);
+  vertical-align: middle;
+}
+
+.dash-table tr:hover {
+  background-color: rgba(212, 163, 115, 0.05);
+}
+
+.client-name-cell {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.client-phone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.client-phone-link:hover {
+  color: var(--color-gold-600);
+}
+
+.service-cell-tag {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.service-cell-meta {
+  font-size: 0.78rem;
+  color: var(--text-light);
+}
+
+/* Badges de Statut */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pill.confirmed {
+  background: rgba(37, 211, 102, 0.15);
+  color: var(--color-whatsapp-dark);
+}
+
+.status-pill.pending {
+  background: rgba(242, 139, 109, 0.15);
+  color: var(--color-terracotta-600);
+}
+
+.status-pill.completed {
+  background: rgba(129, 155, 136, 0.2);
+  color: var(--color-spa-600);
+}
+
+.status-pill.cancelled {
+  background: rgba(156, 145, 138, 0.2);
+  color: var(--text-light);
+}
+
+/* Boutons d'action dans la table */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-icon-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.btn-icon-action.whatsapp {
+  color: var(--color-whatsapp-dark);
+  background: rgba(37, 211, 102, 0.1);
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.btn-icon-action.whatsapp:hover {
+  background: var(--color-whatsapp);
+  color: #ffffff;
+}
+
+.btn-icon-action.call {
+  color: var(--color-gold-600);
+  background: rgba(212, 163, 115, 0.1);
+}
+
+.btn-icon-action.call:hover {
+  background: var(--color-gold-600);
+  color: #1a1614;
+}
+
+.btn-icon-action.delete:hover {
+  background: var(--color-terracotta-500);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+/* Formulaire Ajout Rapide */
+.quick-add-form {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px dashed var(--color-gold-500);
+  display: none;
+}
+
+.quick-add-form.open {
+  display: block;
+}
+
+.quick-add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+/* Message Aucune Donnée */
+.empty-dash-state {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-dash-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-gold-500);
+}
+
+/* Responsive Dashboard */
+@media (max-width: 900px) {
+  .dash-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .dash-kpis {
+    grid-template-columns: 1fr;
+  }
+  .dash-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

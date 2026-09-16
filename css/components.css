@@ -1,0 +1,806 @@
+/* ==========================================================================
+   COMPONENTS CSS - SALON DE COIFFURE & BEAUTÉ "ELLE & LUI"
+   ========================================================================== */
+
+/* --- Barre de Filtres & Recherche de Prestations --- */
+.catalog-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.search-bar-wrapper {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.25rem 1rem 3.2rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  font-size: 1rem;
+  color: var(--text-main);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.search-input:focus {
+  border-color: var(--color-gold-600);
+  box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.25);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  padding: 0.25rem;
+  display: none;
+}
+
+.search-clear-btn:hover {
+  color: var(--color-terracotta-500);
+}
+
+/* Onglets de Catégories (Pills) */
+.category-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.cat-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.cat-tab-btn:hover {
+  color: var(--text-main);
+  border-color: var(--color-gold-500);
+  transform: translateY(-1px);
+}
+
+.cat-tab-btn.active {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  border-color: transparent;
+  box-shadow: var(--shadow-gold);
+}
+
+/* --- Grille des Prestations & Cartes de Services --- */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
+.service-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-fast);
+  position: relative;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-gold-500);
+}
+
+.service-card-media {
+  position: relative;
+  height: 210px;
+  overflow: hidden;
+  background-color: var(--bg-dark-surface);
+}
+
+.service-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.service-card:hover .service-card-media img {
+  transform: scale(1.08);
+}
+
+.service-badge-featured {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--gradient-terracotta);
+  color: #ffffff;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-sm);
+}
+
+.service-duration-tag {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(26, 22, 20, 0.75);
+  color: #ffffff;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.service-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.service-specialist {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-gold-600);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.35rem;
+}
+
+.service-name {
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.service-tagline {
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.service-desc {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.service-card-footer {
+  border-top: 1px solid var(--bg-surface-soft);
+  padding-top: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.service-price-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.service-price {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-terracotta-600);
+}
+
+.btn-book-service {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.btn-book-service:hover {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
+}
+
+/* --- Section Forfaits Mariée & Événement --- */
+.wedding-showcase {
+  background: linear-gradient(135deg, #26201c 0%, #1a1614 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 3.5rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-dark);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  margin-bottom: 4.5rem;
+}
+
+.wedding-showcase::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(212, 163, 115, 0.25), transparent 70%);
+  pointer-events: none;
+}
+
+.wedding-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 3rem auto;
+}
+
+.wedding-header .section-title {
+  color: #ffffff;
+}
+
+.wedding-cards-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+.wedding-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  border-radius: var(--radius-md);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.wedding-card.best-offer {
+  background: rgba(212, 163, 115, 0.1);
+  border: 2px solid var(--color-gold-500);
+  box-shadow: 0 10px 30px rgba(212, 163, 115, 0.2);
+}
+
+.wedding-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-gold-400);
+}
+
+.wedding-card-ribbon {
+  position: absolute;
+  top: -12px;
+  right: 1.5rem;
+  background: var(--gradient-gold);
+  color: #1a1614;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.wedding-card-title {
+  font-size: 1.6rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.wedding-card-price {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-gold-400);
+  margin: 1rem 0;
+}
+
+.wedding-card-price span {
+  font-size: 1rem;
+  color: var(--text-inverse-muted);
+  font-weight: 400;
+}
+
+.wedding-features-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0 2rem 0;
+  flex-grow: 1;
+}
+
+.wedding-features-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: #e5ded7;
+  line-height: 1.45;
+}
+
+.wedding-features-list li svg {
+  color: var(--color-gold-400);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* --- Section Produits Phares --- */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.product-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.product-media {
+  position: relative;
+  height: 200px;
+  background-color: var(--bg-dark);
+}
+
+.product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--color-gold-600);
+  color: #ffffff;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.product-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-category {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.product-title {
+  font-size: 1.15rem;
+  margin: 0.35rem 0;
+}
+
+.product-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--bg-surface-soft);
+  padding-top: 1rem;
+}
+
+.product-price {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-terracotta-600);
+}
+
+.btn-whatsapp-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(37, 211, 102, 0.12);
+  color: var(--color-whatsapp-dark);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+}
+
+.btn-whatsapp-order:hover {
+  background: var(--color-whatsapp);
+  color: #ffffff;
+}
+
+/* --- Section Galerie Photos Réelles --- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  height: 240px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.gallery-item.col-span-2 {
+  grid-column: span 2;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-smooth);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.06);
+}
+
+.gallery-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(26, 22, 20, 0.85), transparent 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.2rem;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.gallery-item:hover .gallery-overlay {
+  opacity: 1;
+}
+
+.gallery-tag {
+  font-size: 0.75rem;
+  color: var(--color-gold-400);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.gallery-caption {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* --- Modal Dialog de Réservation --- */
+.booking-dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  max-width: 620px;
+  width: 90vw;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-dark);
+  margin: auto;
+  overflow: hidden;
+}
+
+.booking-dialog::backdrop {
+  background: rgba(26, 22, 20, 0.65);
+  backdrop-filter: blur(6px);
+}
+
+.modal-header {
+  background: var(--bg-dark);
+  color: var(--text-inverse);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  color: #ffffff;
+  font-size: 1.45rem;
+}
+
+.modal-close-btn {
+  color: var(--text-inverse-muted);
+  font-size: 1.5rem;
+  padding: 0.25rem;
+  transition: color var(--transition-fast);
+}
+
+.modal-close-btn:hover {
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 2rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 1.4rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  background: var(--bg-primary);
+  font-size: 0.95rem;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--color-gold-600);
+  background: #ffffff;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background: var(--bg-surface-soft);
+  border-radius: var(--radius-sm);
+}
+
+.time-slot-chip {
+  padding: 0.5rem;
+  text-align: center;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.time-slot-chip:hover {
+  border-color: var(--color-gold-600);
+  background: #ffffff;
+}
+
+.time-slot-chip.selected {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+.time-slot-chip.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.booking-summary-box {
+  background: var(--bg-surface-soft);
+  border-left: 4px solid var(--color-gold-600);
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-xs);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.booking-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.booking-summary-row.total {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-terracotta-600);
+  border-top: 1px dashed rgba(212, 163, 115, 0.5);
+  padding-top: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+/* --- Widgets Flottants (Mobile First WhatsApp & Appel) --- */
+.floating-widgets {
+  position: fixed;
+  bottom: 2rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  z-index: 900;
+}
+
+.floating-whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--color-whatsapp);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+  position: relative;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-fast);
+}
+
+.floating-whatsapp-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.6);
+}
+
+.floating-whatsapp-tooltip {
+  position: absolute;
+  right: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-dark);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.floating-whatsapp-btn:hover .floating-whatsapp-tooltip {
+  opacity: 1;
+}
+
+.pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--color-whatsapp);
+  animation: pulse-ring 2.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* --- Toast Notification --- */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-dark);
+  color: #ffffff;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.92rem;
+  z-index: 2000;
+  opacity: 0;
+  transition: all var(--transition-smooth);
+}
+
+.toast-notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .wedding-cards-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gallery-item.col-span-2 {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  .time-slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+}
