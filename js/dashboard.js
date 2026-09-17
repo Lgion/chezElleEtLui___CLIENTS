@@ -73,7 +73,7 @@ const INITIAL_DEMO_APPOINTMENTS = [
   }
 ];
 
-export class DashboardManager {
+class DashboardManager {
   constructor() {
     this.appointments = this.loadAppointments();
   }

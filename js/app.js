@@ -3,17 +3,21 @@
  * Abidjan Cocody N°39
  */
 
-import { SERVICES_DATA, SERVICE_CATEGORIES } from './data/services.js';
-import { PRODUCTS_DATA } from './data/products.js';
-import { DashboardManager } from './dashboard.js';
-import { 
-  generateTimeSlots, 
-  getWhatsAppBookingUrl, 
-  getWhatsAppProductUrl,
-  SALON_OPEN_HOUR,
-  SALON_OPEN_MINUTE,
-  SALON_CLOSE_HOUR
-} from './booking.js';
+// import { SERVICES_DATA, SERVICE_CATEGORIES } from './data/services.js';
+// import { PRODUCTS_DATA } from './data/products.js';
+// import { DashboardManager } from './dashboard.js';
+// import {
+//   generateTimeSlots,
+//   getWhatsAppBookingUrl,
+//   getWhatsAppProductUrl,
+//   SALON_OPEN_HOUR,
+//   SALON_OPEN_MINUTE,
+//   SALON_CLOSE_HOUR
+// } from './booking.js';
+console.log("PRODUCTS_DATA");
+console.log(PRODUCTS_DATA);
+console.log("SERVICES_DATA, SERVICE_CATEGORIES");
+console.log(SERVICES_DATA, SERVICE_CATEGORIES);
 
 class SalonApp {
   constructor() {
@@ -22,7 +26,7 @@ class SalonApp {
     this.searchQuery = '';
     this.selectedTimeSlot = null;
     this.selectedService = null;
-    
+
     this.init();
   }
 
@@ -116,9 +120,9 @@ class SalonApp {
 
     if (this.searchQuery.trim() !== '') {
       const q = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(s => 
-        s.name.toLowerCase().includes(q) || 
-        s.description.toLowerCase().includes(q) || 
+      filtered = filtered.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.description.toLowerCase().includes(q) ||
         s.responsible.toLowerCase().includes(q)
       );
     }
@@ -136,7 +140,7 @@ class SalonApp {
     container.innerHTML = filtered.map(service => {
       const durationHours = Math.floor(service.durationMinutes / 60);
       const durationMins = service.durationMinutes % 60;
-      const durationStr = durationHours > 0 
+      const durationStr = durationHours > 0
         ? `${durationHours}h${durationMins > 0 ? durationMins : ''}`
         : `${durationMins}m`;
 
@@ -210,7 +214,7 @@ class SalonApp {
     const select = document.getElementById('modalServiceSelect');
     if (!select) return;
 
-    select.innerHTML = '<option value="">-- Choisissez une prestation --</option>' + 
+    select.innerHTML = '<option value="">-- Choisissez une prestation --</option>' +
       SERVICES_DATA.map(s => `
         <option value="${s.id}">${s.name} (${s.priceLabel}) - ${s.responsible}</option>
       `).join('');
@@ -224,7 +228,7 @@ class SalonApp {
     const service = SERVICES_DATA.find(s => s.id === serviceId);
     this.selectedService = service || null;
     const summaryBox = document.getElementById('bookingSummaryBox');
-    
+
     if (service && summaryBox) {
       const hours = Math.floor(service.durationMinutes / 60);
       const mins = service.durationMinutes % 60;
@@ -335,7 +339,7 @@ class SalonApp {
     }
 
     if (searchVal) {
-      list = list.filter(a => 
+      list = list.filter(a =>
         a.clientName.toLowerCase().includes(searchVal) ||
         a.clientPhone.toLowerCase().includes(searchVal) ||
         a.serviceName.toLowerCase().includes(searchVal)
@@ -640,7 +644,7 @@ class SalonApp {
 
     // 4. Notification et ouverture WhatsApp
     this.showToast('Rendez-vous enregistré ! Ouverture de WhatsApp...');
-    
+
     setTimeout(() => {
       window.open(whatsappUrl, '_blank');
     }, 600);

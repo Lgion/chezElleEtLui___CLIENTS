@@ -3,7 +3,7 @@
  * Établi selon les tarifs réels de Blandine Youbouet et Judith (Abidjan Cocody).
  */
 
-export const SERVICE_CATEGORIES = [
+const SERVICE_CATEGORIES = [
   { id: 'all', name: 'Tous les services', icon: 'sparkles' },
   { id: 'coiffure-tresses', name: 'Tresses & Tissages (Phares)', icon: 'scissors' },
   { id: 'coiffure-soins', name: 'Coiffure & Shampoings', icon: 'wand' },
@@ -12,7 +12,7 @@ export const SERVICE_CATEGORIES = [
   { id: 'mariee', name: 'Forfaits Mariée', icon: 'crown' }
 ];
 
-export const SERVICES_DATA = [
+const SERVICES_DATA = [
   // --- TRESSES & TISSAGES (SERVICES PHARES) ---
   {
     id: 'tresses-classiques',

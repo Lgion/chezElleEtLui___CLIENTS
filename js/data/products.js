@@ -3,7 +3,7 @@
  * Capillaires & Cosmétiques sélectionnés par Blandine et Judith.
  */
 
-export const PRODUCTS_DATA = [
+const PRODUCTS_DATA = [
   {
     id: 'prod-huile-pousse',
     name: 'Élixir Capillaire Croissance & Antichute',
