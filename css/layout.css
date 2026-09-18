@@ -61,8 +61,17 @@
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
 }
 
 /* Header & Navigation */
@@ -87,6 +96,7 @@
   margin: 0 auto;
   padding: 0.85rem var(--container-padding);
   display: flex;
+  flex-flow: wrap;
   justify-content: space-between;
   align-items: center;
 }
@@ -183,10 +193,19 @@
 }
 
 /* Boutons d'en-tête */
+@media screen and (min-width: 850px) and (max-width: 1024px) {
+  .header-actions {
+    position: absolute;
+  }
+}
+
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  justify-content: center;
+  width: 100%;
+  top: 0;
 }
 
 .btn-salon-space {
@@ -356,7 +375,7 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at center, rgba(26, 22, 20, 0.4) 0%, rgba(26, 22, 20, 0.85) 100%),
-              linear-gradient(to top, rgba(26, 22, 20, 1) 0%, transparent 60%);
+    linear-gradient(to top, rgba(26, 22, 20, 1) 0%, transparent 60%);
 }
 
 .hero-content {
@@ -472,7 +491,7 @@
   bottom: 0;
   inset-inline: 0;
   padding: 0.75rem 1rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 600;
@@ -645,6 +664,7 @@
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
+
   .footer-grid {
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
@@ -656,12 +676,15 @@
     justify-content: center;
     text-align: center;
   }
+
   .topbar-item.location {
     display: none;
   }
+
   .main-nav {
     display: none;
   }
+
   .main-nav.mobile-open {
     display: flex;
     position: fixed;
@@ -675,25 +698,30 @@
     z-index: 999;
     overflow-y: auto;
   }
+
   .main-nav.mobile-open .nav-links {
     flex-direction: column;
     width: 100%;
     align-items: flex-start;
     gap: 1.25rem;
   }
+
   .main-nav.mobile-open .nav-link {
     font-size: 1.2rem;
     width: 100%;
     border-bottom: 1px solid var(--bg-surface-soft);
     padding: 0.8rem 0;
   }
+
   .mobile-toggle {
     display: block;
   }
+
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+
   .hero-features {
     gap: 1rem;
     flex-direction: column;
