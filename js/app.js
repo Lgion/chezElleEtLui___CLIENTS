@@ -34,6 +34,7 @@ class SalonApp {
     this.populateServiceDropdown();
     this.setupEventListeners();
     this.setupScrollEffects();
+    this.setupAnchorNavigation();
   }
 
   /* --- 1. Indicateur d'Ouverture en Direct --- */
@@ -644,6 +645,53 @@ class SalonApp {
     setTimeout(() => {
       window.open(whatsappUrl, '_blank');
     }, 600);
+  }
+
+  /* --- 10bis. Navigation par Ancre (compense le header sticky + le contenu rendu en JS) --- */
+  setupAnchorNavigation() {
+    const header = document.getElementById('mainHeader');
+
+    const updateHeaderOffset = () => {
+      const offset = (header ? header.offsetHeight : 80) + 16;
+      document.documentElement.style.setProperty('--header-offset', `${offset}px`);
+    };
+    updateHeaderOffset();
+    window.addEventListener('resize', updateHeaderOffset, { passive: true });
+
+    const scrollToHash = (hash, behavior) => {
+      if (!hash || hash === '#') return;
+      const target = document.querySelector(hash);
+      if (!target) return;
+      target.scrollIntoView({ behavior, block: 'start' });
+    };
+
+    // Au chargement initial (ou rechargement) avec une ancre dans l'URL : le
+    // contenu (prestations, produits) vient d'être injecté en JS, donc on
+    // ré-effectue le scroll (sans animation, comme le ferait le navigateur)
+    // une fois la mise en page stabilisée, sinon le navigateur avait sauté
+    // vers une page encore "vide" au premier rendu. setTimeout est utilisé
+    // plutôt que requestAnimationFrame, qui peut être fortement retardé sur
+    // un onglet pas au premier plan.
+    if (window.location.hash) {
+      // 'instant' (et non 'auto') pour éviter tout conflit avec le
+      // scroll-behavior:smooth global du <html>, qui peut faire traîner
+      // ou avorter ce repositionnement correctif.
+      setTimeout(() => scrollToHash(window.location.hash, 'instant'), 60);
+    }
+
+    // Sur les clics de nav, on gère nous-même le scroll (offset header sticky
+    // + mise à jour de l'URL) plutôt que de compter sur le comportement natif.
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const hash = link.getAttribute('href');
+        if (!hash || hash === '#') return;
+        const target = document.querySelector(hash);
+        if (!target) return;
+        e.preventDefault();
+        scrollToHash(hash, 'smooth');
+        history.pushState(null, '', hash);
+      });
+    });
   }
 
   /* --- 10. Effets de Défilement (Header Sticky Blur) --- */

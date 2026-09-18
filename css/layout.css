@@ -91,6 +91,11 @@
   align-items: center;
 }
 
+/* Empêche le header sticky de masquer le haut des sections ciblées par une ancre */
+.section-container {
+  scroll-margin-top: var(--header-offset, 100px);
+}
+
 /* Logo */
 .brand-logo {
   display: flex;
