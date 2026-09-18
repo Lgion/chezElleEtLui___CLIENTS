@@ -3,7 +3,7 @@
  * Gère les créneaux horaires par 15 min, la validation et la redirection WhatsApp.
  */
 
-const SALON_WHATSAPP_NUMBER = '2250711084866'; // Numéro officiel de Blandine / Salon
+const SALON_WHATSAPP_NUMBER = '2250759372441'; // Numéro officiel WhatsApp de la gérante (Salon Elle & Lui)
 const SALON_OPEN_HOUR = 8;
 const SALON_OPEN_MINUTE = 30;
 const SALON_CLOSE_HOUR = 19;

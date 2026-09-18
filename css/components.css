@@ -94,164 +94,340 @@
   box-shadow: var(--shadow-gold);
 }
 
-/* --- Grille des Prestations & Cartes de Services --- */
+/* --- Sélecteur d'Univers Intégré (au-dessus du catalogue) --- */
+.realm-selector-wrapper {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.realm-segmented-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: var(--bg-surface-soft);
+  padding: 0.35rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid rgba(212, 163, 115, 0.35);
+  gap: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  max-width: 100%;
+}
+
+.realm-segment-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  text-align: left;
+  border: none;
+}
+
+.realm-segment-btn .realm-btn-icon {
+  font-size: 1.35rem;
+}
+
+.realm-segment-btn .realm-btn-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.realm-segment-btn .realm-btn-text strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.realm-segment-btn .realm-btn-text small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.realm-segment-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.realm-segment-btn.active {
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+}
+
+.realm-segment-btn.active .realm-btn-text strong {
+  color: var(--color-terracotta-600);
+}
+
+/* --- Grille des Prestations & Cartes Compactes --- */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
 }
 
 .service-card {
-  background: var(--bg-surface);
+  background: #ffffff;
   border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
   border: 1px solid rgba(212, 163, 115, 0.25);
+  box-shadow: var(--shadow-sm);
+  padding: 1.15rem;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-fast);
   position: relative;
 }
 
 .service-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
   border-color: var(--color-gold-500);
 }
 
-.service-card-media {
-  position: relative;
-  height: 210px;
-  overflow: hidden;
-  background-color: var(--bg-dark-surface);
-}
-
-.service-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s ease;
-}
-
-.service-card:hover .service-card-media img {
-  transform: scale(1.08);
-}
-
-.service-badge-featured {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: var(--gradient-terracotta);
-  color: #ffffff;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: var(--shadow-sm);
-}
-
-.service-duration-tag {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  background: rgba(26, 22, 20, 0.75);
-  color: #ffffff;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  backdrop-filter: blur(6px);
+.service-card-top {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
 }
 
-.service-card-body {
-  padding: 1.5rem;
+.service-icon-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fbf7f2 0%, #f3ede4 100%);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-terracotta);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.service-meta-tags {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
   flex-grow: 1;
 }
 
-.service-specialist {
-  font-size: 0.8rem;
+.service-duration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-surface-soft);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.service-badge-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--gradient-terracotta);
+  color: #ffffff;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+/* ==========================================================================
+   CSS SPRITES - CATALOGUE 100x100px (SERVICES & PRODUITS)
+   Image source: assets/img/sprites-catalog.png (600x600 px, grille 6x6)
+   ========================================================================== */
+
+.sprite-thumb {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  min-height: 100px;
+  max-width: 100px;
+  max-height: 100px;
+  background-image: url('../assets/img/sprites-catalog.png');
+  background-size: 600px 600px;
+  background-repeat: no-repeat;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  flex-shrink: 0;
+  display: inline-block;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.service-card:hover .sprite-thumb,
+.product-card:hover .sprite-thumb {
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(184, 80, 66, 0.2);
+  border-color: var(--color-gold-500);
+}
+
+/* Ligne 0 : Tresses & Tissages (Coiffure) */
+.sprite-tresses-classiques          { background-position: 0 0; }
+.sprite-tresses-marcoussis           { background-position: -100px 0; }
+.sprite-tresses-non-coupees          { background-position: -200px 0; }
+.sprite-tissage-simple               { background-position: -300px 0; }
+.sprite-tissage-rajout               { background-position: -400px 0; }
+.sprite-tissage-coupe                { background-position: -500px 0; }
+
+/* Ligne 1 : Événement & Shampoings (Coiffure) */
+.sprite-chignon-evenement            { background-position: 0 -100px; }
+.sprite-mise-en-forme                { background-position: -100px -100px; }
+.sprite-coup-de-peigne               { background-position: -200px -100px; }
+.sprite-shampoing-bain-huile         { background-position: -300px -100px; }
+.sprite-shampoing-brushing           { background-position: -400px -100px; }
+.sprite-shampoing-babyliss           { background-position: -500px -100px; }
+
+/* Ligne 2 : Défrisages, Coloration, Coupes & Soin Visage */
+.sprite-defrisage-salon              { background-position: 0 -200px; }
+.sprite-defrisage-client             { background-position: -100px -200px; }
+.sprite-coloration-balayage          { background-position: -200px -200px; }
+.sprite-coupe-homme                  { background-position: -300px -200px; }
+.sprite-coupe-enfant                 { background-position: -400px -200px; }
+.sprite-soin-visage-eclat            { background-position: -500px -200px; }
+
+/* Ligne 3 : Massages, Amincissement, Rituel & Ongles */
+.sprite-massage-relaxant             { background-position: 0 -300px; }
+.sprite-cure-amincissante            { background-position: -100px -300px; }
+.sprite-soin-corps-rituel            { background-position: -200px -300px; }
+.sprite-duo-manucure-pedicure        { background-position: -300px -300px; }
+.sprite-vernis-permanent             { background-position: -400px -300px; }
+.sprite-faux-ongles-resine           { background-position: -500px -300px; }
+
+/* Ligne 4 : Cils, Épilations & Forfaits Mariée */
+.sprite-faux-cils                    { background-position: 0 -400px; }
+.sprite-epilation-jambes             { background-position: -100px -400px; }
+.sprite-epilation-aisselles-maillot  { background-position: -200px -400px; }
+.sprite-epilation-sourcils           { background-position: -300px -400px; }
+.sprite-forfait-mariee-1mois         { background-position: -400px -400px; }
+.sprite-forfait-mariee-3mois         { background-position: -500px -400px; }
+
+/* Ligne 5 : Produits Phares */
+.sprite-prod-huile-pousse            { background-position: 0 -500px; }
+.sprite-prod-masque-keratine         { background-position: -100px -500px; }
+.sprite-prod-edge-control            { background-position: -200px -500px; }
+.sprite-prod-meches-bresiliennes     { background-position: -300px -500px; }
+.sprite-prod-gommage-corps           { background-position: -400px -500px; }
+.sprite-prod-huile-scintillante      { background-position: -500px -500px; }
+
+.service-card-content {
+  flex-grow: 1;
+  margin-bottom: 0.85rem;
+}
+
+.service-specialist-label {
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--color-gold-600);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.service-title {
+  font-family: var(--font-heading);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-main);
   margin-bottom: 0.35rem;
 }
 
-.service-name {
-  font-size: 1.35rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.3;
-}
-
-.service-tagline {
+.service-subtagline {
   font-style: italic;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  margin-bottom: 0.75rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.service-desc {
-  font-size: 0.92rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-  margin-bottom: 1.25rem;
-  flex-grow: 1;
-}
-
-.service-card-footer {
-  border-top: 1px solid var(--bg-surface-soft);
-  padding-top: 1.25rem;
+.service-card-bottom {
+  border-top: 1px dashed rgba(212, 163, 115, 0.25);
+  padding-top: 0.85rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
-.service-price-block {
+.service-price-wrap {
   display: flex;
   flex-direction: column;
 }
 
-.price-label {
-  font-size: 0.75rem;
+.service-price-small {
+  font-size: 0.68rem;
   color: var(--text-light);
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.service-price {
+.service-price-amount {
   font-family: var(--font-heading);
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--color-terracotta-600);
+  line-height: 1.2;
+}
+
+.service-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-service-detail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-service-detail:hover {
+  background: #ffffff;
+  color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  box-shadow: 0 2px 8px rgba(184, 80, 66, 0.2);
+  transform: scale(1.08);
 }
 
 .btn-book-service {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  background: var(--bg-surface-soft);
-  color: var(--text-main);
-  padding: 0.6rem 1.1rem;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
   border-radius: var(--radius-full);
+  background: var(--gradient-gold);
+  color: #1a1614;
+  font-size: 0.82rem;
   font-weight: 700;
-  font-size: 0.85rem;
-  border: 1px solid rgba(212, 163, 115, 0.4);
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
 }
 
 .btn-book-service:hover {
-  background: var(--gradient-gold);
-  color: #1a1614;
-  border-color: transparent;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-gold);
 }
 
@@ -403,8 +579,11 @@
 
 .product-media {
   position: relative;
-  height: 200px;
-  background-color: var(--bg-dark);
+  height: 140px;
+  background: linear-gradient(145deg, #241d1a, #161210);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-media img {
@@ -690,6 +869,128 @@
   margin-top: 0.4rem;
 }
 
+/* --- Switcher Vertical Fixe (Coiffure vs Esthétique vs Produits) --- */
+.fixed-realm-switcher {
+  position: fixed;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 850;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(212, 163, 115, 0.45);
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(28, 22, 18, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 0.85rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  transition: transform var(--transition-smooth), opacity var(--transition-smooth);
+}
+
+.switcher-badge-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--color-terracotta-600);
+  padding: 0.1rem 0 0.25rem 0;
+}
+
+.switcher-realm-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.65rem;
+  border-radius: 14px;
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  cursor: pointer;
+  width: 84px;
+  min-width: 84px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-fast);
+}
+
+.switcher-realm-btn .switcher-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.switcher-realm-btn .switcher-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.3px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.switcher-realm-btn:hover {
+  background: #ffffff;
+  color: var(--color-terracotta-600);
+  border-color: var(--color-gold-500);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 80, 66, 0.15);
+}
+
+.switcher-realm-btn:hover .switcher-text {
+  color: var(--color-terracotta-600);
+}
+
+.switcher-realm-btn:hover .switcher-icon {
+  transform: scale(1.15);
+}
+
+.switcher-realm-btn.active {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  border-color: var(--color-terracotta-600);
+  box-shadow: 0 4px 14px rgba(184, 80, 66, 0.3), 0 2px 6px rgba(212, 163, 115, 0.5);
+}
+
+.switcher-realm-btn.active .switcher-text {
+  color: #1a1614;
+  font-weight: 800;
+}
+
+.switcher-divider {
+  width: 34px;
+  height: 1px;
+  background: rgba(212, 163, 115, 0.4);
+  margin: 0.15rem 0;
+}
+
+@media (max-width: 900px) {
+  .fixed-realm-switcher {
+    left: 0.5rem;
+    padding: 0.6rem 0.4rem;
+    transform: translateY(-50%) scale(0.9);
+    transform-origin: left center;
+  }
+}
+
+@media (max-width: 600px) {
+  .fixed-realm-switcher {
+    display: none;
+  }
+  .realm-segmented-control {
+    border-radius: var(--radius-md);
+  }
+  .realm-segment-btn {
+    padding: 0.5rem 0.9rem;
+  }
+}
+
 /* --- Widgets Flottants (Mobile First WhatsApp & Appel) --- */
 .floating-widgets {
   position: fixed;
@@ -697,16 +998,40 @@
   right: 1.5rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.85rem;
   z-index: 900;
+}
+
+.floating-call-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--gradient-terracotta);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(184, 80, 66, 0.4);
+  position: relative;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-fast);
+}
+
+.floating-call-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 28px rgba(184, 80, 66, 0.55);
+}
+
+.call-pulse-ring {
+  border-color: var(--color-terracotta);
 }
 
 .floating-whatsapp-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background-color: var(--color-whatsapp);
   color: #ffffff;
@@ -720,9 +1045,9 @@
   box-shadow: 0 12px 30px rgba(37, 211, 102, 0.6);
 }
 
-.floating-whatsapp-tooltip {
+.floating-widget-tooltip {
   position: absolute;
-  right: 70px;
+  right: 68px;
   top: 50%;
   transform: translateY(-50%);
   background: var(--bg-dark);
@@ -738,7 +1063,8 @@
   transition: opacity var(--transition-fast);
 }
 
-.floating-whatsapp-btn:hover .floating-whatsapp-tooltip {
+.floating-call-btn:hover .floating-widget-tooltip,
+.floating-whatsapp-btn:hover .floating-widget-tooltip {
   opacity: 1;
 }
 
@@ -753,6 +1079,180 @@
 @keyframes pulse-ring {
   0% { transform: scale(0.9); opacity: 0.8; }
   100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* --- Modale Détail Prestation --- */
+.service-detail-dialog .modal-dialog-content {
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+}
+
+.service-detail-header-badges {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.badge-category {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+}
+
+.badge-specialist {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-gold-400);
+}
+
+.service-detail-body {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.service-detail-hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.service-detail-icon-circle {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  min-height: 100px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  overflow: hidden;
+  background: transparent;
+}
+
+.service-detail-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.service-detail-tagline {
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--color-terracotta);
+  margin-top: 0.2rem;
+}
+
+.service-detail-highlight-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.95rem 1.25rem;
+  background: var(--bg-surface-soft);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-gold-500);
+}
+
+.detail-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-light);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.detail-price-main {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--color-terracotta-600);
+}
+
+.detail-duration-val {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.service-detail-desc-card {
+  background: #ffffff;
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+}
+
+.detail-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-main);
+  margin-bottom: 0.45rem;
+}
+
+.detail-desc-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-main);
+}
+
+.service-detail-guarantees {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.guarantee-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-whatsapp-dark);
+}
+
+.service-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.btn-whatsapp-detail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.15rem;
+  background: var(--color-whatsapp);
+  color: #ffffff;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.88rem;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-whatsapp-detail:hover {
+  background: var(--color-whatsapp-dark);
 }
 
 /* --- Toast Notification --- */
@@ -780,6 +1280,392 @@
   opacity: 1;
 }
 
+/* ==========================================================================
+   BOUTON ET MODALE DE PAIEMENT WAVE CÔTE D'IVOIRE
+   ========================================================================== */
+
+.btn-wave-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.95rem;
+  background: linear-gradient(135deg, #1ba5f8 0%, #0c8cdb 100%);
+  color: #ffffff;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid rgba(27, 165, 248, 0.5);
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(27, 165, 248, 0.35);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-wave-pay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 165, 248, 0.5);
+  background: linear-gradient(135deg, #32b8ff 0%, #1595e6 100%);
+}
+
+.wave-header-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1ba5f8;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.wave-dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  max-width: 480px;
+  width: 92%;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.wave-dialog::backdrop {
+  background: rgba(14, 20, 26, 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.wave-modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.wave-modal-header {
+  background: linear-gradient(135deg, #1ba5f8 0%, #0c8cdb 100%);
+  color: #ffffff;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.wave-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.wave-logo-badge {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 2px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.wave-modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.wave-modal-subtitle {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.92);
+  margin-top: 0.15rem;
+}
+
+.wave-modal-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+}
+
+.wave-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.08);
+}
+
+.wave-modal-body {
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  background: #fbf9f7;
+}
+
+.wave-amount-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.wave-input-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.wave-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.wave-amount-input {
+  width: 100%;
+  padding: 0.8rem 5rem 0.8rem 1rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a1614;
+  border: 2px solid #e0d7cd;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  transition: all var(--transition-fast);
+}
+
+.wave-amount-input:focus {
+  border-color: #1ba5f8;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(27, 165, 248, 0.15);
+}
+
+.wave-currency-suffix {
+  position: absolute;
+  right: 1rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #8c827a;
+  pointer-events: none;
+}
+
+.wave-quick-amounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+}
+
+.wave-quick-btn {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: #ffffff;
+  color: var(--text-main);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.wave-quick-btn:hover {
+  background: rgba(27, 165, 248, 0.08);
+  border-color: #1ba5f8;
+  color: #0c8cdb;
+}
+
+.wave-quick-btn.active {
+  background: #1ba5f8;
+  color: #ffffff;
+  border-color: #1ba5f8;
+  box-shadow: 0 2px 8px rgba(27, 165, 248, 0.35);
+}
+
+/* Carte QR Code inspirée de Wave */
+.wave-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.wave-qr-card {
+  background: #ffffff;
+  border: 2px solid #1ba5f8;
+  border-radius: 16px;
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 6px 20px rgba(27, 165, 248, 0.15);
+  width: 100%;
+  max-width: 300px;
+}
+
+.wave-qr-card-top {
+  font-size: 0.9rem;
+  color: #4a4039;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.wave-text-highlight {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #1ba5f8;
+  letter-spacing: -0.5px;
+}
+
+.wave-qrcode-box {
+  width: 190px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  margin: 0.25rem 0;
+}
+
+.wave-qrcode-box img,
+.wave-qrcode-box canvas {
+  width: 190px !important;
+  height: 190px !important;
+  border-radius: 6px;
+}
+
+.wave-qr-amount-display {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.85rem;
+  background: #edf8ff;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(27, 165, 248, 0.3);
+}
+
+.wave-qr-amount-display span {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0c8cdb;
+}
+
+.wave-qr-partners {
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  color: #9c9288;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wave-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.wave-instruction-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.wave-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #edf8ff;
+  color: #1ba5f8;
+  font-weight: 800;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(27, 165, 248, 0.3);
+}
+
+.wave-modal-actions {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.btn-wave-direct {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.95rem;
+  background: linear-gradient(135deg, #1ba5f8 0%, #0c8cdb 100%);
+  color: #ffffff;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(27, 165, 248, 0.35);
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.btn-wave-direct:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 165, 248, 0.5);
+  background: linear-gradient(135deg, #32b8ff 0%, #1796e6 100%);
+}
+
+.btn-wave-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.85rem;
+  background: #ffffff;
+  color: var(--text-main);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-wave-copy:hover {
+  background: var(--bg-surface-soft);
+  border-color: #1ba5f8;
+  color: #0c8cdb;
+}
+
+.wave-security-note {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.74rem;
+  color: #7d7269;
+  background: #f2ede8;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  line-height: 1.35;
+}
+
+.wave-security-note svg {
+  color: #27ae60;
+  flex-shrink: 0;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .wedding-cards-wrapper {
@@ -794,6 +1680,16 @@
 }
 
 @media (max-width: 600px) {
+  .btn-salon-space span {
+    display: none;
+  }
+  .btn-salon-space {
+    padding: 0.55rem;
+  }
+  .btn-wave-pay {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.78rem;
+  }
   .services-grid {
     grid-template-columns: 1fr;
   }

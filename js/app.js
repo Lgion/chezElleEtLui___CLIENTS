@@ -17,27 +17,34 @@
 console.log("PRODUCTS_DATA");
 console.log(PRODUCTS_DATA);
 console.log("SERVICES_DATA, SERVICE_CATEGORIES");
-console.log(SERVICES_DATA, SERVICE_CATEGORIES);
+console.log("SERVICES_DATA, SERVICE_CATEGORIES chargées avec succès.");
 
 class SalonApp {
   constructor() {
     this.dashboardManager = new DashboardManager();
+    this.activeRealm = 'coiffure'; // 'coiffure' ou 'esthetic'
     this.activeCategory = 'all';
     this.searchQuery = '';
     this.selectedTimeSlot = null;
     this.selectedService = null;
+    this.waveQrCodeInstance = null;
+    this.waveBaseUrl = 'https://pay.wave.com/m/M_ci_tk7yljaMIDFk/c/ci/?amount=';
 
     this.init();
   }
 
   init() {
     this.setupLiveStatus();
+    this.setupRealmSwitchers();
     this.renderCategoryTabs();
     this.renderServices();
     this.renderProducts();
     this.populateServiceDropdown();
     this.setupEventListeners();
     this.setupScrollEffects();
+    this.initScrollSpy();
+    this.setupServiceDetailModal();
+    this.setupWavePaymentModal();
   }
 
   /* --- 1. Indicateur d'Ouverture en Direct --- */
@@ -65,15 +72,96 @@ class SalonApp {
     };
 
     checkStatus();
-    setInterval(checkStatus, 60000); // Mise à jour toutes les minutes
+    setInterval(checkStatus, 60000);
   }
 
-  /* --- 2. Rendu des Filtres de Catégories --- */
+  /* --- 2. Switcher d'Univers (Coiffure vs Esthétique vs Produits) --- */
+  setupRealmSwitchers() {
+    // Switcher vertical fixe (gauche)
+    document.querySelectorAll('.switcher-realm-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const realm = btn.dataset.realm;
+        if (realm === 'produits') {
+          this.setRealm('produits');
+          const prodSection = document.getElementById('produits');
+          if (prodSection) {
+            prodSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+
+        this.setRealm(realm);
+        const section = document.getElementById('prestations');
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Switcher intégré en tête de catalogue
+    document.querySelectorAll('.realm-segment-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const realm = btn.dataset.realm;
+        if (realm === 'produits') {
+          this.setRealm('produits');
+          const prodSection = document.getElementById('produits');
+          if (prodSection) {
+            prodSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+
+        this.setRealm(realm);
+      });
+    });
+  }
+
+  setRealm(realm) {
+    if (this.activeRealm === realm) return;
+    this.activeRealm = realm;
+
+    // Mise à jour de l'état actif sur les deux switchers
+    document.querySelectorAll('.switcher-realm-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.realm === realm);
+    });
+
+    document.querySelectorAll('.realm-segment-btn').forEach(b => {
+      const isActive = b.dataset.realm === realm;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    if (realm === 'produits') {
+      return;
+    }
+
+    this.activeCategory = 'all';
+    this.renderCategoryTabs();
+    this.renderServices();
+  }
+
+  /* --- 3. Rendu des Filtres de Catégories par Univers --- */
   renderCategoryTabs() {
     const container = document.getElementById('categoryTabs');
     if (!container) return;
 
-    container.innerHTML = SERVICE_CATEGORIES.map(cat => `
+    let categories = [];
+    if (this.activeRealm === 'coiffure') {
+      categories = [
+        { id: 'all', name: 'Toutes les coiffures', icon: 'sparkles' },
+        { id: 'coiffure-tresses', name: 'Tresses & Tissages', icon: 'scissors' },
+        { id: 'coiffure-soins', name: 'Coiffure & Shampoings', icon: 'wand' }
+      ];
+    } else {
+      categories = [
+        { id: 'all', name: 'Tous les soins spa', icon: 'sparkles' },
+        { id: 'esthetic-spa', name: 'Soins Visage & Massages', icon: 'heart' },
+        { id: 'esthetic-ongles', name: 'Onglerie & Épilation', icon: 'gem' },
+        { id: 'mariee', name: 'Forfaits Mariée', icon: 'crown' }
+      ];
+    }
+
+    container.innerHTML = categories.map(cat => `
       <button class="cat-tab-btn ${this.activeCategory === cat.id ? 'active' : ''}" data-cat-id="${cat.id}">
         ${this.getCategoryIcon(cat.icon)}
         <span>${cat.name}</span>
@@ -93,31 +181,46 @@ class SalonApp {
   getCategoryIcon(iconName) {
     switch (iconName) {
       case 'scissors':
-        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`;
+        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`;
       case 'heart':
-        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
+        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
       case 'gem':
-        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9Z"/></svg>`;
+        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9Z"/></svg>`;
       case 'wand':
-        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 4-2 2M15 4l2 2M15 4v4M15 4h4M9 9l-7 7a2.83 2.83 0 0 0 4 4l7-7"/></svg>`;
+        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 4-2 2M15 4l2 2M15 4v4M15 4h4M9 9l-7 7a2.83 2.83 0 0 0 4 4l7-7"/></svg>`;
       case 'crown':
-        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`;
+        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`;
       default:
-        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`;
+        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`;
     }
   }
 
-  /* --- 3. Rendu des Cartes de Services --- */
+  getServiceCategoryIcon(category) {
+    if (category === 'coiffure-tresses') return this.getCategoryIcon('scissors');
+    if (category === 'coiffure-soins') return this.getCategoryIcon('wand');
+    if (category === 'esthetic-spa') return this.getCategoryIcon('heart');
+    if (category === 'esthetic-ongles') return this.getCategoryIcon('gem');
+    if (category === 'mariee') return this.getCategoryIcon('crown');
+    return this.getCategoryIcon('sparkles');
+  }
+
+  /* --- 4. Rendu des Cartes de Services (Compactes avec Icônes & Bouton Œil) --- */
   renderServices() {
     const container = document.getElementById('servicesGrid');
     if (!container) return;
 
-    let filtered = SERVICES_DATA;
+    // 1. Filtrage strict par univers (Coiffure vs Esthétique)
+    let filtered = SERVICES_DATA.filter(s => {
+      const isCoiffure = s.category.startsWith('coiffure-');
+      return this.activeRealm === 'coiffure' ? isCoiffure : !isCoiffure;
+    });
 
+    // 2. Filtrage par sous-catégorie
     if (this.activeCategory !== 'all') {
       filtered = filtered.filter(s => s.category === this.activeCategory);
     }
 
+    // 3. Filtrage par recherche
     if (this.searchQuery.trim() !== '') {
       const q = this.searchQuery.toLowerCase();
       filtered = filtered.filter(s =>
@@ -129,9 +232,9 @@ class SalonApp {
 
     if (filtered.length === 0) {
       container.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
-          <p style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Aucune prestation trouvée</p>
-          <p style="font-size: 0.95rem;">Essayez un autre terme de recherche ou sélectionnez une autre catégorie.</p>
+        <div style="grid-column: 1/-1; text-align: center; padding: 3.5rem 1rem; color: var(--text-muted);">
+          <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Aucune prestation trouvée</p>
+          <p style="font-size: 0.92rem;">Essayez un autre mot-clé ou réinitialisez les filtres.</p>
         </div>
       `;
       return;
@@ -146,27 +249,43 @@ class SalonApp {
 
       return `
         <article class="service-card" data-service-id="${service.id}">
-          <div class="service-card-media">
-            <img src="${service.image}" alt="${service.name}" loading="lazy" />
-            ${service.featured ? `<span class="service-badge-featured">Service Phare</span>` : ''}
-            <span class="service-duration-tag">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              ~${durationStr}
-            </span>
+          <div class="service-card-top">
+            <div class="sprite-thumb sprite-${service.id}" aria-hidden="true"></div>
+            <div class="service-meta-tags">
+              <div class="service-specialist-label">✦ ${service.responsible}</div>
+              ${service.featured ? `<span class="service-badge-pill">Phare</span>` : ''}
+              <span class="service-duration-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                ~${durationStr}
+              </span>
+            </div>
           </div>
-          <div class="service-card-body">
-            <span class="service-specialist">✦ ${service.responsible}</span>
-            <h3 class="service-name">${service.name}</h3>
-            ${service.tagline ? `<p class="service-tagline">« ${service.tagline} »</p>` : ''}
-            <p class="service-desc">${service.description}</p>
-            <div class="service-card-footer">
-              <div class="service-price-block">
-                <span class="price-label">Tarif</span>
-                <span class="service-price">${service.priceLabel}</span>
-              </div>
+
+          <div class="service-card-content">
+            <h3 class="service-title">${service.name}</h3>
+            ${service.tagline ? `<p class="service-subtagline">« ${service.tagline} »</p>` : ''}
+          </div>
+
+          <div class="service-card-bottom">
+            <div class="service-price-wrap">
+              <span class="service-price-small">Tarif</span>
+              <span class="service-price-amount">${service.priceLabel}</span>
+            </div>
+            <div class="service-actions-group">
+              <!-- Bouton avec icône œil pour ouvrir la modale détaillée -->
+              <button class="btn-service-detail" data-action="detail" data-service-id="${service.id}" title="Voir détails et description" aria-label="Voir les détails de ${service.name}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+
+              <!-- Bouton direct de réservation -->
               <button class="btn-book-service" data-action="book" data-service-id="${service.id}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
                 Réserver
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </button>
             </div>
           </div>
@@ -174,12 +293,152 @@ class SalonApp {
       `;
     }).join('');
 
-    // Écouteurs sur les boutons "Réserver"
+    // Écouteurs UNIQUEMENT sur le bouton œil pour ouvrir la modale de détails
+    container.querySelectorAll('[data-action="detail"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openServiceDetailModal(btn.dataset.serviceId);
+      });
+    });
+
+    // Écouteurs sur le bouton "Réserver"
     container.querySelectorAll('[data-action="book"]').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.openBookingModal(btn.dataset.serviceId);
       });
     });
+  }
+
+  /* --- 5. Modale de Détails Prestation Officielle --- */
+  setupServiceDetailModal() {
+    const dialog = document.getElementById('serviceDetailDialog');
+    if (!dialog) return;
+
+    const closeBtn = document.getElementById('closeDetailDialogBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => dialog.close());
+    }
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    const bookBtn = document.getElementById('detailBookBtn');
+    if (bookBtn) {
+      bookBtn.addEventListener('click', () => {
+        const serviceId = bookBtn.dataset.serviceId;
+        dialog.close();
+        if (serviceId) {
+          this.openBookingModal(serviceId);
+        }
+      });
+    }
+  }
+
+  openServiceDetailModal(serviceId) {
+    const dialog = document.getElementById('serviceDetailDialog');
+    if (!dialog) return;
+
+    const service = SERVICES_DATA.find(s => s.id === serviceId);
+    if (!service) return;
+
+    const catBadge = document.getElementById('detailBadgeCategory');
+    if (catBadge) {
+      const categoryObj = SERVICE_CATEGORIES.find(c => c.id === service.category);
+      catBadge.textContent = categoryObj ? categoryObj.name : 'Soin Professionnel';
+    }
+
+    const specBadge = document.getElementById('detailBadgeSpecialist');
+    if (specBadge) {
+      specBadge.textContent = `✦ Par ${service.responsible}`;
+    }
+
+    const iconBox = document.getElementById('detailIconBox');
+    if (iconBox) {
+      iconBox.className = `sprite-thumb sprite-${service.id}`;
+      iconBox.innerHTML = '';
+    }
+
+    const titleEl = document.getElementById('detailServiceName');
+    if (titleEl) titleEl.textContent = service.name;
+
+    const taglineEl = document.getElementById('detailServiceTagline');
+    if (taglineEl) taglineEl.textContent = service.tagline ? `« ${service.tagline} »` : '';
+
+    const priceEl = document.getElementById('detailPriceValue');
+    if (priceEl) priceEl.textContent = service.priceLabel;
+
+    const durationEl = document.getElementById('detailDurationValue');
+    if (durationEl) {
+      const hours = Math.floor(service.durationMinutes / 60);
+      const mins = service.durationMinutes % 60;
+      durationEl.textContent = hours > 0 ? `${hours}h${mins > 0 ? mins : ''}` : `${mins} min`;
+    }
+
+    const descEl = document.getElementById('detailServiceDescription');
+    if (descEl) descEl.textContent = service.description;
+
+    const bookBtn = document.getElementById('detailBookBtn');
+    if (bookBtn) bookBtn.dataset.serviceId = service.id;
+
+    const whatsappBtn = document.getElementById('detailWhatsAppBtn');
+    if (whatsappBtn) {
+      const msg = `Bonjour Salon Elle & Lui ! ✨
+Je souhaite des renseignements supplémentaires sur la prestation :
+✦ *${service.name}* (${service.priceLabel})
+Pouvez-vous m'en dire plus sur la disponibilité ?`;
+      whatsappBtn.href = `https://wa.me/2250759372441?text=${encodeURIComponent(msg)}`;
+    }
+
+    dialog.showModal();
+  }
+
+  /* --- 6. ScrollSpy : Détection de Section & Coloration Header & Switcher --- */
+  initScrollSpy() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.main-nav .nav-link');
+    if (!sections.length || !navLinks.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === `#${id}`) {
+              link.classList.add('active');
+            } else {
+              link.classList.remove('active');
+            }
+          });
+
+          // Sync vertical realm switcher if in #produits or #prestations
+          if (id === 'produits') {
+            document.querySelectorAll('.switcher-realm-btn').forEach(b => {
+              b.classList.toggle('active', b.dataset.realm === 'produits');
+            });
+            document.querySelectorAll('.realm-segment-btn').forEach(b => {
+              b.classList.toggle('active', b.dataset.realm === 'produits');
+            });
+          } else if (id === 'prestations') {
+            const currentRealm = (this.activeRealm === 'produits') ? 'coiffure' : this.activeRealm;
+            this.activeRealm = currentRealm;
+            document.querySelectorAll('.switcher-realm-btn').forEach(b => {
+              b.classList.toggle('active', b.dataset.realm === currentRealm);
+            });
+            document.querySelectorAll('.realm-segment-btn').forEach(b => {
+              b.classList.toggle('active', b.dataset.realm === currentRealm);
+            });
+          }
+        }
+      });
+    }, {
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: 0
+    });
+
+    sections.forEach(sec => observer.observe(sec));
   }
 
   /* --- 4. Rendu des Produits Phares --- */
@@ -190,7 +449,7 @@ class SalonApp {
     container.innerHTML = PRODUCTS_DATA.map(product => `
       <article class="product-card">
         <div class="product-media">
-          <img src="${product.image}" alt="${product.name}" loading="lazy" />
+          <div class="sprite-thumb sprite-${product.id}" aria-label="${product.name}"></div>
           <span class="product-badge">${product.badge}</span>
         </div>
         <div class="product-body">
@@ -648,6 +907,114 @@ class SalonApp {
     setTimeout(() => {
       window.open(whatsappUrl, '_blank');
     }, 600);
+  }
+
+  /* --- 9. Modale de Paiement Sécurisé Wave Côte d'Ivoire --- */
+  setupWavePaymentModal() {
+    const dialog = document.getElementById('wavePaymentDialog');
+    const openBtn = document.getElementById('navWavePayBtn');
+    const closeBtn = document.getElementById('closeWaveDialogBtn');
+    const amountInput = document.getElementById('waveAmountInput');
+    const quickBtns = document.querySelectorAll('.wave-quick-btn');
+    const copyBtn = document.getElementById('copyWaveLinkBtn');
+    const copyText = document.getElementById('copyWaveLinkText');
+
+    if (!dialog) return;
+
+    if (openBtn) {
+      openBtn.addEventListener('click', () => {
+        const defaultAmount = amountInput ? parseInt(amountInput.value, 10) || 10000 : 10000;
+        this.updateWavePayment(defaultAmount);
+        dialog.showModal();
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => dialog.close());
+    }
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    if (amountInput) {
+      amountInput.addEventListener('input', () => {
+        let val = parseInt(amountInput.value, 10);
+        if (isNaN(val) || val < 0) val = 0;
+        // Mettre à jour l'état actif des boutons de montants rapides
+        quickBtns.forEach(btn => {
+          btn.classList.toggle('active', parseInt(btn.dataset.amount, 10) === val);
+        });
+        this.updateWavePayment(val);
+      });
+    }
+
+    quickBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const amount = parseInt(btn.dataset.amount, 10);
+        if (amountInput) amountInput.value = amount;
+        quickBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.updateWavePayment(amount);
+      });
+    });
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const directLink = document.getElementById('waveDirectPayLink');
+        const url = directLink ? directLink.href : (this.waveBaseUrl + '10000');
+        navigator.clipboard.writeText(url).then(() => {
+          if (copyText) copyText.textContent = 'Copié !';
+          this.showToast('Lien de paiement Wave copié dans le presse-papier !');
+          setTimeout(() => {
+            if (copyText) copyText.textContent = 'Copier lien';
+          }, 2500);
+        }).catch(() => {
+          this.showToast('Lien Wave : ' + url);
+        });
+      });
+    }
+  }
+
+  updateWavePayment(amount) {
+    const qrBox = document.getElementById('waveQrCodeBox');
+    const amountLabel = document.getElementById('waveQrAmountLabel');
+    const directLink = document.getElementById('waveDirectPayLink');
+
+    const paymentUrl = this.waveBaseUrl + (amount > 0 ? amount : '');
+
+    if (directLink) {
+      directLink.href = paymentUrl;
+    }
+
+    if (amountLabel) {
+      amountLabel.textContent = (amount > 0 ? amount.toLocaleString('fr-FR') : '0') + ' FCFA';
+    }
+
+    if (!qrBox) return;
+
+    if (typeof QRCode === 'undefined') {
+      qrBox.innerHTML = '<p style="font-size:0.8rem; color:#888;">Module QRCode en cours de chargement...</p>';
+      return;
+    }
+
+    try {
+      if (!this.waveQrCodeInstance) {
+        qrBox.innerHTML = '';
+        this.waveQrCodeInstance = new QRCode(qrBox, {
+          text: paymentUrl,
+          width: 190,
+          height: 190,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        this.waveQrCodeInstance.makeCode(paymentUrl);
+      }
+    } catch (err) {
+      console.warn('Erreur génération QRCode Wave:', err);
+    }
   }
 
   /* --- 10. Effets de Défilement (Header Sticky Blur) --- */

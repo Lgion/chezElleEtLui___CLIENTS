@@ -53,17 +53,20 @@
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <span>Abidjan, Cocody N° 39 (Mitoyen Pharmacie)</span>
+          <span>Abidjan, Cocody N° 39 (Pharmacie St Gil)</span>
         </div>
       </div>
       <div class="topbar-contact">
-        <a href="https://wa.me/2250711084866" target="_blank" rel="noopener" class="topbar-item"
+        <a href="tel:+2250759372441" class="topbar-item" style="color: #ffffff; font-weight: 600;">
+          <span>📞 Appels : +225 07 59 37 24 41</span>
+        </a>
+        <a href="https://wa.me/2250759372441" target="_blank" rel="noopener" class="topbar-item"
           style="color: var(--color-gold-400); font-weight: 600;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
           </svg>
-          <span>WhatsApp : +225 07 11 08 48 66</span>
+          <span>WhatsApp : +225 07 59 37 24 41</span>
         </a>
       </div>
     </div>
@@ -89,6 +92,7 @@
       </nav>
 
       <div class="header-actions">
+
         <!-- Bouton d'accès au carnet de réservations salon -->
         <button class="btn-salon-space" data-trigger-dashboard title="Espace de gestion des réservations pour le salon">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -110,6 +114,12 @@
           <span>Prendre RDV</span>
         </button>
 
+        <!-- Bouton Payer via Wave -->
+        <button class="btn-wave-pay" id="navWavePayBtn" title="Payer via Wave (Scanner le QR Code ou Paiement Mobile)">
+          <img src="assets/img/wave_penguin.png" alt="Wave" class="wave-header-icon" />
+          <span>Payer via Wave</span>
+        </button>
+
         <button class="mobile-toggle" id="mobileMenuToggle" aria-label="Ouvrir le menu">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="12" x2="21" y2="12" />
@@ -123,7 +133,7 @@
 
   <!-- Hero Section Époustouflante -->
   <main>
-    <section class="hero-section">
+    <section class="hero-section" id="accueil">
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
@@ -229,7 +239,7 @@
           </div>
 
           <div>
-            <a href="https://wa.me/2250711084866?text=Bonjour%20Blandine%20!%20Je%20souhaite%20en%20savoir%20plus%20sur%20vos%20prestations."
+            <a href="https://wa.me/2250759372441?text=Bonjour%20Blandine%20!%20Je%20souhaite%20en%20savoir%20plus%20sur%20vos%20prestations."
               target="_blank" rel="noopener" class="btn-secondary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path
@@ -253,6 +263,36 @@
           Explorez l'ensemble de nos services de coiffure, soins capillaires, massages et esthétique.
           Sélectionnez la prestation de votre choix pour réserver en quelques secondes.
         </p>
+      </div>
+
+      <!-- Sélecteur d'Univers Principal (Coiffure vs Esthétique vs Produits) -->
+      <div class="realm-selector-wrapper">
+        <div class="realm-segmented-control" role="tablist" aria-label="Choisir l'univers du salon">
+          <button class="realm-segment-btn active" data-realm="coiffure" id="realmBtnCoiffure" role="tab"
+            aria-selected="true">
+            <span class="realm-btn-icon">💇‍♀️</span>
+            <div class="realm-btn-text">
+              <strong>Salon Coiffure & Tresses</strong>
+              <small>Univers Blandine Youbouet</small>
+            </div>
+          </button>
+          <button class="realm-segment-btn" data-realm="esthetic" id="realmBtnEsthetic" role="tab"
+            aria-selected="false">
+            <span class="realm-btn-icon">✨</span>
+            <div class="realm-btn-text">
+              <strong>Institut Esthétique & Spa</strong>
+              <small>Univers Judith (K.V.S)</small>
+            </div>
+          </button>
+          <button class="realm-segment-btn" data-realm="produits" id="realmBtnProduits" role="tab"
+            aria-selected="false">
+            <span class="realm-btn-icon">🛍️</span>
+            <div class="realm-btn-text">
+              <strong>Produits Phares Salon</strong>
+              <small>Capillaires & Cosmétiques</small>
+            </div>
+          </button>
+        </div>
       </div>
 
       <!-- Contrôles : Recherche & Filtres -->
@@ -522,11 +562,29 @@
             </svg>
             Téléphones & WhatsApp
           </h3>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.95rem;">
-            <li><a href="tel:+2250711084866" style="font-weight: 700; color: var(--color-whatsapp-dark);">📞 +225 07 11
-                08 48 66 (WhatsApp)</a></li>
-            <li><a href="tel:+2250798813706" style="color: var(--text-main);">📞 +225 07 98 81 37 06</a></li>
-            <li><a href="tel:+2250101127094" style="color: var(--text-main);">📞 +225 01 01 12 70 94</a></li>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem;">
+            <li style="padding-bottom: 0.5rem; border-bottom: 1px dashed rgba(212, 163, 115, 0.35);">
+              <div
+                style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--color-whatsapp); letter-spacing: 0.5px; margin-bottom: 0.2rem;">
+                WhatsApp Officiel (Gérante)</div>
+              <a href="https://wa.me/2250759372441" target="_blank" rel="noopener"
+                style="font-weight: 700; font-size: 1.05rem; color: var(--color-whatsapp-dark); display: inline-flex; align-items: center; gap: 0.35rem;">
+                💬 +225 07 59 37 24 41
+              </a>
+            </li>
+            <li>
+              <div
+                style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--color-terracotta); letter-spacing: 0.5px; margin-bottom: 0.35rem;">
+                Lignes d'Appel Direct (Sans WhatsApp)</div>
+              <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                <a href="tel:+2250759372441" style="color: var(--text-main); font-weight: 600;">📞 +225 07 59 37 24 41
+                  <small style="color: var(--text-muted); font-weight: 400;">(Ligne Gérante)</small></a>
+                <a href="tel:+2250711084866" style="color: var(--text-main); font-weight: 600;">📞 +225 07 11 08 48 66
+                  <small style="color: var(--text-muted); font-weight: 400;">(Ligne Salon)</small></a>
+                <a href="tel:+2250798813706" style="color: var(--text-main);">📞 +225 07 98 81 37 06</a>
+                <a href="tel:+2250101127094" style="color: var(--text-main);">📞 +225 01 01 12 70 94</a>
+              </div>
+            </li>
           </ul>
         </div>
       </div>
@@ -546,7 +604,7 @@
             familial, une écoute sincère et une qualité professionnelle au service de votre bien-être.
           </p>
           <div class="footer-social-links">
-            <a href="https://wa.me/2250711084866" target="_blank" rel="noopener" class="social-btn" title="WhatsApp">
+            <a href="https://wa.me/2250759372441" target="_blank" rel="noopener" class="social-btn" title="WhatsApp">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
@@ -801,16 +859,226 @@
     </div>
   </dialog>
 
-  <!-- Widgets Flottants (Mobile First : WhatsApp & Prise de RDV) -->
+  <!-- Modale Détail Prestation Officielle (Déclenchée via le bouton œil) -->
+  <dialog id="serviceDetailDialog" class="app-dialog service-detail-dialog">
+    <div class="modal-dialog-content">
+      <div class="modal-header">
+        <div class="service-detail-header-badges">
+          <span id="detailBadgeCategory" class="badge-category"></span>
+          <span id="detailBadgeSpecialist" class="badge-specialist"></span>
+        </div>
+        <button class="modal-close-btn" id="closeDetailDialogBtn" aria-label="Fermer la boîte de détails">✕</button>
+      </div>
+      <div class="modal-body service-detail-body">
+        <div class="service-detail-hero">
+          <div class="service-detail-icon-circle" id="detailIconBox"></div>
+          <div class="service-detail-title-block">
+            <h2 id="detailServiceName" class="service-detail-title"></h2>
+            <p id="detailServiceTagline" class="service-detail-tagline"></p>
+          </div>
+        </div>
+
+        <div class="service-detail-highlight-bar">
+          <div class="detail-price-box">
+            <span class="detail-label">Tarif Salon</span>
+            <span id="detailPriceValue" class="detail-price-main"></span>
+          </div>
+          <div class="detail-duration-box">
+            <span class="detail-label">Durée Estimée</span>
+            <div class="detail-duration-val">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span id="detailDurationValue"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="service-detail-desc-card">
+          <h3 class="detail-section-title">À propos de cette prestation</h3>
+          <p id="detailServiceDescription" class="detail-desc-text"></p>
+        </div>
+
+        <div class="service-detail-guarantees">
+          <div class="guarantee-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+            </svg>
+            <span>Soins & produits de qualité supérieure testés en salon</span>
+          </div>
+          <div class="guarantee-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+            </svg>
+            <span>Accueil personnalisé et conseils d'entretien sur-mesure</span>
+          </div>
+        </div>
+
+        <div class="service-detail-actions">
+          <button id="detailBookBtn" class="btn-primary" style="flex: 1.2;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Réserver cette prestation
+          </button>
+          <a id="detailWhatsAppBtn" href="#" target="_blank" rel="noopener" class="btn-whatsapp-detail">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
+            </svg>
+            Poser une question WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Modale de Paiement Sécurisé Wave Côte d'Ivoire -->
+  <dialog id="wavePaymentDialog" class="app-dialog wave-dialog">
+    <div class="modal-dialog-content wave-modal-content">
+      <div class="wave-modal-header">
+        <div class="wave-brand-header">
+          <img src="assets/img/wave_penguin.png" alt="Wave Mascot" class="wave-logo-badge" />
+          <div>
+            <h2 class="wave-modal-title">Paiement Wave</h2>
+            <p class="wave-modal-subtitle">Salon Elle & Lui • Cocody</p>
+          </div>
+        </div>
+        <button class="wave-modal-close-btn" id="closeWaveDialogBtn" aria-label="Fermer la boîte de paiement">✕</button>
+      </div>
+
+      <div class="wave-modal-body">
+        <!-- Saisie ou sélection du montant -->
+        <div class="wave-amount-section">
+          <label for="waveAmountInput" class="wave-input-label">Montant à payer (FCFA)</label>
+          <div class="wave-input-wrapper">
+            <input type="number" id="waveAmountInput" class="wave-amount-input" placeholder="Ex: 10000" min="100"
+              step="500" value="10000" />
+            <span class="wave-currency-suffix">FCFA</span>
+          </div>
+
+          <!-- Montants rapides (presets) -->
+          <div class="wave-quick-amounts">
+            <button type="button" class="wave-quick-btn" data-amount="5000">5 000 F</button>
+            <button type="button" class="wave-quick-btn active" data-amount="10000">10 000 F</button>
+            <button type="button" class="wave-quick-btn" data-amount="15000">15 000 F</button>
+            <button type="button" class="wave-quick-btn" data-amount="20000">20 000 F</button>
+            <button type="button" class="wave-quick-btn" data-amount="30000">30 000 F</button>
+            <button type="button" class="wave-quick-btn" data-amount="50000">50 000 F</button>
+          </div>
+        </div>
+
+        <!-- Zone d'affichage du QR Code dynamique -->
+        <div class="wave-qr-container">
+          <div class="wave-qr-card">
+            <div class="wave-qr-card-top">
+              <span>Payez avec</span>
+              <strong class="wave-text-highlight">wave</strong>
+            </div>
+            <div id="waveQrCodeBox" class="wave-qrcode-box">
+              <!-- QR Code généré dynamiquement -->
+            </div>
+            <div class="wave-qr-amount-display">
+              <span id="waveQrAmountLabel">10 000 FCFA</span>
+            </div>
+            <div class="wave-qr-partners">
+              <span>Partenaires agréés : UBA • Orabank</span>
+            </div>
+          </div>
+
+          <div class="wave-instructions">
+            <div class="wave-instruction-step">
+              <span class="wave-step-num">1</span>
+              <p>Ouvrez l'application <strong>Wave Côte d'Ivoire</strong> sur votre smartphone.</p>
+            </div>
+            <div class="wave-instruction-step">
+              <span class="wave-step-num">2</span>
+              <p>Appuyez sur <strong>Scanner</strong> et visez ce QR code.</p>
+            </div>
+            <div class="wave-instruction-step">
+              <span class="wave-step-num">3</span>
+              <p>Validez le règlement pour le <strong>Salon Elle & Lui</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions : Lien direct mobile ou Copier le lien -->
+        <div class="wave-modal-actions">
+          <a id="waveDirectPayLink" href="https://pay.wave.com/m/M_ci_tk7yljaMIDFk/c/ci/?amount=10000" target="_blank"
+            rel="noopener" class="btn-wave-direct">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z" />
+            </svg>
+            <span>Ouvrir dans Wave (Mobile)</span>
+          </a>
+          <button type="button" id="copyWaveLinkBtn" class="btn-wave-copy" title="Copier le lien de paiement Wave">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span id="copyWaveLinkText">Copier lien</span>
+          </button>
+        </div>
+
+        <div class="wave-security-note">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span>Règlement instantané sécurisé par Wave Digital Finance.</span>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Switcher Vertical Flottant (Coiffure vs Esthétique vs Produits) -->
+  <aside class="fixed-realm-switcher" id="fixedRealmSwitcher"
+    aria-label="Sélecteur d'univers Coiffure, Esthétique ou Produits Phares">
+    <div class="switcher-badge-label">Univers</div>
+    <button class="switcher-realm-btn active" data-realm="coiffure"
+      title="Afficher l'univers Coiffure & Tresses (Blandine)" aria-label="Univers Coiffure">
+      <span class="switcher-icon">💇‍♀️</span>
+      <span class="switcher-text">Coiffure</span>
+    </button>
+    <div class="switcher-divider"></div>
+    <button class="switcher-realm-btn" data-realm="esthetic" title="Afficher l'univers Esthétique & Spa (Judith)"
+      aria-label="Univers Esthétique">
+      <span class="switcher-icon">✨</span>
+      <span class="switcher-text">Esthétique</span>
+    </button>
+    <div class="switcher-divider"></div>
+    <button class="switcher-realm-btn" data-realm="produits" title="Découvrir les Produits Phares du salon"
+      aria-label="Produits Phares du salon">
+      <span class="switcher-icon">🛍️</span>
+      <span class="switcher-text">Produits</span>
+    </button>
+  </aside>
+
+  <!-- Widgets Flottants (Mobile First : Appel direct & WhatsApp) -->
   <div class="floating-widgets">
-    <a href="https://wa.me/2250711084866?text=Bonjour%20Salon%20Elle%20%26%20Lui%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20prestations."
+    <!-- Bouton Appel Direct (positionné au-dessus de WhatsApp) -->
+    <a href="tel:+2250759372441" class="floating-call-btn"
+      aria-label="Appeler directement le salon (+225 07 59 37 24 41)">
+      <div class="pulse-ring call-pulse-ring"></div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+      </svg>
+      <div class="floating-widget-tooltip">Appelez-nous : +225 07 59 37 24 41</div>
+    </a>
+
+    <!-- Bouton WhatsApp Officiel -->
+    <a href="https://wa.me/2250759372441?text=Bonjour%20Salon%20Elle%20%26%20Lui%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20prestations."
       target="_blank" rel="noopener" class="floating-whatsapp-btn" aria-label="Contacter le salon sur WhatsApp">
       <div class="pulse-ring"></div>
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
         <path
           d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
       </svg>
-      <div class="floating-whatsapp-tooltip">Écrivez-nous sur WhatsApp</div>
+      <div class="floating-widget-tooltip">WhatsApp : +225 07 59 37 24 41</div>
     </a>
   </div>
 
@@ -818,6 +1086,7 @@
   <div id="appToast" class="toast-notification"></div>
 
   <!-- Scripts JavaScript -->
+  <script src="js/libs/qrcode.min.js"></script>
   <script src="js/data/products.js"></script>
   <script src="js/data/services.js"></script>
   <script src="js/booking.js"></script>
