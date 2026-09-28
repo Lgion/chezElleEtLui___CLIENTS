@@ -24,7 +24,15 @@
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>" />
 
+  <!-- Google Fonts : Playfair Display (avant-garde serif), Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/leaflet.css" />
   <link rel="stylesheet" href="css/design-tokens.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
@@ -53,20 +61,23 @@
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <span>Abidjan, Cocody N° 39 (Pharmacie St Gil)</span>
+          <span>Abidjan, Cocody N° 39 (Près Pharmacie Saint Gil)</span>
         </div>
       </div>
       <div class="topbar-contact">
-        <a href="tel:+2250759372441" class="topbar-item" style="color: #ffffff; font-weight: 600;">
+        <a href="tel:+2250759372441" class="topbar-item" id="topbarPhoneCall" style="color: #ffffff; font-weight: 600;">
           <span>📞 Appels : +225 07 59 37 24 41</span>
         </a>
-        <a href="https://wa.me/2250759372441" target="_blank" rel="noopener" class="topbar-item"
+        <a href="https://wa.me/2250759372441" target="_blank" rel="noopener" class="topbar-item" id="topbarPhoneWa"
           style="color: var(--color-gold-400); font-weight: 600;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
           </svg>
           <span>WhatsApp : +225 07 59 37 24 41</span>
+        </a>
+        <a href="admin.html" class="topbar-item" style="color: #ffffff; background: rgba(212,163,115,0.25); border-radius: var(--radius-full); padding: 0.15rem 0.65rem; border: 1px solid var(--color-gold-500); font-weight: 700; margin-left: 0.5rem;" title="Accès Administration Salon">
+          <span>🔐 Admin</span>
         </a>
       </div>
     </div>
@@ -90,17 +101,16 @@
 
       <nav class="main-nav" id="mainNav" aria-label="Navigation principale">
         <ul class="nav-links">
-          <li><a href="#prestations" class="nav-link">Prestations & Tarifs</a></li>
-          <li><a href="#mariee" class="nav-link">Forfaits Mariée</a></li>
+          <li><button class="nav-link nav-btn-action" data-trigger-catalog="coiffure">Prestations & Tarifs</button></li>
+          <li><button class="nav-link nav-btn-action" data-trigger-events>Forfaits Mariée</button></li>
           <li><a href="#apropos" class="nav-link">L'Équipe</a></li>
-          <li><a href="#produits" class="nav-link">Produits Phares</a></li>
+          <li><button class="nav-link nav-btn-action" data-trigger-catalog="produits">Produits Phares</button></li>
           <li><a href="#galerie" class="nav-link">Galerie</a></li>
           <li><a href="#contact" class="nav-link">Contact & Accès</a></li>
         </ul>
       </nav>
 
       <div class="header-actions">
-
         <!-- Bouton d'accès au carnet de réservations salon -->
         <button class="btn-salon-space" data-trigger-dashboard title="Espace de gestion des réservations pour le salon">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -131,7 +141,7 @@
     </div>
   </header>
 
-  <!-- Hero Section Époustouflante -->
+  <!-- Hero Section -->
   <main>
     <section class="hero-section" id="accueil">
       <div class="hero-bg"></div>
@@ -148,6 +158,7 @@
           Rejoignez <strong>Blandine Youbouet</strong> et <strong>Judith</strong> dans une atmosphère chaleureuse où
           l'on vous accueille comme en famille.
         </p>
+
         <div class="hero-actions">
           <button class="btn-primary" id="heroBookBtn" style="padding: 0.95rem 2rem; font-size: 1.05rem;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -158,31 +169,53 @@
             </svg>
             Prendre un Rendez-vous
           </button>
-          <a href="#prestations" class="btn-secondary" style="padding: 0.95rem 1.8rem; font-size: 1.05rem;">
-            Découvrir le Catalogue & Tarifs
-          </a>
+          <button class="btn-secondary" id="heroCatalogBtn" data-trigger-catalog="coiffure"
+            style="padding: 0.95rem 1.8rem; font-size: 1.05rem; cursor: pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            Découvrir le Catalogue &amp; Tarifs
+          </button>
         </div>
 
+        <!-- Hero Bottom Features avec & avant-gardiste et transition douce -->
         <div class="hero-features">
           <div class="hero-feat-item">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>Tresses phares & tissages sur-mesure</span>
+            <span class="hero-feat-bullet">✦</span>
+            <span class="hero-feat-text">
+              <span class="hero-feat-first">Tresses phares</span>
+              <span class="hero-feat-amp" aria-label="et">&amp;</span>
+              <span class="hero-feat-second">tissages sur-mesure</span>
+            </span>
           </div>
+
           <div class="hero-feat-item">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>Soins visage & massages relaxants (Étage K.V.S)</span>
+            <span class="hero-feat-bullet">✦</span>
+            <span class="hero-feat-text">
+              <span class="hero-feat-first">Soins visage</span>
+              <span class="hero-feat-amp" aria-label="et">&amp;</span>
+              <span class="hero-feat-second">massages relaxants</span>
+            </span>
           </div>
+
           <div class="hero-feat-item">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>Accueil avec & sans rendez-vous 7j/7</span>
+            <span class="hero-feat-bullet">✦</span>
+            <span class="hero-feat-text">
+              <span class="hero-feat-first">Avec rendez-vous</span>
+              <span class="hero-feat-amp" aria-label="et">&amp;</span>
+              <span class="hero-feat-second">sans rendez-vous 7j/7</span>
+            </span>
           </div>
         </div>
+      </div>
+
+      <!-- Transition Vague Incurvée Hero vers À Propos -->
+      <div class="section-divider divider-hero-about" aria-hidden="true">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+          <path d="M0,0 C480,55 960,55 1440,0 L1440,60 L0,60 Z" fill="#faf8f5"></path>
+          <path d="M0,0 C480,55 960,55 1440,0" fill="none" stroke="rgba(212, 163, 115, 0.45)" stroke-width="1.5"></path>
+        </svg>
       </div>
     </section>
 
@@ -214,251 +247,141 @@
           </p>
           <p class="section-desc">
             Au rez-de-chaussée, <strong>Blandine Youbouet</strong> déploie tout son savoir-faire dans les tresses
-            soignées, tissages soyeux, soins profonds au bac et coupes nettes. À l'étage, dans l'ambiance feutrée et
-            climatisée de <strong>K.V.S Institut</strong>, <strong>Judith</strong> prend soin de votre corps : rituels
-            visage éclat, massages bienfaisants, sauna détoxifiant et manucure impeccable.
+            soignées, tissages soyeux et coupes nettes. À l'étage, chez <strong>K.V.S Institut</strong>,
+            <strong>Judith</strong> prend soin de votre corps : rituels visage éclat, massages bienfaisants, sauna détox
+            et manucure impeccable.
           </p>
 
-          <div class="about-values-list">
-            <div class="about-val-card">
-              <h4>✦ Accueil Familial</h4>
-              <p>Une écoute attentive et personnalisée pour trouver la coupe ou le soin qui vous correspond.</p>
+          <!-- 4 Cartes Allégées : Icône prépondérante + très peu de texte -->
+          <div class="about-values-minimal-grid">
+            <div class="val-mini-card">
+              <div class="val-mini-icon-box gold">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                </svg>
+              </div>
+              <div class="val-mini-content">
+                <h4 class="val-mini-title">Accueil Familial</h4>
+                <span class="val-mini-tag">Écoute &amp; Convivialité</span>
+              </div>
             </div>
-            <div class="about-val-card">
-              <h4>✦ Tarifs Clairs & Justes</h4>
-              <p>Des prestations de qualité supérieure adaptées à tous les budgets avec transparence totale.</p>
+
+            <div class="val-mini-card">
+              <div class="val-mini-icon-box terracotta">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div class="val-mini-content">
+                <h4 class="val-mini-title">Tarifs Clairs</h4>
+                <span class="val-mini-tag">Transparence Totale</span>
+              </div>
             </div>
-            <div class="about-val-card">
-              <h4>✦ Produits Sélectionnés</h4>
-              <p>Huiles pures nourrissantes, soins à la kératine et mèches 100% Remy d'exception.</p>
+
+            <div class="val-mini-card">
+              <div class="val-mini-icon-box gold">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+                </svg>
+              </div>
+              <div class="val-mini-content">
+                <h4 class="val-mini-title">Produits Sélectionnés</h4>
+                <span class="val-mini-tag">Kératine &amp; Mèches Remy</span>
+              </div>
             </div>
-            <div class="about-val-card">
-              <h4>✦ Continuité 7j/7</h4>
-              <p>Une équipe disponible tous les jours de 8h30 à 19h00 grâce à un roulement professionnel.</p>
+
+            <div class="val-mini-card">
+              <div class="val-mini-icon-box green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <div class="val-mini-content">
+                <h4 class="val-mini-title">Continuité 7j/7</h4>
+                <span class="val-mini-tag">08h30 – 19h00 Non-Stop</span>
+              </div>
             </div>
           </div>
 
-          <div>
-            <a href="https://wa.me/2250759372441?text=Bonjour%20Blandine%20!%20Je%20souhaite%20en%20savoir%20plus%20sur%20vos%20prestations."
-              target="_blank" rel="noopener" class="btn-secondary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
+          <!-- Bouton WhatsApp Heroic CTA attractif avec logo blanc prépondérant -->
+          <div class="about-whatsapp-cta-wrap">
+            <a href="https://wa.me/2250759372441?text=Bonjour%20Blandine%20et%20Judith%20!%20Je%20souhaite%20des%20conseils%20sur%20vos%20prestations."
+              target="_blank" rel="noopener" class="btn-whatsapp-heroic" id="aboutWhatsAppHeroBtn">
+              <div class="btn-whatsapp-icon-circle">
+                <!-- Logo Officiel WhatsApp avec silhouette blanche agrandie et bien visible -->
+                <svg width="34" height="34" viewBox="0 0 308 308" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo WhatsApp">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M260.67 47.33C232.33 19 194.67 3.33 154.67 3.33C69.67 3.33 0.67 72.33 0.67 157.33C0.67 184.67 7.67 211.33 21 234.33L0 310.67L78.67 290C101 302.33 126.67 308.67 154.33 308.67C239.33 308.67 308.33 239.67 308.33 154.67C308.33 114.67 292.67 77 260.67 47.33ZM154.67 282.67C130.67 282.67 107.67 276.33 88 264.67L83.33 262L36.67 274.33L49.33 229L46.33 224.33C33.33 203.67 26.67 180.67 26.67 157C26.67 86.67 84 29.33 154.67 29.33C189 29.33 221 42.67 245.33 67C269.67 91.33 283 123.33 283 157.33C283 227.67 225.67 282.67 154.67 282.67ZM225.33 190.67C221.33 188.67 202 179 198.33 177.67C194.67 176.33 192 175.67 189.33 179.67C186.67 183.67 179 193.33 176.67 196C174.33 198.67 172 199 168 197C164 195 151 190.67 135.67 177C123.67 166.33 115.67 153 113.33 149C111 145 113 143 115 141C117 139 119.33 136 121.33 133.67C123.33 131.33 124 129.67 125.33 127C126.67 124.33 126 122 125 120C124 118 116 98.33 112.67 90.33C109.33 82.67 106 83.67 103.67 83.67C101.33 83.67 98.67 83.67 96 83.67C93.33 83.67 89 84.67 85.33 88.67C81.67 92.67 71.33 102.33 71.33 122C71.33 141.67 85.67 160.67 87.67 163.33C89.67 166 116 206.67 156.33 224C166 228.33 173.33 230.67 179.33 232.67C189.33 235.67 198.33 235.33 205.67 234.33C213.67 233 230.33 224 233.67 214.33C237 204.67 237 196.33 236 194.67C235 192.67 232.67 191.67 228.67 189.67L225.33 190.67Z" fill="#ffffff"/>
+                </svg>
+              </div>
+              <div class="btn-whatsapp-text-block">
+                <span class="btn-whatsapp-pre">✦ Disponibilité &amp; Rendez-vous 7j/7</span>
+                <strong class="btn-whatsapp-main">Discuter avec l'équipe sur WhatsApp</strong>
+                <span class="btn-whatsapp-sub">Conseils personnalisés &amp; réponse en direct avec Blandine et Judith</span>
+              </div>
+              <svg class="btn-whatsapp-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
-              Discuter avec l'équipe sur WhatsApp
             </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Section Catalogue & Tarifs Interactifs -->
-    <section class="section-container" id="prestations"
-      style="background-color: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 4rem;">
-      <div class="section-header">
-        <span class="section-pretitle">Catalogue des Soins</span>
-        <h2 class="section-title">Nos Prestations & Tarifs Officiels</h2>
-        <div class="ornament"><span class="ornament-diamond"></span></div>
-        <p class="section-desc">
-          Explorez l'ensemble de nos services de coiffure, soins capillaires, massages et esthétique.
-          Sélectionnez la prestation de votre choix pour réserver en quelques secondes.
-        </p>
+    <!-- Transition Décorative Or & Douceur entre À Propos et Galerie -->
+    <div class="section-divider-luxury" aria-hidden="true">
+      <div class="divider-gold-line"></div>
+      <div class="divider-gold-emblem">
+        <span class="emblem-star">✦</span>
+        <span class="emblem-text">ÉLÉGANCE &amp; SAVOIR-FAIRE</span>
+        <span class="emblem-star">✦</span>
       </div>
+      <div class="divider-gold-line"></div>
+    </div>
 
-      <!-- Sélecteur d'Univers Principal (Coiffure vs Esthétique vs Produits) -->
-      <div class="realm-selector-wrapper">
-        <div class="realm-segmented-control" role="tablist" aria-label="Choisir l'univers du salon">
-          <button class="realm-segment-btn active" data-realm="coiffure" id="realmBtnCoiffure" role="tab"
-            aria-selected="true">
-            <span class="realm-btn-icon">💇‍♀️</span>
-            <div class="realm-btn-text">
-              <strong>Salon Coiffure & Tresses</strong>
-              <small>Univers Blandine Youbouet</small>
-            </div>
-          </button>
-          <button class="realm-segment-btn" data-realm="esthetic" id="realmBtnEsthetic" role="tab"
-            aria-selected="false">
-            <span class="realm-btn-icon">✨</span>
-            <div class="realm-btn-text">
-              <strong>Institut Esthétique & Spa</strong>
-              <small>Univers Judith (K.V.S)</small>
-            </div>
-          </button>
-          <button class="realm-segment-btn" data-realm="produits" id="realmBtnProduits" role="tab"
-            aria-selected="false">
-            <span class="realm-btn-icon">🛍️</span>
-            <div class="realm-btn-text">
-              <strong>Produits Phares Salon</strong>
-              <small>Capillaires & Cosmétiques</small>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      <!-- Contrôles : Recherche & Filtres -->
-      <div class="catalog-controls">
-        <div class="search-bar-wrapper">
-          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.5">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input type="text" id="serviceSearchInput" class="search-input"
-            placeholder="Rechercher une prestation (ex: tresses, soin visage, défrisage, massage)..." />
-          <button id="searchClearBtn" class="search-clear-btn" aria-label="Effacer">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <nav class="category-tabs" id="categoryTabs" aria-label="Catégories de prestations"></nav>
-      </div>
-
-      <!-- Grille Dynamique des Services -->
-      <div class="services-grid" id="servicesGrid"></div>
-    </section>
-
-    <!-- Formules Spéciales Mariée & Grand Jour -->
-    <section class="section-container" id="mariee">
-      <div class="wedding-showcase">
-        <div class="wedding-header">
-          <span class="section-pretitle" style="color: var(--color-gold-400);">Prise en Charge Événementielle</span>
-          <h2 class="section-title">Formules Mariée & Grand Jour</h2>
-          <div class="ornament"><span class="ornament-diamond" style="background: var(--color-gold-400);"></span></div>
-          <p style="color: var(--text-inverse-muted); font-size: 1.05rem; margin-top: 1rem;">
-            Pour le plus beau jour de votre vie, confiez votre préparation à notre duo expert. Un accompagnement
-            d'exception sur 1 ou 3 mois pour resplendir en toute sérénité.
-          </p>
-        </div>
-
-        <div class="wedding-cards-wrapper">
-          <!-- Forfait 1 Mois -->
-          <div class="wedding-card">
-            <h3 class="wedding-card-title">Forfait Mariée Sublime</h3>
-            <p style="font-size: 0.9rem; color: var(--color-gold-400);">Accompagnement 1 Mois Complet</p>
-            <div class="wedding-card-price">120 000 <span>FCFA</span></div>
-            <p style="font-size: 0.88rem; color: #d6cfc8;">Préparation ciblée 4 semaines avant la cérémonie.</p>
-
-            <ul class="wedding-features-list">
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>2 Soins du Visage Éclat</strong> détoxifiants et purifiants</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>2 Rituels Corps</strong> (Gommage exfoliant + Sauna détox)</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>2 Massages Relaxants</strong> anti-stress aux huiles</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Manucure & Pédicure Mariée</strong> avec vernis semi-permanent</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Pose de faux cils</strong> & Coiffure majestueuse le jour J</span>
-              </li>
-            </ul>
-
-            <button class="btn-primary" data-book-wedding="1mois" style="width: 100%;">
-              Réserver le Forfait 1 Mois
-            </button>
-          </div>
-
-          <!-- Forfait 3 Mois (Meilleure Offre) -->
-          <div class="wedding-card best-offer">
-            <div class="wedding-card-ribbon">Meilleure Offre</div>
-            <h3 class="wedding-card-title">Forfait Reine de Beauté</h3>
-            <p style="font-size: 0.9rem; color: var(--color-gold-400);">Cure Prestige 3 Mois (90 Jours)</p>
-            <div class="wedding-card-price">220 000 <span>FCFA</span></div>
-            <p style="font-size: 0.88rem; color: #d6cfc8;">Transformation complète, silhouette sculptée & éclat royal.
-            </p>
-
-            <ul class="wedding-features-list">
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Cure Amincissante 12 séances</strong> avec couverture chauffante</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Soins Visage mensuels complets</strong> avec modelage tenseur</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Accès illimité Sauna & Rituels Gommage</strong> corps entier</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Essais Coiffure & Maquillage</strong> jusqu'à perfection totale</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
-                </svg>
-                <span><strong>Prise en charge intégrale le Jour J</strong> (Coiffure, ongles, cils, voile)</span>
-              </li>
-            </ul>
-
-            <button class="btn-primary" data-book-wedding="3mois" style="width: 100%;">
-              Réserver la Cure 3 Mois
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Boutique Produits Phares -->
-    <section class="section-container" id="produits">
-      <div class="section-header">
-        <span class="section-pretitle">Soins & Cosmétiques</span>
-        <h2 class="section-title">Nos Produits Phares du Salon</h2>
-        <div class="ornament"><span class="ornament-diamond"></span></div>
-        <p class="section-desc">
-          Prolongez l'éclat de vos soins chez vous avec notre gamme d'huiles végétales, masques réparateurs et mèches
-          brésiliennes recommandés par Blandine.
-        </p>
-      </div>
-
-      <div class="products-grid" id="productsGrid"></div>
-    </section>
-
-    <!-- Galerie Photos Réelles & Visite -->
+    <!-- Galerie Photos Réelles (Immersion) : Masquée par défaut avec bouton interactif -->
     <section class="section-container" id="galerie">
       <div class="section-header">
         <span class="section-pretitle">Immersion</span>
-        <h2 class="section-title">La Galerie du Salon Elle & Lui</h2>
+        <h2 class="section-title">La Galerie du Salon Elle &amp; Lui</h2>
         <div class="ornament"><span class="ornament-diamond"></span></div>
         <p class="section-desc">
-          Découvrez la façade moderne de notre établissement à Cocody, nos postes de coiffure tout confort et l'ambiance
+          Découvrez la façade de notre établissement à Cocody, nos postes de coiffure tout confort et l'ambiance
           apaisante de l'institut spa à l'étage.
         </p>
       </div>
 
-      <div class="gallery-grid">
+      <!-- Carte d'invitation à afficher la galerie (Bouton toute largeur sous le texte) -->
+      <div class="gallery-toggle-card" id="galleryToggleCard">
+        <div class="gallery-toggle-header">
+          <div class="gallery-toggle-preview">
+            <div class="preview-mini-thumb" style="background-image: url('assets/img/devanture-facade.jpg');"></div>
+            <div class="preview-mini-thumb" style="background-image: url('assets/img/coiffure-postes.jpg');"></div>
+            <div class="preview-mini-thumb" style="background-image: url('assets/img/esthetic-spa-ambiance.jpg');"></div>
+          </div>
+          <div class="gallery-toggle-text">
+            <h3>Visite en images de nos espaces</h3>
+            <p>6 photographies réelles : postes de coiffure ergonomiques, cabine spa K.V.S et façade officielle.</p>
+          </div>
+        </div>
+        <button class="btn-primary gallery-toggle-btn-full" id="btnToggleGallery" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          <span id="galleryToggleBtnText">Afficher la galerie photos du salon</span>
+        </button>
+      </div>
+
+      <!-- Grille Photos (Masquée par défaut via .is-collapsed) -->
+      <div class="gallery-grid is-collapsed" id="galleryGrid">
         <div class="gallery-item col-span-2">
-          <img src="assets/img/devanture-facade.jpg" alt="Façade du salon Elle & Lui Cocody" />
+          <img src="assets/img/devanture-facade.jpg" alt="Façade du salon Elle & Lui Cocody" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-tag">Devanture & Accès</span>
             <div class="gallery-caption">Salon Elle & Lui • Cocody N°39 (Près de la Pharmacie)</div>
@@ -466,7 +389,7 @@
         </div>
 
         <div class="gallery-item">
-          <img src="assets/img/coiffure-postes.jpg" alt="Postes de coiffure et miroirs" />
+          <img src="assets/img/coiffure-postes.jpg" alt="Postes de coiffure et miroirs" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-tag">Espace Coiffure</span>
             <div class="gallery-caption">Miroirs & fauteuils de coiffage ergonomiques</div>
@@ -474,7 +397,7 @@
         </div>
 
         <div class="gallery-item">
-          <img src="assets/img/esthetic-spa-ambiance.jpg" alt="Cabine esthétique et table de massage" />
+          <img src="assets/img/esthetic-spa-ambiance.jpg" alt="Cabine esthétique et table de massage" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-tag">Espace Spa K.V.S</span>
             <div class="gallery-caption">Cabine feutrée climatisée & table de massage</div>
@@ -482,7 +405,7 @@
         </div>
 
         <div class="gallery-item">
-          <img src="assets/img/blandine-coiffure.jpg" alt="Blandine Youbouet au bac à shampoing" />
+          <img src="assets/img/blandine-coiffure.jpg" alt="Blandine Youbouet au bac à shampoing" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-tag">Savoir-Faire</span>
             <div class="gallery-caption">Blandine au bac à shampoing & soins nourrissants</div>
@@ -490,7 +413,7 @@
         </div>
 
         <div class="gallery-item">
-          <img src="assets/img/esthetic-blandine.jpg" alt="Espace Manucure et soins des ongles" />
+          <img src="assets/img/esthetic-blandine.jpg" alt="Espace Manucure et soins des ongles" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-tag">Institut & Onglerie</span>
             <div class="gallery-caption">Espace manucure, pédicure & bar à vernis</div>
@@ -498,7 +421,7 @@
         </div>
 
         <div class="gallery-item col-span-2">
-          <img src="assets/img/coiffure-sieges.jpg" alt="Vue d'ensemble du salon de coiffure" />
+          <img src="assets/img/coiffure-sieges.jpg" alt="Vue d'ensemble du salon de coiffure" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-tag">Ambiance Salon</span>
             <div class="gallery-caption">Un cadre lumineux, propre et convivial</div>
@@ -507,9 +430,16 @@
       </div>
     </section>
 
-    <!-- Contact & Accès Local -->
+    <!-- Transition Fluide entre Galerie et Nous Rendre Visite -->
+    <div class="section-divider-soft" aria-hidden="true">
+      <svg viewBox="0 0 1440 45" preserveAspectRatio="none">
+        <path d="M0,0 Q720,45 1440,0" fill="none" stroke="rgba(212, 163, 115, 0.4)" stroke-width="1.5"></path>
+      </svg>
+    </div>
+
+    <!-- Contact & Accès Local avec Carte Interactive Prestige -->
     <section class="section-container" id="contact"
-      style="background-color: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+      style="background-color: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 4rem;">
       <div class="section-header">
         <span class="section-pretitle">Nous Rendre Visite</span>
         <h2 class="section-title">Localisation & Moyens de Contact</h2>
@@ -519,89 +449,167 @@
         </p>
       </div>
 
-      <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem;">
-        <div
-          style="padding: 1.5rem; background: var(--bg-primary); border-radius: var(--radius-md); border-left: 4px solid var(--color-gold-500);">
-          <h3 style="font-size: 1.25rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- Bouton Itinéraire Google Maps (En dessous du texte et au dessus de la carte) -->
+      <div class="salon-itinerary-cta-wrap">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=5.3489,-3.9885" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="btn-itinerary-heroic"
+           id="btnGoogleMapsItinerary">
+          <div class="itinerary-icon-pin">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+          </div>
+          <div class="itinerary-text-group">
+            <strong class="itinerary-title-main">Ouvrir l'itinéraire Google Maps (GPS)</strong>
+            <span class="itinerary-sub-info">Guidage direct depuis votre localisation jusqu'au Salon Elle &amp; Lui (Cocody N°39)</span>
+          </div>
+          <svg class="itinerary-arrow-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Carte Interactive Leaflet Prestige -->
+      <div class="salon-map-wrapper">
+        <div id="salonMap" class="salon-interactive-map"
+          aria-label="Carte interactive de localisation du salon à Abidjan Cocody"></div>
+        <div class="map-overlay-badge">
+          <span class="map-badge-dot"></span>
+          <span>Cocody N° 39 • Pharmacie Saint Gil</span>
+        </div>
+      </div>
+
+      <!-- Cartes d'Accès & Coordonnées -->
+      <div class="contact-cards-grid">
+        <div class="contact-prestige-card">
+          <div class="contact-card-icon gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            Adresse Exacte
-          </h3>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            <strong>Abidjan, Commune de Cocody</strong><br>
-            Bâtiment N° 39, Rez-de-chaussée & 1er étage<br>
-            <em>(Juste à côté de la Pharmacie)</em>
-          </p>
+          </div>
+          <div class="contact-card-info">
+            <h3>Adresse Exacte</h3>
+            <p>
+              <strong>Abidjan, Commune de Cocody</strong><br>
+              Bâtiment N° 39, Rez-de-chaussée &amp; 1er étage<br>
+              <em>(À côté de la Pharmacie Saint Gil)</em>
+            </p>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=5.3489,-3.9885" target="_blank" rel="noopener"
+              class="contact-link-action">
+              <span>Ouvrir l'itinéraire GPS</span> &rarr;
+            </a>
+          </div>
         </div>
 
-        <div
-          style="padding: 1.5rem; background: var(--bg-primary); border-radius: var(--radius-md); border-left: 4px solid var(--color-terracotta-500);">
-          <h3 style="font-size: 1.25rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="contact-prestige-card">
+          <div class="contact-card-icon terracotta">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            Horaires d'Ouverture
-          </h3>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            <strong>Lundi au Dimanche (7j / 7)</strong><br>
-            De <strong>08h30 à 19h00</strong> en continu.<br>
-            <em>Accueil sur rendez-vous & sans rendez-vous</em>
-          </p>
+          </div>
+          <div class="contact-card-info">
+            <h3>Horaires d'Ouverture</h3>
+            <p>
+              <strong>Lundi au Dimanche (7j / 7)</strong><br>
+              De <strong>08h30 à 19h00</strong> en continu.<br>
+              <em>Accueil avec &amp; sans rendez-vous</em>
+            </p>
+            <span class="contact-status-chip">Permanence assurée 7j/7</span>
+          </div>
         </div>
 
-        <div
-          style="padding: 1.5rem; background: var(--bg-primary); border-radius: var(--radius-md); border-left: 4px solid var(--color-whatsapp);">
-          <h3 style="font-size: 1.25rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <div class="contact-prestige-card">
+          <div class="contact-card-icon green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
             </svg>
-            Téléphones & WhatsApp
-          </h3>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem;">
-            <li style="padding-bottom: 0.5rem; border-bottom: 1px dashed rgba(212, 163, 115, 0.35);">
-              <div
-                style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--color-whatsapp); letter-spacing: 0.5px; margin-bottom: 0.2rem;">
-                WhatsApp Officiel (Gérante)</div>
-              <a href="https://wa.me/2250759372441" target="_blank" rel="noopener"
-                style="font-weight: 700; font-size: 1.05rem; color: var(--color-whatsapp-dark); display: inline-flex; align-items: center; gap: 0.35rem;">
-                💬 +225 07 59 37 24 41
-              </a>
-            </li>
-            <li>
-              <div
-                style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--color-terracotta); letter-spacing: 0.5px; margin-bottom: 0.35rem;">
-                Lignes d'Appel Direct (Sans WhatsApp)</div>
-              <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                <a href="tel:+2250759372441" style="color: var(--text-main); font-weight: 600;">📞 +225 07 59 37 24 41
-                  <small style="color: var(--text-muted); font-weight: 400;">(Ligne Gérante)</small></a>
-                <a href="tel:+2250711084866" style="color: var(--text-main); font-weight: 600;">📞 +225 07 11 08 48 66
-                  <small style="color: var(--text-muted); font-weight: 400;">(Ligne Salon)</small></a>
-                <a href="tel:+2250798813706" style="color: var(--text-main);">📞 +225 07 98 81 37 06</a>
-                <a href="tel:+2250101127094" style="color: var(--text-main);">📞 +225 01 01 12 70 94</a>
+          </div>
+          <div class="contact-card-info">
+            <h3>Téléphones &amp; WhatsApp</h3>
+            <div class="contact-phones-list" id="contactPhonesList">
+              <div class="contact-phone-item highlight" id="contactPhoneWhatsapp">
+                <span class="phone-label">WhatsApp Gérante :</span>
+                <a href="https://wa.me/2250759372441" target="_blank" rel="noopener">+225 07 59 37 24 41</a>
               </div>
-            </li>
-          </ul>
+              <div class="contact-phone-item" id="contactPhoneDirect">
+                <span class="phone-label">Ligne Salon directe :</span>
+                <a href="tel:+2250711084866">+225 07 11 08 48 66</a>
+              </div>
+              <div class="contact-phone-item" id="contactPhoneSecondaries">
+                <span class="phone-label">Lignes secondaires :</span>
+                <span class="phone-sec-links">
+                  <a href="tel:+2250798813706">+225 07 98 81 37 06</a> • <a href="tel:+2250101127094">+225 01 01 12 70 94</a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte 4 : Réseaux Sociaux & Communauté -->
+        <div class="contact-prestige-card" id="contactSocialCard">
+          <div class="contact-card-icon purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </div>
+          <div class="contact-card-info" style="flex: 1;">
+            <h3>Réseaux Sociaux</h3>
+            <p style="font-size: 0.88rem; margin-bottom: 0.5rem; color: var(--text-muted);">
+              Découvrez nos réalisations, tutoriels et inspirations :
+            </p>
+            <div class="contact-social-chips" id="contactSocialChips">
+              <a href="https://instagram.com/elle_et_lui_cocody" target="_blank" rel="noopener" class="social-chip instagram" data-social="instagram" title="Instagram">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                <span class="social-handle">@elle_et_lui_cocody</span>
+              </a>
+              <a href="https://facebook.com/salonelleetlui.abidjan" target="_blank" rel="noopener" class="social-chip facebook" data-social="facebook" title="Facebook">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                <span class="social-handle">Salon Elle &amp; Lui Abidjan</span>
+              </a>
+              <a href="https://tiktok.com/@elleetlui_abidjan" target="_blank" rel="noopener" class="social-chip tiktok" data-social="tiktok" title="TikTok">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                <span class="social-handle">@elleetlui_abidjan</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Pied de page officiel -->
-  <footer class="main-footer">
-    <div class="section-container" style="padding-top: 0; padding-bottom: 2rem;">
+  <!-- Transition Ondulée Prestige vers le Footer -->
+  <div class="section-divider divider-contact-footer" aria-hidden="true">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+      <path d="M0,0 C480,55 960,55 1440,0 L1440,60 L0,60 Z" fill="#161413"></path>
+      <path d="M0,0 C480,55 960,55 1440,0" fill="none" stroke="rgba(212, 163, 115, 0.4)" stroke-width="1.5"></path>
+    </svg>
+  </div>
+
+  <!-- Pied de Page Prestige Officiel -->
+  <footer class="main-footer prestige-footer">
+    <div class="footer-prestige-decor">
+      <div class="ornament-diamond"></div>
+    </div>
+
+    <div class="section-container" style="padding-top: 1rem; padding-bottom: 2.5rem;">
       <div class="footer-grid">
         <div class="footer-brand">
-          <div class="brand-title" style="font-size: 1.7rem;">Elle <span>&</span> Lui</div>
-          <div class="brand-subtitle" style="color: var(--color-gold-400); margin-bottom: 0.75rem;">Coiffure & Institut
-            K.V.S</div>
+          <div class="footer-emblem">✦ MAISON DE BEAUTÉ ✦</div>
+          <div class="brand-title" style="font-size: 1.9rem;">Elle <span>&</span> Lui</div>
+          <div class="brand-subtitle" style="color: var(--color-gold-400); margin-bottom: 0.85rem;">
+            Coiffure Afro &amp; Institut K.V.S
+          </div>
           <p>
-            Votre établissement de coiffure afro, métissée et de soins esthétiques à Abidjan Cocody N°39. Un accueil
-            familial, une écoute sincère et une qualité professionnelle au service de votre bien-être.
+            Votre sanctuaire de beauté afro, métissée et de soins bien-être à Abidjan Cocody N°39.
+            L'excellence du geste, la douceur de l'accueil familial par Blandine Youbouet et Judith.
           </p>
           <div class="footer-social-links">
             <a href="https://wa.me/2250759372441" target="_blank" rel="noopener" class="social-btn" title="WhatsApp">
@@ -631,36 +639,42 @@
         </div>
 
         <div>
-          <h4 class="footer-title">Prestations Phares</h4>
+          <h4 class="footer-title">Univers du Salon</h4>
           <ul class="footer-links-list">
-            <li><a href="#prestations">Tresses Marcoussis & Classiques</a></li>
-            <li><a href="#prestations">Tresses Non Coupées (Longues)</a></li>
-            <li><a href="#prestations">Tissages & Rajouts</a></li>
-            <li><a href="#prestations">Shampoing & Bain d'Huile</a></li>
-            <li><a href="#prestations">Soins du Visage Éclat (K.V.S)</a></li>
-            <li><a href="#prestations">Massages Relaxants & Amincissants</a></li>
+            <li><button class="footer-action-link" data-trigger-catalog="coiffure">Coiffure &amp; Tresses
+                Phares</button></li>
+            <li><button class="footer-action-link" data-trigger-catalog="esthetic">Institut Spa K.V.S (Visage &amp;
+                Corps)</button></li>
+            <li><button class="footer-action-link" data-trigger-catalog="produits">Produits Capillaires &amp;
+                Mèches</button></li>
+            <li><button class="footer-action-link" data-trigger-events>Forfaits Mariée &amp; Grand Jour</button></li>
+            <li><a href="#galerie">Visite Virtuelle des Espaces</a></li>
           </ul>
         </div>
 
         <div>
-          <h4 class="footer-title">Horaires & Accès</h4>
+          <h4 class="footer-title">Accès &amp; Maison</h4>
           <ul class="footer-links-list">
-            <li>Lundi - Dimanche : 8h30 - 19h00</li>
-            <li>Ouvert 7 jours sur 7</li>
-            <li>Sans rendez-vous & avec rendez-vous</li>
-            <li>Cocody N° 39 (Pharmacie mitoyenne)</li>
+            <li>Lundi au Dimanche : 08h30 – 19h00</li>
+            <li>Ouvert 7 jours sur 7 en continu</li>
+            <li>Cocody N° 39 (Pharmacie Saint Gil)</li>
             <li>Abidjan, Côte d'Ivoire</li>
+            <li>Parking &amp; accès aisé</li>
           </ul>
         </div>
 
         <div>
           <h4 class="footer-title">Réservation Directe</h4>
           <p style="color: var(--text-inverse-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-            Prenez rendez-vous en ligne ou contactez-nous pour toute question relative à un mariage ou une cérémonie.
+            Prenez rendez-vous en ligne ou consultez nos disponibilités en direct avec Blandine et Judith.
           </p>
-          <button class="btn-primary" data-trigger-booking style="width: 100%; margin-bottom: 0.75rem;"
+          <button class="btn-primary" style="width: 100%; margin-bottom: 0.75rem;"
             onclick="window.salonApp.openBookingModal()">
             Prendre Rendez-vous
+          </button>
+          <button class="btn-secondary" data-trigger-catalog="coiffure"
+            style="width: 100%; background: transparent; color: #fff; border-color: rgba(212,163,115,0.4);">
+            Consulter Produits & Services
           </button>
         </div>
       </div>
@@ -668,198 +682,269 @@
 
     <div class="footer-bottom">
       <div>
-        © 2026 Salon Elle & Lui. Tous droits réservés. Fondé par Blandine Youbouet & Judith.
+        © 2026 Salon Elle &amp; Lui. Tous droits réservés. Fondé par Blandine Youbouet &amp; Judith.
       </div>
-      <div>
-        <!-- Accès discret pour le salon -->
-        <span class="footer-admin-trigger" data-trigger-dashboard>
-          🔐 Espace Gestion Salon (Planning & RDVs)
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <span class="footer-admin-trigger" data-trigger-dashboard style="cursor: pointer;">
+          📅 Espace Salon (Planning RDVs)
         </span>
+        <a href="admin.html" class="footer-admin-trigger" style="color: var(--color-gold-400); text-decoration: none; border-left: 1px solid rgba(212,163,115,0.4); padding-left: 1rem;">
+          🔐 Administration Centrale (Téléphones, Wave, Galerie) &rarr;
+        </a>
       </div>
     </div>
   </footer>
 
-  <!-- Modal de Réservation Intuitive (Accessible <dialog>) -->
-  <dialog class="booking-dialog" id="bookingDialog" aria-labelledby="bookingDialogTitle">
-    <div class="modal-header">
-      <h3 id="bookingDialogTitle">Prendre un Rendez-vous</h3>
-      <button class="modal-close-btn" data-close-modal aria-label="Fermer">✕</button>
-    </div>
-    <div class="modal-body">
-      <form id="bookingForm">
-        <div class="form-group">
-          <label class="form-label" for="modalServiceSelect">1. Choisissez votre Prestation *</label>
-          <select id="modalServiceSelect" class="form-control" required></select>
-        </div>
-
-        <!-- Récapitulatif instantané du soin -->
-        <div id="bookingSummaryBox" class="booking-summary-box" style="display: none;"></div>
-
-        <div class="form-group">
-          <label class="form-label" for="modalBookingDate">2. Date du Rendez-vous *</label>
-          <input type="date" id="modalBookingDate" class="form-control" required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">3. Choisissez votre Créneau Horaire * (tranches de 15 min)</label>
-          <div class="time-slots-grid" id="timeSlotsContainer"></div>
-          <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.35rem; display: block;">
-            Horaires d'ouverture : 08h30 à 19h00 (7j/7).
-          </small>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="modalClientName">4. Votre Nom & Prénom *</label>
-          <input type="text" id="modalClientName" class="form-control" placeholder="Ex: Aminata Koné" required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="modalClientPhone">5. Votre Numéro de Téléphone (WhatsApp) *</label>
-          <input type="tel" id="modalClientPhone" class="form-control" placeholder="Ex: +225 07 00 00 00 00" required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="modalClientNotes">Précisions éventuelles (Optionnel)</label>
-          <textarea id="modalClientNotes" class="form-control" rows="2"
-            placeholder="Longueur de cheveux, modèle souhaité, questions..."></textarea>
-        </div>
-
-        <div style="margin-top: 2rem;">
-          <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1.05rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
-            </svg>
-            Confirmer & Valider sur WhatsApp
-          </button>
-          <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
-            Votre demande est enregistrée et transmise directement au salon via WhatsApp.
-          </p>
-        </div>
-      </form>
-    </div>
-  </dialog>
-
-  <!-- Modal Dashboard Salon - Carnet de Rendez-vous -->
-  <dialog class="dashboard-modal" id="dashboardDialog" aria-labelledby="dashDialogTitle">
-    <div class="dash-header">
-      <div class="dash-header-title">
-        <h3 id="dashDialogTitle">
-          <span>📅</span> Espace Salon • Carnet des Rendez-vous
-        </h3>
-        <p>Planning et suivi des réservations pour Blandine Youbouet & Judith</p>
+  <!-- BOUTONS FLOTTANTS FIXES EN BAS À GAUCHE (Ouverture des 2 Modales : Produits et Prises en Charge) -->
+  <aside class="floating-triggers-left" aria-label="Accès rapide aux catalogues et forfaits du salon">
+    <!-- Bouton Modale Soins & Produits -->
+    <button class="floating-action-trigger" id="btnFloatingProductsModal"
+      aria-label="Ouvrir le Catalogue des Soins et Produits" title="Catalogue des Soins & Produits">
+      <div class="floating-trigger-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="6" cy="6" r="3" />
+          <circle cx="6" cy="18" r="3" />
+          <line x1="20" y1="4" x2="8.12" y2="15.88" />
+          <line x1="14.47" y1="14.48" x2="20" y2="20" />
+          <line x1="8.12" y1="8.12" x2="12" y2="12" />
+        </svg>
       </div>
-      <button class="modal-close-btn" data-close-modal aria-label="Fermer le tableau de bord">✕</button>
-    </div>
+      <div class="floating-trigger-info">
+        <span class="floating-trigger-label">Soins &amp; Produits</span>
+        <span class="floating-trigger-sub">Catalogue &amp; Tarifs</span>
+      </div>
+    </button>
 
-    <div class="dash-body">
-      <!-- KPIs -->
-      <div class="dash-kpis">
-        <div class="kpi-card today">
-          <div class="kpi-title">Aujourd'hui</div>
-          <div class="kpi-value" id="kpiToday">0</div>
+    <!-- Bouton Modale Prises en Charge Événementielles -->
+    <button class="floating-action-trigger wedding-trigger" id="btnFloatingEventsModal"
+      aria-label="Ouvrir les Prises en Charge Mariée et Événements" title="Prises en Charge Mariée & Événements">
+      <div class="floating-trigger-icon gold">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+        </svg>
+      </div>
+      <div class="floating-trigger-info">
+        <span class="floating-trigger-label">Mariée &amp; Événements</span>
+        <span class="floating-trigger-sub">Forfaits Prestige</span>
+      </div>
+    </button>
+  </aside>
+
+  <!-- Widgets Flottants en bas à droite (Appel direct & WhatsApp) -->
+  <div class="floating-widgets">
+    <a href="tel:+2250759372441" class="floating-call-btn" id="floatingCallBtn"
+      aria-label="Appeler directement le salon (+225 07 59 37 24 41)">
+      <div class="pulse-ring call-pulse-ring"></div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+      </svg>
+      <div class="floating-widget-tooltip" id="floatingCallTooltip">Appelez-nous : +225 07 59 37 24 41</div>
+    </a>
+
+    <a href="https://wa.me/2250759372441?text=Bonjour%20Salon%20Elle%20%26%20Lui%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20prestations."
+      target="_blank" rel="noopener" class="floating-whatsapp-btn" id="floatingWaBtn" aria-label="Contacter le salon sur WhatsApp">
+      <div class="pulse-ring"></div>
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
+      </svg>
+      <div class="floating-widget-tooltip" id="floatingWaTooltip">WhatsApp : +225 07 59 37 24 41</div>
+    </a>
+  </div>
+
+  <!-- MODALE 1 : CATALOGUE DES SOINS & PRODUITS (FUSIONNÉE AVEC FILTRES IMBRIQUÉS COLLÉS EN HAUT) -->
+  <dialog class="catalog-fullscreen-dialog" id="catalogModalDialog" aria-labelledby="catalogModalTitle">
+    <div class="catalog-modal-container">
+      <!-- En-tête de la modale -->
+      <div class="catalog-modal-header">
+        <div class="catalog-modal-title-wrap">
+          <span class="catalog-modal-badge">✦ Maison Elle &amp; Lui Cocody</span>
+          <h2 id="catalogModalTitle" class="catalog-modal-title">Catalogue des Soins &amp; Produits</h2>
         </div>
-        <div class="kpi-card confirmed">
-          <div class="kpi-title">Confirmés</div>
-          <div class="kpi-value" id="kpiConfirmed">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Total Inscrits</div>
-          <div class="kpi-value" id="kpiTotal">0</div>
-        </div>
-        <div class="kpi-card revenue">
-          <div class="kpi-title">Chiffre Estimé</div>
-          <div class="kpi-value" id="kpiRevenue">0 F</div>
-        </div>
+        <button class="modal-close-btn" data-close-modal aria-label="Fermer le catalogue">✕</button>
       </div>
 
-      <!-- Barre d'outils du tableau -->
-      <div class="dash-toolbar">
-        <div class="dash-filter-group">
-          <select id="dashDateFilter" class="dash-select">
-            <option value="all">Toutes les dates</option>
-            <option value="today">Aujourd'hui</option>
-            <option value="tomorrow">Demain</option>
-          </select>
-          <input type="text" id="dashSearchInput" class="dash-search-input"
-            placeholder="Chercher client ou téléphone..." />
+      <!-- FILTRES IMBRIQUÉS COLLÉS EN HAUT (STICKY) -->
+      <div class="catalog-sticky-filters" id="catalogStickyFilters">
+        <!-- Niveau 1 : Choix de l'Univers / Type Principal -->
+        <div class="filter-level-1">
+          <button class="level1-btn active" data-realm="coiffure">
+            <span class="level1-icon">💇‍♀️</span>
+            <div class="level1-text">
+              <strong>Salon Coiffure</strong>
+              <small>Blandine Youbouet</small>
+            </div>
+          </button>
+          <button class="level1-btn" data-realm="esthetic">
+            <span class="level1-icon">✨</span>
+            <div class="level1-text">
+              <strong>Institut Esthétique &amp; Spa</strong>
+              <small>Judith (K.V.S)</small>
+            </div>
+          </button>
+          <button class="level1-btn" data-realm="produits">
+            <span class="level1-icon">🛍️</span>
+            <div class="level1-text">
+              <strong>Produits Phares</strong>
+              <small>Capillaires &amp; Cosmétiques</small>
+            </div>
+          </button>
         </div>
 
-        <div class="dash-actions-group">
-          <button class="btn-dash-action" id="btnToggleQuickAdd">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+        <!-- Niveau 2 : Sous-filtres dynamiques & Recherche -->
+        <div class="filter-level-2">
+          <div class="subfilters-chips-bar" id="catalogSubfilterChips" role="tablist">
+            <!-- Rendu dynamique selon le niveau 1 -->
+          </div>
+          <div class="modal-search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            + Inscrire un RDV direct
-          </button>
-          <button class="btn-dash-export" id="btnExportCSV">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Exporter CSV
-          </button>
+            <input type="text" id="modalServiceSearchInput" placeholder="Rechercher une prestation ou un produit..." />
+            <button id="modalSearchClearBtn" class="modal-search-clear" style="display: none;"
+              aria-label="Effacer recherche">✕</button>
+          </div>
         </div>
       </div>
 
-      <!-- Formulaire Ajout Rapide (pour clientes en salon ou par téléphone direct) -->
-      <form id="quickAddForm" class="quick-add-form">
-        <h4 style="margin-bottom: 1rem; font-size: 1.05rem;">Ajouter un rendez-vous (Sans RDV ou appel téléphonique)
-        </h4>
-        <div class="quick-add-grid">
-          <div>
-            <label class="form-label" style="font-size: 0.82rem;">Nom Client *</label>
-            <input type="text" id="quickClientName" class="form-control" placeholder="Nom complet" required />
-          </div>
-          <div>
-            <label class="form-label" style="font-size: 0.82rem;">Téléphone *</label>
-            <input type="tel" id="quickClientPhone" class="form-control" placeholder="+225..." required />
-          </div>
-          <div>
-            <label class="form-label" style="font-size: 0.82rem;">Prestation *</label>
-            <input type="text" id="quickServiceName" class="form-control" placeholder="Ex: Tresses Marcoussis"
-              required />
-          </div>
-          <div>
-            <label class="form-label" style="font-size: 0.82rem;">Date *</label>
-            <input type="date" id="quickDate" class="form-control" required />
-          </div>
-          <div>
-            <label class="form-label" style="font-size: 0.82rem;">Heure *</label>
-            <input type="time" id="quickTime" class="form-control" value="10:00" required />
-          </div>
-          <div>
-            <label class="form-label" style="font-size: 0.82rem;">Tarif (FCFA)</label>
-            <input type="number" id="quickPrice" class="form-control" placeholder="Ex: 10000" />
-          </div>
-          <div>
-            <button type="submit" class="btn-primary" style="width: 100%; height: 42px;">Enregistrer</button>
-          </div>
-        </div>
-      </form>
+      <!-- Corps de la modale avec défilement fluide -->
+      <div class="catalog-modal-body">
+        <!-- Grille des Prestations (Coiffure ou Esthétique) -->
+        <div class="services-grid" id="modalServicesGrid"></div>
 
-      <!-- Tableau des Réservations -->
-      <div class="dash-table-wrapper">
-        <table class="dash-table">
-          <thead>
-            <tr>
-              <th>Date & Heure</th>
-              <th>Client (Nom & Tél)</th>
-              <th>Prestation</th>
-              <th>Statut</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="appointmentsTableBody"></tbody>
-        </table>
+        <!-- Grille des Produits Phares (affichée quand le filtre "produits" est actif) -->
+        <div class="products-grid" id="modalProductsGrid" style="display: none;"></div>
       </div>
     </div>
   </dialog>
 
-  <!-- Modale Détail Prestation Officielle (Déclenchée via le bouton œil) -->
+  <!-- MODALE 2 : PRISES EN CHARGE ÉVÉNEMENTIELLES (FORMULES MARIÉE & GRAND JOUR) -->
+  <dialog class="event-modal-dialog" id="eventModalDialog" aria-labelledby="eventModalTitle">
+    <div class="event-modal-container">
+      <div class="event-modal-header">
+        <div class="event-modal-badge">
+          <span>👑 Accompagnement d'Exception</span>
+        </div>
+        <h2 id="eventModalTitle" class="event-modal-title">Prise en Charge Événementielle</h2>
+        <p class="event-modal-subtitle">
+          Formules Mariée &amp; Grand Jour • Préparation sur-mesure par Blandine Youbouet &amp; Judith
+        </p>
+        <button class="modal-close-btn" data-close-modal aria-label="Fermer les forfaits mariée">✕</button>
+      </div>
+
+      <div class="event-modal-body">
+        <div class="wedding-cards-wrapper in-modal">
+          <!-- Forfait 1 Mois -->
+          <div class="wedding-card">
+            <h3 class="wedding-card-title">Forfait Mariée Sublime</h3>
+            <p style="font-size: 0.9rem; color: var(--color-gold-400);">Accompagnement 1 Mois Complet</p>
+            <div class="wedding-card-price">120 000 <span>FCFA</span></div>
+            <p style="font-size: 0.88rem; color: #d6cfc8;">Préparation ciblée 4 semaines avant la cérémonie.</p>
+
+            <ul class="wedding-features-list">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>2 Soins du Visage Éclat</strong> détoxifiants et purifiants</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>2 Rituels Corps</strong> (Gommage exfoliant + Sauna détox)</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>2 Massages Relaxants</strong> anti-stress aux huiles précieuses</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Manucure &amp; Pédicure Mariée</strong> avec vernis semi-permanent</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Pose de faux-cils</strong> &amp; Coiffure majestueuse le jour J</span>
+              </li>
+            </ul>
+
+            <div class="event-card-actions">
+              <button class="btn-primary" data-book-wedding="1mois" style="width: 100%;">
+                Réserver le Forfait 1 Mois
+              </button>
+              <a href="https://wa.me/2250759372441?text=Bonjour%20!%20Je%20souhaite%20des%20informations%20sur%20le%20Forfait%20Mari%C3%A9e%20Sublime%20(1%20mois)."
+                target="_blank" rel="noopener" class="btn-secondary" style="width: 100%; text-align: center;">
+                Échanger sur WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <!-- Forfait 3 Mois (Meilleure Offre) -->
+          <div class="wedding-card best-offer">
+            <div class="wedding-card-ribbon">Meilleure Offre</div>
+            <h3 class="wedding-card-title">Forfait Reine de Beauté</h3>
+            <p style="font-size: 0.9rem; color: var(--color-gold-400);">Cure Prestige 3 Mois (90 Jours)</p>
+            <div class="wedding-card-price">220 000 <span>FCFA</span></div>
+            <p style="font-size: 0.88rem; color: #d6cfc8;">Transformation complète, silhouette sculptée &amp; éclat
+              royal.</p>
+
+            <ul class="wedding-features-list">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Cure Amincissante 12 séances</strong> avec couverture chauffante</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Soins Visage mensuels complets</strong> avec modelage tenseur</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Accès illimité Sauna &amp; Rituels Gommage</strong> corps entier</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Essais Coiffure &amp; Maquillage</strong> jusqu'à perfection totale</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
+                </svg>
+                <span><strong>Prise en charge intégrale le Jour J</strong> (Coiffure, ongles, cils, voile)</span>
+              </li>
+            </ul>
+
+            <div class="event-card-actions">
+              <button class="btn-primary" data-book-wedding="3mois" style="width: 100%;">
+                Réserver la Cure 3 Mois
+              </button>
+              <a href="https://wa.me/2250759372441?text=Bonjour%20!%20Je%20souhaite%20des%20informations%20sur%20le%20Forfait%20Reine%20de%20Beaut%C3%A9%20(3%20mois)."
+                target="_blank" rel="noopener" class="btn-secondary" style="width: 100%; text-align: center;">
+                Échanger sur WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODALE 3 : DÉTAIL PRESTATION (Bouton Œil) -->
   <dialog id="serviceDetailDialog" class="app-dialog service-detail-dialog">
     <div class="modal-dialog-content">
       <div class="modal-header">
@@ -905,7 +990,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="m9 16.17 7.07-7.07.71.71L9 17.59l-4.78-4.78.71-.71z" />
             </svg>
-            <span>Soins & produits de qualité supérieure testés en salon</span>
+            <span>Soins &amp; produits de qualité supérieure testés en salon</span>
           </div>
           <div class="guarantee-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -937,7 +1022,177 @@
     </div>
   </dialog>
 
-  <!-- Modale de Paiement Sécurisé Wave Côte d'Ivoire -->
+  <!-- MODALE 4 : PRISE DE RENDEZ-VOUS (Accessible <dialog> avec Wizard Horizontal 5 Étapes) -->
+  <dialog class="booking-dialog" id="bookingDialog" aria-labelledby="bookingDialogTitle">
+    <div class="modal-header">
+      <div>
+        <h3 id="bookingDialogTitle">Prendre un Rendez-vous</h3>
+        <p class="modal-header-sub">Parcours fluide en 5 étapes • Confirmation WhatsApp instantanée</p>
+      </div>
+      <button class="modal-close-btn" data-close-modal aria-label="Fermer">✕</button>
+    </div>
+
+    <!-- Stepper 5 Étapes -->
+    <div class="booking-stepper" id="bookingStepper">
+      <div class="booking-step-item active" data-step="1">
+        <span class="step-num">1</span>
+        <span class="step-label">Prestation</span>
+      </div>
+      <div class="booking-step-line"></div>
+      <div class="booking-step-item" data-step="2">
+        <span class="step-num">2</span>
+        <span class="step-label">Date</span>
+      </div>
+      <div class="booking-step-line"></div>
+      <div class="booking-step-item" data-step="3">
+        <span class="step-num">3</span>
+        <span class="step-label">Créneau</span>
+      </div>
+      <div class="booking-step-line"></div>
+      <div class="booking-step-item" data-step="4">
+        <span class="step-num">4</span>
+        <span class="step-label">Coordonnées</span>
+      </div>
+      <div class="booking-step-line"></div>
+      <div class="booking-step-item" data-step="5">
+        <span class="step-num">5</span>
+        <span class="step-label">Validation</span>
+      </div>
+    </div>
+
+    <div class="modal-body booking-modal-body">
+      <form id="bookingForm" onsubmit="return false;">
+        <!-- Viewport Horizontal du Wizard -->
+        <div class="booking-slider-viewport" id="bookingSliderViewport">
+          <div class="booking-slider-track" id="bookingSliderTrack">
+
+            <!-- ÉTAPE 1 : PRESTATION (Cards carrées 100px x 100px) -->
+            <div class="booking-step-slide" data-slide-step="1">
+              <div class="step-slide-header">
+                <span class="step-slide-badge">Étape 1 sur 5</span>
+                <h4 class="step-slide-title">Choisissez votre Prestation</h4>
+                <p class="step-slide-desc">Cliquez sur une carte pour sélectionner le soin souhaité</p>
+              </div>
+
+              <!-- Filtres catégories pour faciliter le choix -->
+              <div class="service-category-pills" id="bookingCategoryPills"></div>
+
+              <!-- Grille de cartes carrées 100px x 100px -->
+              <div class="service-cards-grid" id="bookingServiceCardsGrid"></div>
+              <input type="hidden" id="modalServiceSelect" value="" required />
+
+              <div id="bookingSummaryBox" class="booking-summary-box" style="display: none;"></div>
+            </div>
+
+            <!-- ÉTAPE 2 : DATE -->
+            <div class="booking-step-slide" data-slide-step="2">
+              <div class="step-slide-header">
+                <span class="step-slide-badge">Étape 2 sur 5</span>
+                <h4 class="step-slide-title">Date du Rendez-vous</h4>
+                <p class="step-slide-desc">Ouvert 7 jours sur 7 non-stop de 08h30 à 19h00</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="modalBookingDate">Choisissez le jour de votre venue *</label>
+                <input type="date" id="modalBookingDate" class="form-control" required />
+              </div>
+              <div class="booking-date-shortcuts">
+                <button type="button" class="btn-date-shortcut" id="btnDateToday">Aujourd'hui</button>
+                <button type="button" class="btn-date-shortcut" id="btnDateTomorrow">Demain</button>
+                <button type="button" class="btn-date-shortcut" id="btnDateSaturday">Ce Samedi</button>
+              </div>
+            </div>
+
+            <!-- ÉTAPE 3 : CRÉNEAU HORAIRE -->
+            <div class="booking-step-slide" data-slide-step="3">
+              <div class="step-slide-header">
+                <span class="step-slide-badge">Étape 3 sur 5</span>
+                <h4 class="step-slide-title">Choisissez votre Créneau</h4>
+                <p class="step-slide-desc">Plages de rendez-vous par tranches précises de 15 minutes</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sélectionnez votre heure d'arrivée *</label>
+                <div class="time-slots-grid" id="timeSlotsContainer"></div>
+                <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.4rem; display: block;">
+                  ✦ Accueil continu 08h30 – 19h00 à Cocody N°39.
+                </small>
+              </div>
+            </div>
+
+            <!-- ÉTAPE 4 : COORDONNÉES -->
+            <div class="booking-step-slide" data-slide-step="4">
+              <div class="step-slide-header">
+                <span class="step-slide-badge">Étape 4 sur 5</span>
+                <h4 class="step-slide-title">Vos Coordonnées</h4>
+                <p class="step-slide-desc">Indiquez vos coordonnées pour la confirmation personnalisée</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="modalClientName">Votre Nom &amp; Prénom *</label>
+                <input type="text" id="modalClientName" class="form-control" placeholder="Ex: Aminata Koné" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="modalClientPhone">Votre Téléphone (WhatsApp) *</label>
+                <input type="tel" id="modalClientPhone" class="form-control" placeholder="Ex: +225 07 00 00 00 00" required />
+              </div>
+            </div>
+
+            <!-- ÉTAPE 5 : VALIDATION & CONFIRMATION -->
+            <div class="booking-step-slide" data-slide-step="5">
+              <div class="step-slide-header">
+                <span class="step-slide-badge">Étape 5 sur 5</span>
+                <h4 class="step-slide-title">Récapitulatif &amp; Validation</h4>
+                <p class="step-slide-desc">Vérifiez vos informations avant transmission WhatsApp</p>
+              </div>
+
+              <!-- Boîte récapitulative dynamique -->
+              <div class="booking-wizard-recap" id="bookingWizardRecap">
+                <!-- Rempli en direct en JavaScript -->
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label class="form-label" for="modalClientNotes">Précisions ou demandes éventuelles (Optionnel)</label>
+                <textarea id="modalClientNotes" class="form-control" rows="2"
+                  placeholder="Ex: longueur de mèches, modèle souhaité, précisions..."></textarea>
+              </div>
+
+              <div style="margin-top: 1.25rem;">
+                <button type="button" id="btnSubmitBooking" class="btn-primary" style="width: 100%; padding: 1.05rem; font-size: 1.05rem;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z" />
+                  </svg>
+                  Confirmer &amp; Valider sur WhatsApp
+                </button>
+                <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                  Votre demande est enregistrée et transmise directement au salon via WhatsApp.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Navigation par scroll horizontal (Indicateurs & Points d'étapes) -->
+        <div class="booking-wizard-footer">
+          <div class="wizard-swipe-hint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+              <path d="M17 8l4 4m0 0l-4 4" />
+            </svg>
+            <span>Faites glisser pour naviguer entre les étapes</span>
+          </div>
+          <div class="wizard-dots" id="wizardDots">
+            <span class="wizard-dot active" data-step="1" title="Étape 1 : Prestation"></span>
+            <span class="wizard-dot" data-step="2" title="Étape 2 : Date"></span>
+            <span class="wizard-dot" data-step="3" title="Étape 3 : Créneau"></span>
+            <span class="wizard-dot" data-step="4" title="Étape 4 : Coordonnées"></span>
+            <span class="wizard-dot" data-step="5" title="Étape 5 : Validation"></span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- MODALE 5 : PAIEMENT SÉCURISÉ WAVE -->
   <dialog id="wavePaymentDialog" class="app-dialog wave-dialog">
     <div class="modal-dialog-content wave-modal-content">
       <div class="wave-modal-header">
@@ -945,14 +1200,13 @@
           <img src="assets/img/wave_penguin.png" alt="Wave Mascot" class="wave-logo-badge" />
           <div>
             <h2 class="wave-modal-title">Paiement Wave</h2>
-            <p class="wave-modal-subtitle">Salon Elle & Lui • Cocody</p>
+            <p class="wave-modal-subtitle">Salon Elle &amp; Lui • Cocody</p>
           </div>
         </div>
         <button class="wave-modal-close-btn" id="closeWaveDialogBtn" aria-label="Fermer la boîte de paiement">✕</button>
       </div>
 
       <div class="wave-modal-body">
-        <!-- Saisie ou sélection du montant -->
         <div class="wave-amount-section">
           <label for="waveAmountInput" class="wave-input-label">Montant à payer (FCFA)</label>
           <div class="wave-input-wrapper">
@@ -961,7 +1215,6 @@
             <span class="wave-currency-suffix">FCFA</span>
           </div>
 
-          <!-- Montants rapides (presets) -->
           <div class="wave-quick-amounts">
             <button type="button" class="wave-quick-btn" data-amount="5000">5 000 F</button>
             <button type="button" class="wave-quick-btn active" data-amount="10000">10 000 F</button>
@@ -972,16 +1225,13 @@
           </div>
         </div>
 
-        <!-- Zone d'affichage du QR Code dynamique -->
         <div class="wave-qr-container">
           <div class="wave-qr-card">
             <div class="wave-qr-card-top">
               <span>Payez avec</span>
               <strong class="wave-text-highlight">wave</strong>
             </div>
-            <div id="waveQrCodeBox" class="wave-qrcode-box">
-              <!-- QR Code généré dynamiquement -->
-            </div>
+            <div id="waveQrCodeBox" class="wave-qrcode-box"></div>
             <div class="wave-qr-amount-display">
               <span id="waveQrAmountLabel">10 000 FCFA</span>
             </div>
@@ -1001,12 +1251,11 @@
             </div>
             <div class="wave-instruction-step">
               <span class="wave-step-num">3</span>
-              <p>Validez le règlement pour le <strong>Salon Elle & Lui</strong>.</p>
+              <p>Validez le règlement pour le <strong>Salon Elle &amp; Lui</strong>.</p>
             </div>
           </div>
         </div>
 
-        <!-- Actions : Lien direct mobile ou Copier le lien -->
         <div class="wave-modal-actions">
           <a id="waveDirectPayLink" href="https://pay.wave.com/m/M_ci_tk7yljaMIDFk/c/ci/?amount=10000" target="_blank"
             rel="noopener" class="btn-wave-direct">
@@ -1023,75 +1272,283 @@
             <span id="copyWaveLinkText">Copier lien</span>
           </button>
         </div>
-
-        <div class="wave-security-note">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <span>Règlement instantané sécurisé par Wave Digital Finance.</span>
-        </div>
       </div>
     </div>
   </dialog>
 
-  <!-- Switcher Vertical Flottant (Coiffure vs Esthétique vs Produits) -->
-  <aside class="fixed-realm-switcher" id="fixedRealmSwitcher"
-    aria-label="Sélecteur d'univers Coiffure, Esthétique ou Produits Phares">
-    <div class="switcher-badge-label">Univers</div>
-    <button class="switcher-realm-btn active" data-realm="coiffure"
-      title="Afficher l'univers Coiffure & Tresses (Blandine)" aria-label="Univers Coiffure">
-      <span class="switcher-icon">💇‍♀️</span>
-      <span class="switcher-text">Coiffure</span>
-    </button>
-    <div class="switcher-divider"></div>
-    <button class="switcher-realm-btn" data-realm="esthetic" title="Afficher l'univers Esthétique & Spa (Judith)"
-      aria-label="Univers Esthétique">
-      <span class="switcher-icon">✨</span>
-      <span class="switcher-text">Esthétique</span>
-    </button>
-    <div class="switcher-divider"></div>
-    <button class="switcher-realm-btn" data-realm="produits" title="Découvrir les Produits Phares du salon"
-      aria-label="Produits Phares du salon">
-      <span class="switcher-icon">🛍️</span>
-      <span class="switcher-text">Produits</span>
-    </button>
-  </aside>
+  <!-- MODALE 6 : ESPACE SALON (CALENDRIER VISUEL QUOTIDIEN, HEBDOMADAIRE, MENSUEL & MINI KPIS) -->
+  <dialog class="dashboard-modal" id="dashboardDialog" aria-labelledby="dashDialogTitle">
+    <div class="dash-header">
+      <div class="dash-header-title">
+        <h3 id="dashDialogTitle">
+          <span>📅</span> Espace Salon • Carnet &amp; Calendrier des Rendez-vous
+        </h3>
+        <p>Planning interactif et suivi des réservations pour Blandine Youbouet &amp; Judith</p>
+      </div>
+      <button class="modal-close-btn" data-close-modal aria-label="Fermer le tableau de bord">✕</button>
+    </div>
 
-  <!-- Widgets Flottants (Mobile First : Appel direct & WhatsApp) -->
-  <div class="floating-widgets">
-    <!-- Bouton Appel Direct (positionné au-dessus de WhatsApp) -->
-    <a href="tel:+2250759372441" class="floating-call-btn"
-      aria-label="Appeler directement le salon (+225 07 59 37 24 41)">
-      <div class="pulse-ring call-pulse-ring"></div>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path
-          d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-      </svg>
-      <div class="floating-widget-tooltip">Appelez-nous : +225 07 59 37 24 41</div>
-    </a>
+    <div class="dash-body">
+      <!-- Mini-Barre des 4 KPIs : compacte avec icône + texte petit + chiffre -->
+      <div class="dash-kpis-compact" id="dashKpiBar">
+        <div class="kpi-chip today" data-kpi-status="all" title="Afficher tous les RDV" style="cursor: pointer;">
+          <svg class="kpi-mini-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span class="kpi-mini-label">Aujourd'hui :</span>
+          <span class="kpi-mini-value" id="kpiToday">0</span>
+        </div>
 
-    <!-- Bouton WhatsApp Officiel -->
-    <a href="https://wa.me/2250759372441?text=Bonjour%20Salon%20Elle%20%26%20Lui%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20prestations."
-      target="_blank" rel="noopener" class="floating-whatsapp-btn" aria-label="Contacter le salon sur WhatsApp">
-      <div class="pulse-ring"></div>
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
-        <path
-          d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
-      </svg>
-      <div class="floating-widget-tooltip">WhatsApp : +225 07 59 37 24 41</div>
-    </a>
-  </div>
+        <div class="kpi-chip confirmed" data-kpi-status="confirmed" title="Filtrer uniquement les rendez-vous Confirmés" style="cursor: pointer;">
+          <svg class="kpi-mini-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span class="kpi-mini-label">Confirmés :</span>
+          <span class="kpi-mini-value" id="kpiConfirmed">0</span>
+        </div>
+
+        <div class="kpi-chip total" data-kpi-status="all" title="Réinitialiser le filtre statut (Afficher Tout)" style="cursor: pointer;">
+          <svg class="kpi-mini-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span class="kpi-mini-label">Total inscrits :</span>
+          <span class="kpi-mini-value" id="kpiTotal">0</span>
+        </div>
+
+        <div class="kpi-chip revenue">
+          <svg class="kpi-mini-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+            <path d="M12 6v2m0 8v2"></path>
+          </svg>
+          <span class="kpi-mini-label">Chiffre estimé :</span>
+          <span class="kpi-mini-value" id="kpiRevenue">0 F</span>
+        </div>
+      </div>
+
+      <!-- Barre d'outils du calendrier (directement collée sous les mini-KPIs) -->
+      <div class="dash-toolbar">
+        <div class="dash-toolbar-left">
+          <!-- Switcher des 3 vues de calendrier + vue tableau -->
+          <div class="calendar-view-segmented" role="tablist" aria-label="Mode d'affichage du calendrier">
+            <button class="cal-view-btn active" data-view="daily" role="tab" aria-selected="true">
+              <span>☀️ Quotidien</span>
+            </button>
+            <button class="cal-view-btn" data-view="weekly" role="tab" aria-selected="false">
+              <span>📅 Hebdomadaire</span>
+            </button>
+            <button class="cal-view-btn" data-view="monthly" role="tab" aria-selected="false">
+              <span>🗓️ Mensuel</span>
+            </button>
+            <button class="cal-view-btn" data-view="table" role="tab" aria-selected="false">
+              <span>📋 Tableau</span>
+            </button>
+          </div>
+
+          <!-- Navigation Temporelle du Calendrier -->
+          <div class="calendar-nav-controls">
+            <button class="cal-nav-btn" id="calPrevBtn" aria-label="Période précédente" title="Précédent">‹</button>
+            <button class="cal-today-btn" id="calTodayBtn">Aujourd'hui</button>
+            <button class="cal-nav-btn" id="calNextBtn" aria-label="Période suivante" title="Suivant">›</button>
+            <span class="cal-current-label" id="calCurrentDateLabel">Lundi 28 Septembre 2026</span>
+          </div>
+        </div>
+
+        <div class="dash-toolbar-right">
+          <!-- Recherche et filtres -->
+          <div class="dash-filter-group">
+            <input type="text" id="dashSearchInput" class="dash-search-input"
+              placeholder="Chercher client, prestation..." />
+            <select id="dashSpecialistFilter" class="dash-select" aria-label="Filtrer par spécialiste">
+              <option value="all">Toutes spécialistes</option>
+              <option value="Blandine Youbouet">Blandine Youbouet</option>
+              <option value="Judith (K.V.S)">Judith (K.V.S)</option>
+            </select>
+            <select id="dashStatusFilter" class="dash-select" aria-label="Filtrer par statut">
+              <option value="all">Tous les statuts</option>
+              <option value="pending">⏳ En attente</option>
+              <option value="confirmed">✅ Confirmé</option>
+              <option value="completed">🎉 Terminé</option>
+              <option value="cancelled">❌ Annulé</option>
+            </select>
+          </div>
+
+          <div class="dash-actions-group">
+            <button class="btn-dash-action" id="btnToggleQuickAdd">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              + Inscrire un RDV
+            </button>
+            <button class="btn-dash-export" id="btnExportCSV" title="Exporter toutes les réservations au format CSV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              CSV
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire Ajout Rapide (pour clientes en salon ou par téléphone direct) -->
+      <form id="quickAddForm" class="quick-add-form">
+        <div class="quick-add-header">
+          <h4 style="margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚡</span> Inscrire un rendez-vous direct (Appel ou cliente en salon)
+          </h4>
+          <button type="button" class="quick-add-close" id="quickAddCloseBtn">✕</button>
+        </div>
+        <div class="quick-add-grid">
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Nom Client *</label>
+            <input type="text" id="quickClientName" class="form-control" placeholder="Nom complet" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Téléphone *</label>
+            <input type="tel" id="quickClientPhone" class="form-control" placeholder="+225..." required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Prestation *</label>
+            <input type="text" id="quickServiceName" class="form-control" placeholder="Ex: Tresses Marcoussis"
+              required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Spécialiste</label>
+            <select id="quickSpecialist" class="form-control">
+              <option value="Blandine Youbouet">Blandine Youbouet (Coiffure)</option>
+              <option value="Judith (K.V.S)">Judith (K.V.S Institut)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Date *</label>
+            <input type="date" id="quickDate" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Heure *</label>
+            <input type="time" id="quickTime" class="form-control" value="10:00" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem;">Tarif (FCFA)</label>
+            <input type="number" id="quickPrice" class="form-control" placeholder="Ex: 10000" />
+          </div>
+          <div>
+            <button type="submit" class="btn-primary" style="width: 100%; height: 42px;">Enregistrer le RDV</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- CONTENEUR DU CALENDRIER VISUEL (Jour, Semaine, Mois) -->
+      <div id="calendarViewContainer" class="calendar-interactive-wrapper"></div>
+
+      <!-- CONTENEUR DU TABLEAU CLASSIQUE (affiché en mode table) -->
+      <div id="tableViewWrapper" class="dash-table-wrapper" style="display: none;">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Date &amp; Heure</th>
+              <th>Client (Nom &amp; Tél)</th>
+              <th>Prestation &amp; Spécialiste</th>
+              <th>Statut</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="appointmentsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODALE D'ÉDITION DE RENDEZ-VOUS (Accessible depuis Espace Salon) -->
+  <dialog id="appEditAptModal" class="app-dialog edit-apt-dialog" style="max-width: 600px; padding: 0; border-radius: var(--radius-lg); border: 2px solid var(--color-gold-500); background: var(--bg-surface); color: var(--text-main); margin: auto;">
+    <div class="modal-header" style="background: var(--bg-dark); color: #fff; padding: 1.25rem 1.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-gold-500);">
+      <h3 style="margin: 0; font-family: var(--font-heading); font-size: 1.25rem; color: #fff;">✏️ Modifier le Rendez-vous</h3>
+      <button type="button" class="modal-close-btn" data-close-modal style="color: #fff; font-size: 1.2rem;">✕</button>
+    </div>
+    <div class="modal-body" style="padding: 1.75rem;">
+      <form id="appEditAptForm">
+        <input type="hidden" id="modalEditAptId" />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Nom Cliente *</label>
+            <input type="text" id="modalEditAptClientName" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Téléphone *</label>
+            <input type="tel" id="modalEditAptClientPhone" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Prestation *</label>
+            <input type="text" id="modalEditAptServiceName" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Spécialiste</label>
+            <select id="modalEditAptSpecialist" class="form-control">
+              <option value="Blandine Youbouet">Blandine Youbouet</option>
+              <option value="Judith (K.V.S)">Judith (K.V.S)</option>
+              <option value="Blandine &amp; Judith">Blandine &amp; Judith</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Date *</label>
+            <input type="date" id="modalEditAptDate" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Heure *</label>
+            <input type="time" id="modalEditAptTime" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Tarif (FCFA)</label>
+            <input type="number" id="modalEditAptPrice" class="form-control" />
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Statut</label>
+            <select id="modalEditAptStatus" class="form-control">
+              <option value="pending">⏳ En attente</option>
+              <option value="confirmed">✅ Confirmé</option>
+              <option value="completed">🎉 Terminé</option>
+              <option value="cancelled">❌ Annulé</option>
+            </select>
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label class="form-label" style="font-size: 0.82rem; font-weight: 700;">Notes &amp; Précisions</label>
+            <textarea id="modalEditAptNotes" class="form-control" rows="2" style="font-family: inherit; font-size: 0.9rem;"></textarea>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn-secondary" data-close-modal>Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer les Modifications</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <!-- Toast Notification -->
   <div id="appToast" class="toast-notification"></div>
 
   <!-- Scripts JavaScript -->
+  <script src="js/libs/leaflet.js"></script>
   <script src="js/libs/qrcode.min.js"></script>
   <script src="js/data/products.js"></script>
   <script src="js/data/services.js"></script>
   <script src="js/booking.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/settings.js?v=20260928_v2"></script>
+  <script src="js/dashboard.js?v=20260928_v2"></script>
+  <script src="js/app.js?v=20260928_v2"></script>
 </body>
 
 </html>

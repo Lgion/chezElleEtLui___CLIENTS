@@ -1,59 +1,58 @@
 /**
  * Application Principale - Salon de Coiffure & Beauté Elle & Lui
- * Abidjan Cocody N°39
+ * Abidjan Cocody N°39 (Blandine Youbouet & Judith K.V.S)
  */
-
-// import { SERVICES_DATA, SERVICE_CATEGORIES } from './data/services.js';
-// import { PRODUCTS_DATA } from './data/products.js';
-// import { DashboardManager } from './dashboard.js';
-// import {
-//   generateTimeSlots,
-//   getWhatsAppBookingUrl,
-//   getWhatsAppProductUrl,
-//   SALON_OPEN_HOUR,
-//   SALON_OPEN_MINUTE,
-//   SALON_CLOSE_HOUR
-// } from './booking.js';
-console.log("PRODUCTS_DATA");
-console.log(PRODUCTS_DATA);
-console.log("SERVICES_DATA, SERVICE_CATEGORIES");
-console.log("SERVICES_DATA, SERVICE_CATEGORIES chargées avec succès.");
 
 class SalonApp {
   constructor() {
     this.dashboardManager = new DashboardManager();
-    this.activeRealm = 'coiffure'; // 'coiffure' ou 'esthetic'
+    this.settingsManager = window.salonSettingsManager || (typeof SalonSettingsManager !== 'undefined' ? new SalonSettingsManager() : null);
+    this.galleryManager = window.salonGalleryManager || (typeof SalonGalleryManager !== 'undefined' ? new SalonGalleryManager() : null);
+    this.activeRealm = 'coiffure'; // 'coiffure', 'esthetic', 'produits'
     this.activeCategory = 'all';
     this.searchQuery = '';
     this.selectedTimeSlot = null;
     this.selectedService = null;
     this.waveQrCodeInstance = null;
     this.waveBaseUrl = 'https://pay.wave.com/m/M_ci_tk7yljaMIDFk/c/ci/?amount=';
+    this.leafletMap = null;
+
+    // État du Calendrier Espace Salon
+    this.calendarView = 'daily'; // 'daily', 'weekly', 'monthly', 'table'
+    this.calendarDate = new Date();
+    this.dashSearchQuery = '';
+    this.dashSpecialist = 'all';
+    this.dashStatus = 'all';
 
     this.init();
   }
 
   init() {
+    this.applySalonSettings();
     this.setupLiveStatus();
-    this.setupRealmSwitchers();
-    this.renderCategoryTabs();
-    this.renderServices();
-    this.renderProducts();
+    this.setupCatalogModal();
+    this.setupEventsModal();
+    this.setupGalleryToggle();
+    this.renderPublicGallery();
+    this.setupLeafletMap();
     this.populateServiceDropdown();
+    this.setupBookingWizard();
     this.setupEventListeners();
     this.setupScrollEffects();
-    this.initScrollSpy();
     this.setupServiceDetailModal();
     this.setupWavePaymentModal();
+    this.setupDashboardCalendar();
+    this.setupEditAppointmentModal();
   }
 
-  /* --- 1. Indicateur d'Ouverture en Direct --- */
+  /* ==========================================================================
+     1. INDICATEUR D'OUVERTURE EN DIRECT (7j/7 : 08h30 - 19h00 Abidjan)
+     ========================================================================== */
   setupLiveStatus() {
     const badge = document.getElementById('liveStatusBadge');
     if (!badge) return;
 
     const checkStatus = () => {
-      // Heure d'Abidjan (UTC+0 / GMT)
       const now = new Date();
       const abidjanHour = now.getUTCHours();
       const abidjanMinutes = now.getUTCMinutes();
@@ -75,166 +74,158 @@ class SalonApp {
     setInterval(checkStatus, 60000);
   }
 
-  /* --- 2. Switcher d'Univers (Coiffure vs Esthétique vs Produits) --- */
-  setupRealmSwitchers() {
-    // Switcher vertical fixe (gauche)
-    document.querySelectorAll('.switcher-realm-btn').forEach(btn => {
+  /* ==========================================================================
+     2. MODALE CATALOGUE DES SOINS & PRODUITS (FUSIONNÉE + FILTRES IMBRIQUÉS)
+     ========================================================================== */
+  setupCatalogModal() {
+    const dialog = document.getElementById('catalogModalDialog');
+    if (!dialog) return;
+
+    // Boutons de Niveau 1 (Univers : Coiffure, Esthétique, Produits)
+    const level1Buttons = dialog.querySelectorAll('.level1-btn');
+    level1Buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const realm = btn.dataset.realm;
-        if (realm === 'produits') {
-          this.setRealm('produits');
-          const prodSection = document.getElementById('produits');
-          if (prodSection) {
-            prodSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-          return;
-        }
-
-        this.setRealm(realm);
-        const section = document.getElementById('prestations');
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        this.setCatalogRealm(realm);
       });
     });
 
-    // Switcher intégré en tête de catalogue
-    document.querySelectorAll('.realm-segment-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const realm = btn.dataset.realm;
-        if (realm === 'produits') {
-          this.setRealm('produits');
-          const prodSection = document.getElementById('produits');
-          if (prodSection) {
-            prodSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-          return;
+    // Champ de Recherche du Catalogue
+    const searchInput = document.getElementById('modalServiceSearchInput');
+    const clearBtn = document.getElementById('modalSearchClearBtn');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value.toLowerCase().trim();
+        if (clearBtn) {
+          clearBtn.style.display = this.searchQuery ? 'block' : 'none';
         }
-
-        this.setRealm(realm);
+        this.renderCatalogItems();
       });
-    });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          this.searchQuery = '';
+          clearBtn.style.display = 'none';
+          this.renderCatalogItems();
+          searchInput.focus();
+        }
+      });
+    }
+
+    // Initialisation par défaut
+    this.renderSubfilterChips();
+    this.renderCatalogItems();
   }
 
-  setRealm(realm) {
-    if (this.activeRealm === realm) return;
+  setCatalogRealm(realm) {
     this.activeRealm = realm;
+    this.activeCategory = 'all';
 
-    // Mise à jour de l'état actif sur les deux switchers
-    document.querySelectorAll('.switcher-realm-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.realm === realm);
-    });
+    // Mettre à jour les boutons Niveau 1
+    const dialog = document.getElementById('catalogModalDialog');
+    if (dialog) {
+      dialog.querySelectorAll('.level1-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.realm === realm);
+      });
+    }
 
-    document.querySelectorAll('.realm-segment-btn').forEach(b => {
-      const isActive = b.dataset.realm === realm;
-      b.classList.toggle('active', isActive);
-      b.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
+    // Basculer l'affichage des grilles
+    const servicesGrid = document.getElementById('modalServicesGrid');
+    const productsGrid = document.getElementById('modalProductsGrid');
 
     if (realm === 'produits') {
-      return;
+      if (servicesGrid) servicesGrid.style.display = 'none';
+      if (productsGrid) productsGrid.style.display = 'grid';
+    } else {
+      if (servicesGrid) servicesGrid.style.display = 'grid';
+      if (productsGrid) productsGrid.style.display = 'none';
     }
 
-    this.activeCategory = 'all';
-    this.renderCategoryTabs();
-    this.renderServices();
+    this.renderSubfilterChips();
+    this.renderCatalogItems();
   }
 
-  /* --- 3. Rendu des Filtres de Catégories par Univers --- */
-  renderCategoryTabs() {
-    const container = document.getElementById('categoryTabs');
+  renderSubfilterChips() {
+    const container = document.getElementById('catalogSubfilterChips');
     if (!container) return;
 
-    let categories = [];
+    let subfilters = [];
     if (this.activeRealm === 'coiffure') {
-      categories = [
-        { id: 'all', name: 'Toutes les coiffures', icon: 'sparkles' },
-        { id: 'coiffure-tresses', name: 'Tresses & Tissages', icon: 'scissors' },
-        { id: 'coiffure-soins', name: 'Coiffure & Shampoings', icon: 'wand' }
+      subfilters = [
+        { id: 'all', name: 'Toutes les coiffures' },
+        { id: 'coiffure-tresses', name: '✂️ Tresses & Tissages' },
+        { id: 'coiffure-soins', name: '🪄 Coiffure & Shampoings' }
+      ];
+    } else if (this.activeRealm === 'esthetic') {
+      subfilters = [
+        { id: 'all', name: 'Tous les soins spa' },
+        { id: 'esthetic-spa', name: '💆‍♀️ Visage & Massages' },
+        { id: 'esthetic-ongles', name: '💅 Onglerie & Épilation' }
       ];
     } else {
-      categories = [
-        { id: 'all', name: 'Tous les soins spa', icon: 'sparkles' },
-        { id: 'esthetic-spa', name: 'Soins Visage & Massages', icon: 'heart' },
-        { id: 'esthetic-ongles', name: 'Onglerie & Épilation', icon: 'gem' },
-        { id: 'mariee', name: 'Forfaits Mariée', icon: 'crown' }
+      subfilters = [
+        { id: 'all', name: 'Tous les produits' },
+        { id: 'Capillaire', name: '🌿 Capillaires' },
+        { id: 'Soin Cheveux', name: '🧴 Soins & Masques' },
+        { id: 'Coiffage', name: '✨ Coiffage' },
+        { id: 'Mèches & Tissages', name: '💇‍♀️ Mèches Remy' },
+        { id: 'Esthétique K.V.S', name: '🌸 Soins Spa' }
       ];
     }
 
-    container.innerHTML = categories.map(cat => `
-      <button class="cat-tab-btn ${this.activeCategory === cat.id ? 'active' : ''}" data-cat-id="${cat.id}">
-        ${this.getCategoryIcon(cat.icon)}
-        <span>${cat.name}</span>
+    container.innerHTML = subfilters.map(sub => `
+      <button class="subfilter-chip ${this.activeCategory === sub.id ? 'active' : ''}" data-sub-id="${sub.id}">
+        <span>${sub.name}</span>
       </button>
     `).join('');
 
-    container.querySelectorAll('.cat-tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.activeCategory = btn.dataset.catId;
-        container.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.renderServices();
+    container.querySelectorAll('.subfilter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        container.querySelectorAll('.subfilter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.activeCategory = chip.dataset.subId;
+        this.renderCatalogItems();
       });
     });
   }
 
-  getCategoryIcon(iconName) {
-    switch (iconName) {
-      case 'scissors':
-        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`;
-      case 'heart':
-        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
-      case 'gem':
-        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9Z"/></svg>`;
-      case 'wand':
-        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 4-2 2M15 4l2 2M15 4v4M15 4h4M9 9l-7 7a2.83 2.83 0 0 0 4 4l7-7"/></svg>`;
-      case 'crown':
-        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`;
-      default:
-        return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`;
+  renderCatalogItems() {
+    if (this.activeRealm === 'produits') {
+      this.renderModalProducts();
+    } else {
+      this.renderModalServices();
     }
   }
 
-  getServiceCategoryIcon(category) {
-    if (category === 'coiffure-tresses') return this.getCategoryIcon('scissors');
-    if (category === 'coiffure-soins') return this.getCategoryIcon('wand');
-    if (category === 'esthetic-spa') return this.getCategoryIcon('heart');
-    if (category === 'esthetic-ongles') return this.getCategoryIcon('gem');
-    if (category === 'mariee') return this.getCategoryIcon('crown');
-    return this.getCategoryIcon('sparkles');
-  }
-
-  /* --- 4. Rendu des Cartes de Services (Compactes avec Icônes & Bouton Œil) --- */
-  renderServices() {
-    const container = document.getElementById('servicesGrid');
+  renderModalServices() {
+    const container = document.getElementById('modalServicesGrid');
     if (!container) return;
 
-    // 1. Filtrage strict par univers (Coiffure vs Esthétique)
     let filtered = SERVICES_DATA.filter(s => {
       const isCoiffure = s.category.startsWith('coiffure-');
       return this.activeRealm === 'coiffure' ? isCoiffure : !isCoiffure;
     });
 
-    // 2. Filtrage par sous-catégorie
     if (this.activeCategory !== 'all') {
       filtered = filtered.filter(s => s.category === this.activeCategory);
     }
 
-    // 3. Filtrage par recherche
-    if (this.searchQuery.trim() !== '') {
-      const q = this.searchQuery.toLowerCase();
+    if (this.searchQuery) {
       filtered = filtered.filter(s =>
-        s.name.toLowerCase().includes(q) ||
-        s.description.toLowerCase().includes(q) ||
-        s.responsible.toLowerCase().includes(q)
+        s.name.toLowerCase().includes(this.searchQuery) ||
+        s.description.toLowerCase().includes(this.searchQuery) ||
+        s.responsible.toLowerCase().includes(this.searchQuery)
       );
     }
 
     if (filtered.length === 0) {
       container.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 3.5rem 1rem; color: var(--text-muted);">
-          <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Aucune prestation trouvée</p>
-          <p style="font-size: 0.92rem;">Essayez un autre mot-clé ou réinitialisez les filtres.</p>
+        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+          <p style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Aucune prestation trouvée</p>
+          <p style="font-size: 0.92rem;">Modifiez vos termes de recherche ou réinitialisez les sous-filtres.</p>
         </div>
       `;
       return;
@@ -272,7 +263,6 @@ class SalonApp {
               <span class="service-price-amount">${service.priceLabel}</span>
             </div>
             <div class="service-actions-group">
-              <!-- Bouton avec icône œil pour ouvrir la modale détaillée -->
               <button class="btn-service-detail" data-action="detail" data-service-id="${service.id}" title="Voir détails et description" aria-label="Voir les détails de ${service.name}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
@@ -280,7 +270,6 @@ class SalonApp {
                 </svg>
               </button>
 
-              <!-- Bouton direct de réservation -->
               <button class="btn-book-service" data-action="book" data-service-id="${service.id}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -293,7 +282,7 @@ class SalonApp {
       `;
     }).join('');
 
-    // Écouteurs UNIQUEMENT sur le bouton œil pour ouvrir la modale de détails
+    // Écouteurs sur bouton œil et réservation
     container.querySelectorAll('[data-action="detail"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -301,16 +290,1059 @@ class SalonApp {
       });
     });
 
-    // Écouteurs sur le bouton "Réserver"
     container.querySelectorAll('[data-action="book"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        const catalogDialog = document.getElementById('catalogModalDialog');
+        if (catalogDialog) catalogDialog.close();
         this.openBookingModal(btn.dataset.serviceId);
       });
     });
   }
 
-  /* --- 5. Modale de Détails Prestation Officielle --- */
+  renderModalProducts() {
+    const container = document.getElementById('modalProductsGrid');
+    if (!container) return;
+
+    let filtered = [...PRODUCTS_DATA];
+
+    if (this.activeCategory !== 'all') {
+      filtered = filtered.filter(p => p.category === this.activeCategory);
+    }
+
+    if (this.searchQuery) {
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(this.searchQuery) ||
+        p.description.toLowerCase().includes(this.searchQuery) ||
+        p.category.toLowerCase().includes(this.searchQuery)
+      );
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+          <p style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Aucun produit trouvé</p>
+          <p style="font-size: 0.92rem;">Modifiez vos termes de recherche ou sélectionnez une autre catégorie.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(product => `
+      <article class="product-card">
+        <div class="product-media">
+          <div class="sprite-thumb sprite-${product.id}" aria-label="${product.name}"></div>
+          <span class="product-badge">${product.badge}</span>
+        </div>
+        <div class="product-body">
+          <span class="product-category">${product.category}</span>
+          <h4 class="product-title">${product.name}</h4>
+          <p class="product-desc">${product.description}</p>
+          <div class="product-footer">
+            <span class="product-price">${product.priceLabel}</span>
+            <a href="${getWhatsAppProductUrl(product)}" target="_blank" rel="noopener" class="btn-whatsapp-order">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
+              Commander
+            </a>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  openCatalogModal(realm = 'coiffure') {
+    const dialog = document.getElementById('catalogModalDialog');
+    if (!dialog) return;
+    this.setCatalogRealm(realm);
+    dialog.showModal();
+  }
+
+  /* ==========================================================================
+     3. MODALE DES PRISES EN CHARGE ÉVÉNEMENTIELLES (MARIÉE & GRAND JOUR)
+     ========================================================================== */
+  setupEventsModal() {
+    const dialog = document.getElementById('eventModalDialog');
+    if (!dialog) return;
+
+    dialog.querySelectorAll('[data-book-wedding]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pkg = btn.dataset.bookWedding;
+        const serviceId = pkg === '1mois' ? 'forfait-mariee-1mois' : 'forfait-mariee-3mois';
+        dialog.close();
+        this.openBookingModal(serviceId);
+      });
+    });
+  }
+
+  openEventsModal() {
+    const dialog = document.getElementById('eventModalDialog');
+    if (dialog) dialog.showModal();
+  }
+
+  /* ==========================================================================
+     UTILITAIRE D'ÉCHAPPEMENT HTML
+     ========================================================================== */
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  /* ==========================================================================
+     SYNCHRONISATION DES PARAMÈTRES SALON DYNAMIQUES (Settings & Contacts)
+     ========================================================================== */
+  applySalonSettings() {
+    if (!this.settingsManager) return;
+    const settings = this.settingsManager.getSettings();
+    if (!settings) return;
+
+    // Mise à jour de l'URL Wave
+    if (settings.wave && settings.wave.merchantUrl) {
+      this.waveBaseUrl = settings.wave.merchantUrl;
+    }
+
+    // TopBar Téléphones
+    const topPhone = document.getElementById('topbarPhoneCall');
+    if (topPhone && settings.phones?.direct) {
+      topPhone.href = `tel:${settings.phones.direct.raw}`;
+      topPhone.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        <span>${this.escapeHtml(settings.phones.direct.number)}</span>
+      `;
+    }
+
+    const topWa = document.getElementById('topbarPhoneWa');
+    if (topWa && settings.phones?.whatsapp) {
+      topWa.href = `https://wa.me/${settings.phones.whatsapp.raw}`;
+      topWa.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/>
+        </svg>
+        <span>WhatsApp : ${this.escapeHtml(settings.phones.whatsapp.number)}</span>
+      `;
+    }
+
+    // Boutons Flottants (Appel & WhatsApp)
+    const floatCall = document.getElementById('floatingCallBtn');
+    const floatCallTooltip = document.getElementById('floatingCallTooltip');
+    if (floatCall && settings.phones?.direct) {
+      floatCall.href = `tel:${settings.phones.direct.raw}`;
+      floatCall.setAttribute('aria-label', `Appeler directement le salon (${settings.phones.direct.number})`);
+      if (floatCallTooltip) floatCallTooltip.textContent = `Appelez-nous : ${settings.phones.direct.number}`;
+    }
+
+    const floatWa = document.getElementById('floatingWaBtn');
+    const floatWaTooltip = document.getElementById('floatingWaTooltip');
+    if (floatWa && settings.phones?.whatsapp) {
+      const waText = encodeURIComponent(settings.whatsappMessages?.general || 'Bonjour Salon Elle & Lui ! Je souhaite des renseignements.');
+      floatWa.href = `https://wa.me/${settings.phones.whatsapp.raw}?text=${waText}`;
+      if (floatWaTooltip) floatWaTooltip.textContent = `WhatsApp : ${settings.phones.whatsapp.number}`;
+    }
+
+    // Section Contact: WhatsApp Gérante
+    const cWa = document.getElementById('contactPhoneWhatsapp');
+    if (cWa && settings.phones?.whatsapp) {
+      cWa.innerHTML = `
+        <span class="phone-label">${this.escapeHtml(settings.phones.whatsapp.label || 'WhatsApp Gérante')} :</span>
+        <a href="https://wa.me/${settings.phones.whatsapp.raw}" target="_blank" rel="noopener">${this.escapeHtml(settings.phones.whatsapp.number)}</a>
+      `;
+    }
+
+    // Section Contact: Ligne Directe
+    const cDir = document.getElementById('contactPhoneDirect');
+    if (cDir && settings.phones?.direct) {
+      cDir.innerHTML = `
+        <span class="phone-label">${this.escapeHtml(settings.phones.direct.label || 'Ligne Salon directe')} :</span>
+        <a href="tel:${settings.phones.direct.raw}">${this.escapeHtml(settings.phones.direct.number)}</a>
+      `;
+    }
+
+    // Section Contact: Lignes Secondaires
+    const cSec = document.getElementById('contactPhoneSecondaries');
+    if (cSec && settings.phones?.secondaries) {
+      const linksHtml = settings.phones.secondaries.map(sec => 
+        `<a href="tel:${sec.raw}">${this.escapeHtml(sec.number)}</a>`
+      ).join(' • ');
+      cSec.innerHTML = `
+        <span class="phone-label">Lignes secondaires :</span>
+        <span class="phone-sec-links">${linksHtml || '<em>Aucune</em>'}</span>
+      `;
+    }
+
+    // Section Contact: Réseaux Sociaux
+    const cSocials = document.getElementById('contactSocialChips');
+    if (cSocials && settings.socials) {
+      const icons = {
+        instagram: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
+        facebook: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+        tiktok: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>',
+        youtube: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>'
+      };
+
+      const chipsHtml = Object.entries(settings.socials)
+        .filter(([_, s]) => s && s.enabled)
+        .map(([key, s]) => `
+          <a href="${this.escapeHtml(s.url)}" target="_blank" rel="noopener" class="social-chip ${key}" data-social="${key}" title="${this.escapeHtml(s.name)}">
+            ${icons[key] || '🔗'}
+            <span class="social-handle">${this.escapeHtml(s.handle)}</span>
+          </a>
+        `).join('');
+
+      cSocials.innerHTML = chipsHtml || '<span style="color: var(--text-muted); font-size: 0.85rem;">Aucun réseau actif</span>';
+    }
+  }
+
+  /* ==========================================================================
+     4. GALERIE PHOTOS IMMERSION (Dynamique + Bouton Afficher / Masquer)
+     ========================================================================== */
+  renderPublicGallery() {
+    const galleryGrid = document.getElementById('galleryGrid');
+    if (!galleryGrid) return;
+
+    const items = this.galleryManager ? this.galleryManager.getItems() : [];
+    if (!items || items.length === 0) {
+      galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Aucun cliché disponible dans la galerie.</p>';
+      return;
+    }
+
+    galleryGrid.innerHTML = items.map(item => `
+      <div class="gallery-item ${item.colSpan2 ? 'col-span-2' : ''}">
+        <img src="${this.escapeHtml(item.image)}" alt="${this.escapeHtml(item.title)}" loading="lazy" />
+        <div class="gallery-overlay">
+          <span class="gallery-tag">${this.escapeHtml(item.category || 'Salon')}</span>
+          <div class="gallery-caption">${this.escapeHtml(item.caption || item.title)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    const btnText = document.getElementById('galleryToggleBtnText');
+    if (btnText && galleryGrid.classList.contains('is-collapsed')) {
+      btnText.textContent = `Afficher la galerie photos (${items.length} clichés)`;
+    }
+  }
+
+  setupGalleryToggle() {
+    const btn = document.getElementById('btnToggleGallery');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const btnText = document.getElementById('galleryToggleBtnText');
+
+    if (!btn || !galleryGrid) return;
+
+    btn.addEventListener('click', () => {
+      const itemsCount = this.galleryManager ? this.galleryManager.getItems().length : 6;
+      const isCollapsed = galleryGrid.classList.contains('is-collapsed');
+      if (isCollapsed) {
+        galleryGrid.classList.remove('is-collapsed');
+        btn.setAttribute('aria-expanded', 'true');
+        if (btnText) btnText.textContent = 'Masquer la galerie photos';
+      } else {
+        galleryGrid.classList.add('is-collapsed');
+        btn.setAttribute('aria-expanded', 'false');
+        if (btnText) btnText.textContent = `Afficher la galerie photos (${itemsCount} clichés)`;
+      }
+    });
+  }
+
+  /* ==========================================================================
+     5. CARTE INTERACTIVE LEAFLET PRESTIGE (Cocody N° 39 Pharmacie Saint Gil)
+     ========================================================================== */
+  setupLeafletMap() {
+    const mapContainer = document.getElementById('salonMap');
+    if (!mapContainer || typeof L === 'undefined') return;
+
+    try {
+      // Coordonnées de Cocody, Abidjan
+      const salonCoords = [5.3489, -3.9885];
+
+      this.leafletMap = L.map('salonMap', {
+        center: salonCoords,
+        zoom: 16,
+        scrollWheelZoom: false
+      });
+
+      // Tuiles cartographiques ESRI World Street Map (100% ouvertes, sans clé API, sans blocage)
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri &mdash; Sources: Esri, NAVTEQ, TomTom',
+        maxZoom: 19
+      }).addTo(this.leafletMap);
+
+      // Marqueur Doré Personnalisé Prestige
+      const goldIcon = L.divIcon({
+        className: 'custom-gold-marker',
+        html: `<div class="marker-pin"><span class="marker-inner-icon">✨</span></div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 38],
+        popupAnchor: [0, -36]
+      });
+
+      const popupContent = `
+        <div class="map-popup-card">
+          <div class="map-popup-header">Salon Elle &amp; Lui</div>
+          <div class="map-popup-sub">Coiffure &amp; Institut K.V.S</div>
+          <p class="map-popup-desc">
+            📍 <strong>Abidjan, Cocody N°39</strong><br>
+            À côté de la Pharmacie Saint Gil<br>
+            🕒 Ouvert 7j/7 de 08h30 à 19h00
+          </p>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=5.3489,-3.9885" target="_blank" rel="noopener" class="map-popup-btn">
+            🧭 Itinéraire GPS Google Maps
+          </a>
+        </div>
+      `;
+
+      L.marker(salonCoords, { icon: goldIcon })
+        .addTo(this.leafletMap)
+        .bindPopup(popupContent);
+
+      // Invalidation de la taille lors de l'affichage
+      setTimeout(() => {
+        if (this.leafletMap) this.leafletMap.invalidateSize();
+      }, 500);
+    } catch (e) {
+      console.warn('Erreur initialisation Leaflet Map:', e);
+    }
+  }
+
+  /* ==========================================================================
+     6. GESTION DU CALENDRIER VISUEL DE L'ESPACE SALON (Jour, Semaine, Mois)
+     ========================================================================== */
+  setupDashboardCalendar() {
+    // Boutons de changement de mode de vue
+    const viewButtons = document.querySelectorAll('.cal-view-btn');
+    viewButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        viewButtons.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        this.calendarView = btn.dataset.view;
+        this.renderCalendar();
+      });
+    });
+
+    // Contrôles de navigation dans le temps
+    const prevBtn = document.getElementById('calPrevBtn');
+    const todayBtn = document.getElementById('calTodayBtn');
+    const nextBtn = document.getElementById('calNextBtn');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => this.navigateCalendar(-1));
+    }
+    if (todayBtn) {
+      todayBtn.addEventListener('click', () => {
+        this.calendarDate = new Date();
+        this.renderCalendar();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => this.navigateCalendar(1));
+    }
+
+    // Filtres du Dashboard
+    const searchInput = document.getElementById('dashSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.dashSearchQuery = e.target.value.toLowerCase().trim();
+        this.renderCalendar();
+      });
+    }
+
+    const specialistFilter = document.getElementById('dashSpecialistFilter');
+    if (specialistFilter) {
+      specialistFilter.addEventListener('change', (e) => {
+        this.dashSpecialist = e.target.value;
+        this.renderCalendar();
+      });
+    }
+
+    const statusFilter = document.getElementById('dashStatusFilter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', (e) => {
+        this.dashStatus = e.target.value;
+        this.renderCalendar();
+      });
+    }
+
+    // Filtrage rapide par clic sur les puces KPIs compactes
+    document.querySelectorAll('.kpi-chip[data-kpi-status]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const targetStatus = chip.dataset.kpiStatus;
+        this.dashStatus = targetStatus;
+        if (statusFilter) statusFilter.value = targetStatus;
+        this.renderCalendar();
+        this.showToast(`Filtre : ${targetStatus === 'all' ? 'Tous les statuts' : targetStatus}`);
+      });
+    });
+
+    // Export CSV
+    const exportBtn = document.getElementById('btnExportCSV');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        this.dashboardManager.exportCSV();
+        this.showToast('Export CSV téléchargé !');
+      });
+    }
+
+    // Toggle Formulaire Ajout Rapide
+    const toggleQuickAdd = document.getElementById('btnToggleQuickAdd');
+    const quickAddForm = document.getElementById('quickAddForm');
+    const quickAddClose = document.getElementById('quickAddCloseBtn');
+
+    if (toggleQuickAdd && quickAddForm) {
+      toggleQuickAdd.addEventListener('click', () => {
+        quickAddForm.classList.toggle('open');
+      });
+    }
+
+    if (quickAddClose && quickAddForm) {
+      quickAddClose.addEventListener('click', () => {
+        quickAddForm.classList.remove('open');
+      });
+    }
+
+    // Soumission Formulaire Ajout Rapide
+    if (quickAddForm) {
+      quickAddForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const clientName = document.getElementById('quickClientName').value.trim();
+        const clientPhone = document.getElementById('quickClientPhone').value.trim();
+        const serviceName = document.getElementById('quickServiceName').value.trim();
+        const specialist = document.getElementById('quickSpecialist').value;
+        const date = document.getElementById('quickDate').value;
+        const timeSlot = document.getElementById('quickTime').value;
+        const price = Number(document.getElementById('quickPrice').value) || 0;
+
+        if (!clientName || !clientPhone || !serviceName || !date || !timeSlot) {
+          alert('Veuillez remplir tous les champs obligatoires.');
+          return;
+        }
+
+        this.dashboardManager.addAppointment({
+          clientName,
+          clientPhone,
+          serviceName,
+          specialist,
+          date,
+          timeSlot,
+          price,
+          priceLabel: new Intl.NumberFormat('fr-FR').format(price) + ' FCFA',
+          status: 'confirmed',
+          notes: 'Ajouté directement au salon'
+        });
+
+        quickAddForm.reset();
+        quickAddForm.classList.remove('open');
+        this.renderCalendar();
+        this.showToast('Rendez-vous ajouté au planning !');
+      });
+    }
+  }
+
+  navigateCalendar(direction) {
+    const d = new Date(this.calendarDate);
+    if (this.calendarView === 'daily') {
+      d.setDate(d.getDate() + direction);
+    } else if (this.calendarView === 'weekly') {
+      d.setDate(d.getDate() + direction * 7);
+    } else if (this.calendarView === 'monthly') {
+      d.setMonth(d.getMonth() + direction);
+    } else {
+      d.setDate(d.getDate() + direction);
+    }
+    this.calendarDate = d;
+    this.renderCalendar();
+  }
+
+  openDashboardModal() {
+    const dialog = document.getElementById('dashboardDialog');
+    if (!dialog) return;
+    this.renderCalendar();
+    dialog.showModal();
+  }
+
+  renderCalendar() {
+    // 1. Mettre à jour les KPIs compacts
+    const kpis = this.dashboardManager.getKPIs();
+    document.getElementById('kpiTotal').textContent = kpis.total;
+    document.getElementById('kpiToday').textContent = kpis.today;
+    document.getElementById('kpiConfirmed').textContent = kpis.confirmed;
+    document.getElementById('kpiRevenue').textContent = kpis.revenueFormatted;
+
+    // 2. Mettre à jour le libellé de date
+    this.updateCalendarDateLabel();
+
+    // 3. Basculer entre Calendar Container et Table Container
+    const calendarContainer = document.getElementById('calendarViewContainer');
+    const tableContainer = document.getElementById('tableViewWrapper');
+
+    if (this.calendarView === 'table') {
+      if (calendarContainer) calendarContainer.style.display = 'none';
+      if (tableContainer) tableContainer.style.display = 'block';
+      this.renderAppointmentsTable();
+      return;
+    }
+
+    if (tableContainer) tableContainer.style.display = 'none';
+    if (calendarContainer) calendarContainer.style.display = 'flex';
+
+    if (this.calendarView === 'daily') {
+      this.renderDailyCalendar();
+    } else if (this.calendarView === 'weekly') {
+      this.renderWeeklyCalendar();
+    } else if (this.calendarView === 'monthly') {
+      this.renderMonthlyCalendar();
+    }
+  }
+
+  updateCalendarDateLabel() {
+    const label = document.getElementById('calCurrentDateLabel');
+    if (!label) return;
+
+    const d = this.calendarDate;
+    if (this.calendarView === 'daily') {
+      label.textContent = new Intl.DateTimeFormat('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+    } else if (this.calendarView === 'weekly') {
+      const { start, end } = this.getWeekRange(d);
+      label.textContent = `Semaine du ${start.getDate()} ${start.toLocaleDateString('fr-FR', { month: 'short' })} au ${end.getDate()} ${end.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}`;
+    } else if (this.calendarView === 'monthly') {
+      label.textContent = new Intl.DateTimeFormat('fr-FR', {
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+    } else {
+      label.textContent = 'Tous les rendez-vous';
+    }
+  }
+
+  getWeekRange(refDate) {
+    const d = new Date(refDate);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Lundi comme 1er jour
+    const start = new Date(d.setDate(diff));
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { start, end };
+  }
+
+  getFilteredAppointments() {
+    let list = this.dashboardManager.getAppointments();
+
+    if (this.dashSpecialist && this.dashSpecialist !== 'all') {
+      list = list.filter(a => a.specialist === this.dashSpecialist);
+    }
+
+    if (this.dashStatus && this.dashStatus !== 'all') {
+      list = list.filter(a => a.status === this.dashStatus);
+    }
+
+    if (this.dashSearchQuery) {
+      list = list.filter(a =>
+        a.clientName.toLowerCase().includes(this.dashSearchQuery) ||
+        a.clientPhone.toLowerCase().includes(this.dashSearchQuery) ||
+        a.serviceName.toLowerCase().includes(this.dashSearchQuery)
+      );
+    }
+
+    return list;
+  }
+
+  /* --- Vue 1 : Quotidienne --- */
+  renderDailyCalendar() {
+    const container = document.getElementById('calendarViewContainer');
+    if (!container) return;
+
+    const dateStr = this.calendarDate.toISOString().split('T')[0];
+    const appointments = this.getFilteredAppointments().filter(a => a.date === dateStr);
+
+    // Créneaux horaires de 08:30 à 18:30
+    const timeSlots = [
+      '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00',
+      '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30'
+    ];
+
+    container.innerHTML = `
+      <div class="cal-daily-grid">
+        ${timeSlots.map(slot => {
+          const aptsInSlot = appointments.filter(a => a.timeSlot === slot);
+          return `
+            <div class="daily-slot-row">
+              <div class="daily-time-col">${slot}</div>
+              <div class="daily-content-col">
+                ${aptsInSlot.length > 0 ? aptsInSlot.map(apt => `
+                  <div class="daily-apt-card ${apt.status}" data-apt-id="${apt.id}">
+                    <div class="daily-apt-left">
+                      <div class="daily-apt-time-badge">${apt.timeSlot} • ${apt.priceLabel || apt.price + ' F'}</div>
+                      <div class="daily-apt-client">
+                        <span>${apt.clientName}</span>
+                        <small style="color: var(--text-muted); font-weight: normal;">(${apt.clientPhone})</small>
+                        <span class="daily-apt-spec-pill">${apt.specialist || 'Salon'}</span>
+                      </div>
+                      <div class="daily-apt-service">${apt.serviceName} ${apt.notes ? `• <em>${apt.notes}</em>` : ''}</div>
+                    </div>
+                    <div class="daily-apt-actions">
+                      <select class="dash-select status-changer" data-apt-id="${apt.id}" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;">
+                        <option value="pending" ${apt.status === 'pending' ? 'selected' : ''}>En attente</option>
+                        <option value="confirmed" ${apt.status === 'confirmed' ? 'selected' : ''}>Confirmé</option>
+                        <option value="completed" ${apt.status === 'completed' ? 'selected' : ''}>Terminé</option>
+                        <option value="cancelled" ${apt.status === 'cancelled' ? 'selected' : ''}>Annulé</option>
+                      </select>
+                      <a href="https://wa.me/${apt.clientPhone.replace(/\s+/g, '').replace('+', '')}?text=${encodeURIComponent('Bonjour ' + apt.clientName + ' ! Le Salon Elle & Lui confirme votre RDV pour ' + apt.serviceName + ' à ' + apt.timeSlot + '.')}"
+                         target="_blank" rel="noopener" class="btn-icon-action whatsapp" title="WhatsApp client">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
+                      </a>
+                      <button class="btn-icon-action edit" data-edit-apt-id="${apt.id}" title="Modifier">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="btn-icon-action delete" data-delete-apt-id="${apt.id}" title="Supprimer">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div class="daily-free-slot-hint" data-free-slot="${slot}" data-free-date="${dateStr}">
+                    <span>+</span> Créneau disponible à ${slot}
+                  </div>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    this.wireCalendarCardEvents(container);
+
+    // Écouteur sur les créneaux libres pour ouvrir prérempli
+    container.querySelectorAll('[data-free-slot]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const slot = btn.dataset.freeSlot;
+        const date = btn.dataset.freeDate;
+        const quickAdd = document.getElementById('quickAddForm');
+        if (quickAdd) {
+          quickAdd.classList.add('open');
+          document.getElementById('quickTime').value = slot;
+          document.getElementById('quickDate').value = date;
+          document.getElementById('quickClientName').focus();
+        }
+      });
+    });
+  }
+
+  /* --- Vue 2 : Hebdomadaire (Scroll Horizontal Fluide J-7 à J+7 avec Aujourd'hui sur la gauche) --- */
+  renderWeeklyCalendar() {
+    const container = document.getElementById('calendarViewContainer');
+    if (!container) return;
+
+    // Référence: la date sélectionnée (ou aujourd'hui)
+    const baseDate = new Date(this.calendarDate);
+    baseDate.setHours(0, 0, 0, 0);
+
+    const todayIso = new Date().toISOString().split('T')[0];
+    const daysData = [];
+
+    // Fenêtre glissante de 15 jours : de J-7 à J+7
+    for (let offset = -7; offset <= 7; offset++) {
+      const cur = new Date(baseDate);
+      cur.setDate(baseDate.getDate() + offset);
+      const isoStr = cur.toISOString().split('T')[0];
+      const isToday = isoStr === todayIso;
+
+      const rawDayName = cur.toLocaleDateString('fr-FR', { weekday: 'short' });
+      const dayName = rawDayName.charAt(0).toUpperCase() + rawDayName.slice(1).replace('.', '');
+      const dayNum = cur.getDate();
+      const monthShort = cur.toLocaleDateString('fr-FR', { month: 'short' });
+
+      daysData.push({
+        dateObj: cur,
+        isoStr,
+        offset,
+        dayName,
+        dayNum,
+        monthShort,
+        isToday,
+        appointments: this.getFilteredAppointments().filter(a => a.date === isoStr)
+      });
+    }
+
+    container.innerHTML = `
+      <!-- Barre d'aide au défilement hebdomadaire -->
+      <div class="weekly-scroll-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding: 0.5rem 0.85rem; background: var(--bg-surface-soft); border-radius: var(--radius-sm); border: 1px solid rgba(212, 163, 115, 0.25);">
+        <button type="button" class="btn-text-action" id="btnScrollWeekPast" style="font-size: 0.82rem; font-weight: 700; color: var(--color-gold-700); cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 0.35rem;">
+          ◀ 7 jours passés
+        </button>
+        <button type="button" class="btn-text-action" id="btnScrollWeekToday" style="font-size: 0.82rem; font-weight: 700; color: #1a1614; background: var(--gradient-gold); padding: 0.35rem 0.95rem; border-radius: var(--radius-full); border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(212, 163, 115, 0.35);">
+          ✦ Aujourd'hui
+        </button>
+        <button type="button" class="btn-text-action" id="btnScrollWeekFuture" style="font-size: 0.82rem; font-weight: 700; color: var(--color-gold-700); cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 0.35rem;">
+          7 jours futurs ▶
+        </button>
+      </div>
+
+      <div class="cal-weekly-grid" id="calWeeklyGrid">
+        ${daysData.map(d => `
+          <div class="weekly-day-col ${d.isToday ? 'is-today' : ''}" data-iso="${d.isoStr}">
+            <div class="weekly-col-header">
+              <div class="weekly-day-name">${d.dayName}</div>
+              <div class="weekly-day-num" style="display: flex; align-items: baseline; justify-content: center; gap: 0.25rem;">
+                <span>${d.dayNum}</span>
+                <span style="font-size: 0.72rem; font-weight: 500; opacity: 0.85;">${d.monthShort}</span>
+              </div>
+              <small style="font-size: 0.72rem; opacity: 0.85;">${d.appointments.length} RDV</small>
+            </div>
+            <div class="weekly-col-body">
+              ${d.appointments.length > 0 ? d.appointments.map(apt => `
+                <div class="weekly-apt-card ${apt.status}" data-apt-id="${apt.id}">
+                  <div class="weekly-apt-time">${apt.timeSlot}</div>
+                  <div class="weekly-apt-client" title="${apt.clientName}">${apt.clientName}</div>
+                  <div class="weekly-apt-service" title="${apt.serviceName}">${apt.serviceName}</div>
+                  <div style="margin-top: 0.4rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.72rem; font-weight: 700; color: var(--color-gold-700);">${apt.priceLabel || apt.price + ' F'}</span>
+                    <a href="https://wa.me/${apt.clientPhone.replace(/\s+/g, '').replace('+', '')}" target="_blank" rel="noopener" class="btn-icon-action whatsapp" style="width: 22px; height: 22px;">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
+                    </a>
+                  </div>
+                </div>
+              `).join('') : `
+                <div style="text-align: center; padding: 2rem 0.5rem; color: var(--text-light); font-size: 0.76rem;">
+                  Libre
+                </div>
+              `}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const grid = container.querySelector('#calWeeklyGrid');
+    const todayCol = container.querySelector('.weekly-day-col.is-today') || container.querySelector('.weekly-day-col[data-iso="' + todayIso + '"]');
+
+    const scrollToToday = () => {
+      if (todayCol && grid) {
+        grid.scrollTo({
+          left: todayCol.offsetLeft - grid.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    // Aligner Aujourd'hui en premier sur la gauche dès l'affichage
+    setTimeout(() => {
+      if (todayCol && grid) {
+        grid.scrollLeft = todayCol.offsetLeft - grid.offsetLeft;
+      }
+    }, 60);
+
+    const btnToday = container.querySelector('#btnScrollWeekToday');
+    if (btnToday) btnToday.addEventListener('click', scrollToToday);
+
+    const btnPast = container.querySelector('#btnScrollWeekPast');
+    if (btnPast) {
+      btnPast.addEventListener('click', () => {
+        if (grid) grid.scrollBy({ left: -360, behavior: 'smooth' });
+      });
+    }
+
+    const btnFuture = container.querySelector('#btnScrollWeekFuture');
+    if (btnFuture) {
+      btnFuture.addEventListener('click', () => {
+        if (grid) grid.scrollBy({ left: 360, behavior: 'smooth' });
+      });
+    }
+
+    this.wireCalendarCardEvents(container);
+  }
+
+  /* --- Vue 3 : Mensuelle (Grille Mois standard) --- */
+  renderMonthlyCalendar() {
+    const container = document.getElementById('calendarViewContainer');
+    if (!container) return;
+
+    const ref = this.calendarDate;
+    const year = ref.getFullYear();
+    const month = ref.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    let startDayOfWeek = firstDay.getDay(); // 0 is Sunday
+    startDayOfWeek = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1; // 0 is Monday
+
+    const totalDaysInMonth = lastDay.getDate();
+    const todayIso = new Date().toISOString().split('T')[0];
+
+    const allApts = this.getFilteredAppointments();
+
+    const calendarCells = [];
+
+    // Jours du mois précédent
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+      const dayNum = prevMonthLastDay - i;
+      const prevDate = new Date(year, month - 1, dayNum);
+      const iso = prevDate.toISOString().split('T')[0];
+      calendarCells.push({
+        iso,
+        dayNum,
+        isOtherMonth: true,
+        isToday: false,
+        appointments: allApts.filter(a => a.date === iso)
+      });
+    }
+
+    // Jours du mois courant
+    for (let day = 1; day <= totalDaysInMonth; day++) {
+      const curDate = new Date(year, month, day);
+      const iso = curDate.toISOString().split('T')[0];
+      calendarCells.push({
+        iso,
+        dayNum: day,
+        isOtherMonth: false,
+        isToday: iso === todayIso,
+        appointments: allApts.filter(a => a.date === iso)
+      });
+    }
+
+    // Jours du mois suivant pour compléter la grille (multiple de 7)
+    const remaining = (7 - (calendarCells.length % 7)) % 7;
+    for (let day = 1; day <= remaining; day++) {
+      const nextDate = new Date(year, month + 1, day);
+      const iso = nextDate.toISOString().split('T')[0];
+      calendarCells.push({
+        iso,
+        dayNum: day,
+        isOtherMonth: true,
+        isToday: false,
+        appointments: allApts.filter(a => a.date === iso)
+      });
+    }
+
+    container.innerHTML = `
+      <div class="cal-monthly-grid">
+        <div class="monthly-header-row">
+          <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+        </div>
+        <div class="monthly-body-grid">
+          ${calendarCells.map(cell => `
+            <div class="monthly-day-cell ${cell.isOtherMonth ? 'is-other-month' : ''} ${cell.isToday ? 'is-today' : ''}" data-day-iso="${cell.iso}">
+              <div class="monthly-day-num">${cell.dayNum}</div>
+              <div class="day-apt-list">
+                ${cell.appointments.slice(0, 2).map(apt => `
+                  <div class="monthly-apt-pill ${apt.status}" title="${apt.timeSlot} - ${apt.clientName} (${apt.serviceName})">
+                    ${apt.timeSlot} ${apt.clientName}
+                  </div>
+                `).join('')}
+                ${cell.appointments.length > 2 ? `
+                  <div class="monthly-more-pill">+${cell.appointments.length - 2} autres</div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    // Clic sur un jour du mois : bascule directement sur la vue quotidienne de ce jour !
+    container.querySelectorAll('.monthly-day-cell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const iso = cell.dataset.dayIso;
+        if (iso) {
+          this.calendarDate = new Date(iso + 'T12:00:00');
+          this.calendarView = 'daily';
+          document.querySelectorAll('.cal-view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === 'daily');
+          });
+          this.renderCalendar();
+        }
+      });
+    });
+  }
+
+  wireCalendarCardEvents(container) {
+    // Changement de statut dans le calendrier
+    container.querySelectorAll('.status-changer').forEach(select => {
+      select.addEventListener('change', (e) => {
+        this.dashboardManager.updateStatus(select.dataset.aptId, e.target.value);
+        this.renderCalendar();
+        this.showToast('Statut mis à jour !');
+      });
+    });
+
+    // Modification d'un rendez-vous via bouton dédié
+    container.querySelectorAll('[data-edit-apt-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openEditAppointmentModal(btn.dataset.editAptId);
+      });
+    });
+
+    // Modification via clic direct sur une carte hebdomadaire
+    container.querySelectorAll('.weekly-apt-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('a') || e.target.closest('button') || e.target.closest('select')) return;
+        this.openEditAppointmentModal(card.dataset.aptId);
+      });
+    });
+
+    // Suppression d'un rendez-vous
+    container.querySelectorAll('[data-delete-apt-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Confirmer la suppression de cette réservation ?')) {
+          this.dashboardManager.deleteAppointment(btn.dataset.deleteAptId);
+          this.renderCalendar();
+          this.showToast('Rendez-vous supprimé du planning');
+        }
+      });
+    });
+  }
+
+  /* --- Vue 4 : Tableau Classique --- */
+  renderAppointmentsTable() {
+    const tableBody = document.getElementById('appointmentsTableBody');
+    if (!tableBody) return;
+
+    const list = this.getFilteredAppointments();
+
+    if (list.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty-dash-state">
+            <div class="empty-dash-icon">📅</div>
+            <p>Aucun rendez-vous trouvé pour ces critères.</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = list.map(apt => {
+      const cleanPhone = apt.clientPhone.replace(/\s+/g, '');
+      return `
+        <tr data-apt-id="${apt.id}">
+          <td>
+            <strong>${apt.date}</strong><br>
+            <span style="color: var(--color-gold-600); font-weight: 700;">${apt.timeSlot}</span>
+          </td>
+          <td>
+            <div class="client-name-cell">${apt.clientName}</div>
+            <a href="tel:${cleanPhone}" class="client-phone-link">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              ${apt.clientPhone}
+            </a>
+          </td>
+          <td>
+            <span class="service-cell-tag">${apt.serviceName}</span><br>
+            <span class="service-cell-meta">${apt.specialist || ''} (${apt.priceLabel || apt.price + ' F'})</span>
+          </td>
+          <td>
+            <select class="dash-select status-changer" data-apt-id="${apt.id}" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+              <option value="pending" ${apt.status === 'pending' ? 'selected' : ''}>En attente</option>
+              <option value="confirmed" ${apt.status === 'confirmed' ? 'selected' : ''}>Confirmé</option>
+              <option value="completed" ${apt.status === 'completed' ? 'selected' : ''}>Terminé</option>
+              <option value="cancelled" ${apt.status === 'cancelled' ? 'selected' : ''}>Annulé</option>
+            </select>
+          </td>
+          <td>
+            <span style="font-size: 0.82rem; color: var(--text-muted);">${apt.notes || '—'}</span>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="btn-icon-action edit btn-table-edit-apt" data-edit-apt-id="${apt.id}" title="Modifier le rendez-vous">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <a href="https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent('Bonjour ' + apt.clientName + ' ! Le Salon Elle & Lui confirme votre rendez-vous pour ' + apt.serviceName + ' le ' + apt.date + ' à ' + apt.timeSlot + '.')}" 
+                 target="_blank" rel="noopener" class="btn-icon-action whatsapp" title="Contacter sur WhatsApp">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
+              </a>
+              <button class="btn-icon-action delete" data-delete-apt-id="${apt.id}" title="Supprimer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    this.wireCalendarCardEvents(tableBody);
+  }
+
+  /* ==========================================================================
+     MODALE D'ÉDITION DE RENDEZ-VOUS (ACCESSIBLE DEPUIS L'ESPACE SALON)
+     ========================================================================== */
+  setupEditAppointmentModal() {
+    const dialog = document.getElementById('appEditAptModal');
+    const form = document.getElementById('appEditAptForm');
+    if (!dialog || !form) return;
+
+    dialog.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => dialog.close());
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const aptId = document.getElementById('modalEditAptId').value;
+      if (!aptId) return;
+
+      const updated = {
+        clientName: document.getElementById('modalEditAptClientName').value.trim(),
+        clientPhone: document.getElementById('modalEditAptClientPhone').value.trim(),
+        serviceName: document.getElementById('modalEditAptServiceName').value.trim(),
+        specialist: document.getElementById('modalEditAptSpecialist').value,
+        date: document.getElementById('modalEditAptDate').value,
+        timeSlot: document.getElementById('modalEditAptTime').value,
+        price: parseInt(document.getElementById('modalEditAptPrice').value, 10) || 0,
+        status: document.getElementById('modalEditAptStatus').value,
+        notes: document.getElementById('modalEditAptNotes').value.trim()
+      };
+
+      this.dashboardManager.updateAppointment(aptId, updated);
+      dialog.close();
+      this.renderCalendar();
+      this.showToast('✅ Rendez-vous modifié et enregistré avec succès !');
+    });
+  }
+
+  openEditAppointmentModal(aptId) {
+    const dialog = document.getElementById('appEditAptModal');
+    if (!dialog) return;
+
+    const apt = this.dashboardManager.getAppointmentById(aptId);
+    if (!apt) {
+      alert('Rendez-vous introuvable');
+      return;
+    }
+
+    document.getElementById('modalEditAptId').value = apt.id;
+    document.getElementById('modalEditAptClientName').value = apt.clientName || '';
+    document.getElementById('modalEditAptClientPhone').value = apt.clientPhone || '';
+    document.getElementById('modalEditAptServiceName').value = apt.serviceName || '';
+    document.getElementById('modalEditAptSpecialist').value = apt.specialist || 'Blandine Youbouet';
+    document.getElementById('modalEditAptDate').value = apt.date || '';
+    document.getElementById('modalEditAptTime').value = apt.timeSlot || '09:00';
+    document.getElementById('modalEditAptPrice').value = apt.price || '';
+    document.getElementById('modalEditAptStatus').value = apt.status || 'confirmed';
+    document.getElementById('modalEditAptNotes').value = apt.notes || '';
+
+    dialog.showModal();
+  }
+
+  /* ==========================================================================
+     7. MODALE DE DÉTAIL D'UNE PRESTATION (Bouton Œil)
+     ========================================================================== */
   setupServiceDetailModal() {
     const dialog = document.getElementById('serviceDetailDialog');
     if (!dialog) return;
@@ -394,92 +1426,80 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     dialog.showModal();
   }
 
-  /* --- 6. ScrollSpy : Détection de Section & Coloration Header & Switcher --- */
-  initScrollSpy() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.main-nav .nav-link');
-    if (!sections.length || !navLinks.length) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('id');
-          navLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href === `#${id}`) {
-              link.classList.add('active');
-            } else {
-              link.classList.remove('active');
-            }
-          });
-
-          // Sync vertical realm switcher if in #produits or #prestations
-          if (id === 'produits') {
-            document.querySelectorAll('.switcher-realm-btn').forEach(b => {
-              b.classList.toggle('active', b.dataset.realm === 'produits');
-            });
-            document.querySelectorAll('.realm-segment-btn').forEach(b => {
-              b.classList.toggle('active', b.dataset.realm === 'produits');
-            });
-          } else if (id === 'prestations') {
-            const currentRealm = (this.activeRealm === 'produits') ? 'coiffure' : this.activeRealm;
-            this.activeRealm = currentRealm;
-            document.querySelectorAll('.switcher-realm-btn').forEach(b => {
-              b.classList.toggle('active', b.dataset.realm === currentRealm);
-            });
-            document.querySelectorAll('.realm-segment-btn').forEach(b => {
-              b.classList.toggle('active', b.dataset.realm === currentRealm);
-            });
-          }
-        }
-      });
-    }, {
-      rootMargin: '-20% 0px -60% 0px',
-      threshold: 0
-    });
-
-    sections.forEach(sec => observer.observe(sec));
-  }
-
-  /* --- 4. Rendu des Produits Phares --- */
-  renderProducts() {
-    const container = document.getElementById('productsGrid');
-    if (!container) return;
-
-    container.innerHTML = PRODUCTS_DATA.map(product => `
-      <article class="product-card">
-        <div class="product-media">
-          <div class="sprite-thumb sprite-${product.id}" aria-label="${product.name}"></div>
-          <span class="product-badge">${product.badge}</span>
-        </div>
-        <div class="product-body">
-          <span class="product-category">${product.category}</span>
-          <h4 class="product-title">${product.name}</h4>
-          <p class="product-desc">${product.description}</p>
-          <div class="product-footer">
-            <span class="product-price">${product.priceLabel}</span>
-            <a href="${getWhatsAppProductUrl(product)}" target="_blank" rel="noopener" class="btn-whatsapp-order">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
-              Commander
-            </a>
-          </div>
-        </div>
-      </article>
-    `).join('');
-  }
-
-  /* --- 5. Remplissage du Sélecteur de Prestations dans le Modal --- */
+  /* ==========================================================================
+     8. PRISE DE RENDEZ-VOUS CLIENT
+     ========================================================================== */
+  /* ==========================================================================
+     8. PRISE DE RENDEZ-VOUS CLIENT (Cards Carrées 100x100px & Scroll Horizontal)
+     ========================================================================== */
   populateServiceDropdown() {
-    const select = document.getElementById('modalServiceSelect');
-    if (!select) return;
+    const catContainer = document.getElementById('bookingCategoryPills');
+    const cardsGrid = document.getElementById('bookingServiceCardsGrid');
+    const hiddenInput = document.getElementById('modalServiceSelect');
+    if (!cardsGrid) return;
 
-    select.innerHTML = '<option value="">-- Choisissez une prestation --</option>' +
-      SERVICES_DATA.map(s => `
-        <option value="${s.id}">${s.name} (${s.priceLabel}) - ${s.responsible}</option>
+    // Catégories de filtres rapides
+    const categories = [
+      { id: 'all', name: 'Tous les soins' },
+      { id: 'coiffure-tresses', name: 'Tresses Phares' },
+      { id: 'coiffure-soins', name: 'Coiffure & Soins' },
+      { id: 'esthetic-spa', name: 'Institut Spa' },
+      { id: 'esthetic-ongles', name: 'Onglerie' },
+      { id: 'mariee', name: 'Forfaits Mariée' }
+    ];
+
+    if (catContainer) {
+      catContainer.innerHTML = categories.map(c => `
+        <button type="button" class="service-cat-pill ${c.id === 'all' ? 'active' : ''}" data-cat="${c.id}">
+          ${c.name}
+        </button>
       `).join('');
 
-    select.addEventListener('change', (e) => {
-      this.updateSelectedService(e.target.value);
+      catContainer.querySelectorAll('.service-cat-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          catContainer.querySelectorAll('.service-cat-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const cat = btn.dataset.cat;
+          const cards = cardsGrid.querySelectorAll('.service-card-square');
+          cards.forEach(card => {
+            if (cat === 'all' || card.dataset.category === cat) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+    }
+
+    // Rendu des cartes carrées 100px x 100px
+    cardsGrid.innerHTML = SERVICES_DATA.map(s => {
+      const priceClean = s.priceLabel.replace('À partir de ', '').replace(' FCFA', ' F');
+      return `
+        <div class="service-card-square ${this.selectedService?.id === s.id ? 'selected' : ''}" 
+             data-service-id="${s.id}" 
+             data-category="${s.category}" 
+             title="${s.name} - ${s.priceLabel} (${s.responsible})">
+          ${s.image ? 
+            `<img src="${s.image}" alt="${s.name}" class="service-card-img" loading="lazy" />` : 
+            `<div class="service-card-icon-fallback">✦</div>`}
+          <div class="service-card-name">${s.name}</div>
+          <div class="service-card-price">${priceClean}</div>
+        </div>
+      `;
+    }).join('');
+
+    // Clic sur une carte carrée 100x100
+    cardsGrid.querySelectorAll('.service-card-square').forEach(card => {
+      card.addEventListener('click', () => {
+        cardsGrid.querySelectorAll('.service-card-square').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const sId = card.dataset.serviceId;
+        if (hiddenInput) hiddenInput.value = sId;
+        this.updateSelectedService(sId);
+        // Défilement automatique horizontal vers l'Étape 2 (Date)
+        setTimeout(() => this.goToBookingStep(2), 200);
+      });
     });
   }
 
@@ -517,12 +1537,222 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     }
   }
 
-  /* --- 6. Modal de Réservation --- */
+  /* ==========================================================================
+     8. WIZARD HORIZONTAL 5 ÉTAPES - PRISE DE RENDEZ-VOUS (SCROLL HORIZONTAL)
+     ========================================================================== */
+  setupBookingWizard() {
+    this.currentBookingStep = 1;
+    const submitBtn = document.getElementById('btnSubmitBooking');
+    const stepperItems = document.querySelectorAll('.booking-step-item');
+    const dots = document.querySelectorAll('.wizard-dot');
+    const viewport = document.getElementById('bookingSliderViewport');
+
+    // Écoute du défilement horizontal naturel pour synchroniser le stepper et les points
+    if (viewport) {
+      viewport.addEventListener('scroll', () => {
+        const scrollLeft = viewport.scrollLeft;
+        const width = viewport.clientWidth || 1;
+        const step = Math.min(5, Math.max(1, Math.round(scrollLeft / width) + 1));
+        if (step !== this.currentBookingStep) {
+          this.currentBookingStep = step;
+          this.updateWizardIndicators(step);
+          if (step === 5) {
+            this.populateBookingWizardRecap();
+          }
+        }
+      }, { passive: true });
+    }
+
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        this.handleBookingSubmit();
+      });
+    }
+
+    // Navigation par clic sur les étapes du stepper
+    stepperItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const targetStep = parseInt(item.dataset.step, 10);
+        this.goToBookingStep(targetStep);
+      });
+    });
+
+    // Clic sur les points indicateurs
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const targetStep = parseInt(dot.dataset.step, 10);
+        this.goToBookingStep(targetStep);
+      });
+    });
+
+    // Raccourcis Date rapide (Aujourd'hui, Demain, Ce Samedi)
+    const btnToday = document.getElementById('btnDateToday');
+    const btnTomorrow = document.getElementById('btnDateTomorrow');
+    const btnSat = document.getElementById('btnDateSaturday');
+    const dateInput = document.getElementById('modalBookingDate');
+
+    if (btnToday && dateInput) {
+      btnToday.addEventListener('click', () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        dateInput.value = todayStr;
+        this.showToast('Date sélectionnée : Aujourd\'hui !');
+        setTimeout(() => this.goToBookingStep(3), 180);
+      });
+    }
+
+    if (btnTomorrow && dateInput) {
+      btnTomorrow.addEventListener('click', () => {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        dateInput.value = d.toISOString().split('T')[0];
+        this.showToast('Date sélectionnée : Demain !');
+        setTimeout(() => this.goToBookingStep(3), 180);
+      });
+    }
+
+    if (btnSat && dateInput) {
+      btnSat.addEventListener('click', () => {
+        const d = new Date();
+        const dayOfWeek = d.getDay(); // 0 is Sunday, 6 is Saturday
+        const diff = dayOfWeek === 6 ? 7 : (6 - dayOfWeek);
+        d.setDate(d.getDate() + diff);
+        dateInput.value = d.toISOString().split('T')[0];
+        this.showToast('Date sélectionnée : Samedi prochain !');
+        setTimeout(() => this.goToBookingStep(3), 180);
+      });
+    }
+  }
+
+  goToBookingStep(step) {
+    const clampedStep = Math.max(1, Math.min(5, step));
+    this.currentBookingStep = clampedStep;
+
+    const viewport = document.getElementById('bookingSliderViewport');
+    if (viewport) {
+      const width = viewport.clientWidth;
+      viewport.scrollTo({
+        left: (clampedStep - 1) * width,
+        behavior: 'smooth'
+      });
+    }
+
+    this.updateWizardIndicators(clampedStep);
+
+    if (clampedStep === 5) {
+      this.populateBookingWizardRecap();
+    }
+  }
+
+  updateWizardIndicators(step) {
+    const stepperItems = document.querySelectorAll('.booking-step-item');
+    stepperItems.forEach(item => {
+      const itemStep = parseInt(item.dataset.step, 10);
+      item.classList.toggle('active', itemStep === step);
+      item.classList.toggle('completed', itemStep < step);
+    });
+
+    const dots = document.querySelectorAll('.wizard-dot');
+    dots.forEach(dot => {
+      const dotStep = parseInt(dot.dataset.step, 10);
+      dot.classList.toggle('active', dotStep === step);
+    });
+  }
+
+  validateBookingStep(step) {
+    if (step === 1) {
+      const hiddenInput = document.getElementById('modalServiceSelect');
+      if (!hiddenInput || !hiddenInput.value) {
+        this.showToast('Veuillez sélectionner une prestation.');
+        return false;
+      }
+      return true;
+    }
+
+    if (step === 2) {
+      const dateInput = document.getElementById('modalBookingDate');
+      if (!dateInput || !dateInput.value) {
+        this.showToast('Veuillez choisir une date pour votre rendez-vous.');
+        return false;
+      }
+      return true;
+    }
+
+    if (step === 3) {
+      if (!this.selectedTimeSlot) {
+        this.showToast('Veuillez sélectionner un créneau horaire.');
+        return false;
+      }
+      return true;
+    }
+
+    if (step === 4) {
+      const clientName = document.getElementById('modalClientName');
+      const clientPhone = document.getElementById('modalClientPhone');
+      if (!clientName || !clientName.value.trim() || !clientPhone || !clientPhone.value.trim()) {
+        this.showToast('Veuillez renseigner votre nom et votre numéro WhatsApp.');
+        return false;
+      }
+      return true;
+    }
+
+    return true;
+  }
+
+  populateBookingWizardRecap() {
+    const recapBox = document.getElementById('bookingWizardRecap');
+    if (!recapBox) return;
+
+    const hiddenInput = document.getElementById('modalServiceSelect');
+    const serviceId = hiddenInput ? hiddenInput.value : null;
+    const service = SERVICES_DATA.find(s => s.id === serviceId);
+
+    const dateVal = document.getElementById('modalBookingDate')?.value;
+    let formattedDate = dateVal;
+    if (dateVal) {
+      const d = new Date(dateVal + 'T00:00:00');
+      formattedDate = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+    }
+
+    const clientName = document.getElementById('modalClientName')?.value.trim() || 'Non renseigné';
+    const clientPhone = document.getElementById('modalClientPhone')?.value.trim() || 'Non renseigné';
+
+    recapBox.innerHTML = `
+      <div class="recap-row">
+        <span class="recap-label">Prestation :</span>
+        <strong class="recap-value">${service ? service.name : 'Non sélectionnée'}</strong>
+      </div>
+      <div class="recap-row">
+        <span class="recap-label">Responsable &amp; Cadre :</span>
+        <span class="recap-value">${service ? service.responsible : '-'}</span>
+      </div>
+      <div class="recap-row">
+        <span class="recap-label">Date du RDV :</span>
+        <strong class="recap-value">${formattedDate || '-'}</strong>
+      </div>
+      <div class="recap-row">
+        <span class="recap-label">Heure d'arrivée :</span>
+        <strong class="recap-value" style="color: var(--color-gold-700);">${this.selectedTimeSlot || '-'}</strong>
+      </div>
+      <div class="recap-row">
+        <span class="recap-label">Client :</span>
+        <span class="recap-value">${clientName}</span>
+      </div>
+      <div class="recap-row">
+        <span class="recap-label">WhatsApp :</span>
+        <span class="recap-value">${clientPhone}</span>
+      </div>
+      <div class="recap-row" style="margin-top: 0.25rem;">
+        <span class="recap-label">Tarif indicatif :</span>
+        <strong class="recap-value highlight">${service ? service.priceLabel : '-'}</strong>
+      </div>
+    `;
+  }
+
   openBookingModal(serviceId = null) {
     const dialog = document.getElementById('bookingDialog');
     if (!dialog) return;
 
-    // Définir la date minimale à aujourd'hui
     const dateInput = document.getElementById('modalBookingDate');
     const todayStr = new Date().toISOString().split('T')[0];
     dateInput.min = todayStr;
@@ -530,17 +1760,20 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       dateInput.value = todayStr;
     }
 
-    // Générer les créneaux
     this.renderTimeSlots();
 
-    // Présélectionner le service si fourni
     if (serviceId) {
-      const select = document.getElementById('modalServiceSelect');
-      select.value = serviceId;
+      const hiddenInput = document.getElementById('modalServiceSelect');
+      if (hiddenInput) hiddenInput.value = serviceId;
+      const cards = document.querySelectorAll('.service-card-square');
+      cards.forEach(c => {
+        c.classList.toggle('selected', c.dataset.serviceId === serviceId);
+      });
       this.updateSelectedService(serviceId);
     }
 
     dialog.showModal();
+    this.goToBookingStep(1);
   }
 
   renderTimeSlots() {
@@ -559,315 +1792,33 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
         container.querySelectorAll('.time-slot-chip').forEach(c => c.classList.remove('selected'));
         chip.classList.add('selected');
         this.selectedTimeSlot = chip.dataset.slot;
+        // Défilement automatique doux vers l'étape suivante (Coordonnées)
+        setTimeout(() => this.goToBookingStep(4), 220);
       });
     });
   }
 
-  /* --- 7. Tableau de Bord Salon (Gestion des RDVs) --- */
-  openDashboardModal() {
-    const dialog = document.getElementById('dashboardDialog');
-    if (!dialog) return;
-
-    this.renderDashboard();
-    dialog.showModal();
-  }
-
-  renderDashboard() {
-    const kpis = this.dashboardManager.getKPIs();
-    document.getElementById('kpiTotal').textContent = kpis.total;
-    document.getElementById('kpiToday').textContent = kpis.today;
-    document.getElementById('kpiConfirmed').textContent = kpis.confirmed;
-    document.getElementById('kpiRevenue').textContent = kpis.revenueFormatted;
-
-    this.renderAppointmentsTable();
-  }
-
-  renderAppointmentsTable() {
-    const tableBody = document.getElementById('appointmentsTableBody');
-    const filterDate = document.getElementById('dashDateFilter').value;
-    const searchVal = document.getElementById('dashSearchInput').value.toLowerCase().trim();
-
-    let list = this.dashboardManager.getAppointments();
-    const todayStr = new Date().toISOString().split('T')[0];
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-
-    if (filterDate === 'today') {
-      list = list.filter(a => a.date === todayStr);
-    } else if (filterDate === 'tomorrow') {
-      list = list.filter(a => a.date === tomorrow);
-    }
-
-    if (searchVal) {
-      list = list.filter(a =>
-        a.clientName.toLowerCase().includes(searchVal) ||
-        a.clientPhone.toLowerCase().includes(searchVal) ||
-        a.serviceName.toLowerCase().includes(searchVal)
-      );
-    }
-
-    if (list.length === 0) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="empty-dash-state">
-            <div class="empty-dash-icon">📅</div>
-            <p>Aucun rendez-vous trouvé pour ces critères.</p>
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    tableBody.innerHTML = list.map(apt => {
-      const cleanPhone = apt.clientPhone.replace(/\s+/g, '');
-      return `
-        <tr data-apt-id="${apt.id}">
-          <td>
-            <strong>${apt.date}</strong><br>
-            <span style="color: var(--color-gold-600); font-weight: 700;">${apt.timeSlot}</span>
-          </td>
-          <td>
-            <div class="client-name-cell">${apt.clientName}</div>
-            <a href="tel:${cleanPhone}" class="client-phone-link">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              ${apt.clientPhone}
-            </a>
-          </td>
-          <td>
-            <span class="service-cell-tag">${apt.serviceName}</span><br>
-            <span class="service-cell-meta">${apt.specialist || ''} (${apt.priceLabel || apt.price + ' F'})</span>
-          </td>
-          <td>
-            <select class="dash-select status-changer" data-apt-id="${apt.id}" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
-              <option value="pending" ${apt.status === 'pending' ? 'selected' : ''}>En attente</option>
-              <option value="confirmed" ${apt.status === 'confirmed' ? 'selected' : ''}>Confirmé</option>
-              <option value="completed" ${apt.status === 'completed' ? 'selected' : ''}>Terminé</option>
-              <option value="cancelled" ${apt.status === 'cancelled' ? 'selected' : ''}>Annulé</option>
-            </select>
-          </td>
-          <td>
-            <span style="font-size: 0.82rem; color: var(--text-muted);">${apt.notes || '—'}</span>
-          </td>
-          <td>
-            <div class="row-actions">
-              <a href="https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent('Bonjour ' + apt.clientName + ' ! Le Salon Elle & Lui vous confirme votre rendez-vous pour ' + apt.serviceName + ' le ' + apt.date + ' à ' + apt.timeSlot + '.')}" 
-                 target="_blank" rel="noopener" class="btn-icon-action whatsapp" title="Contacter sur WhatsApp">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-              </a>
-              <button class="btn-icon-action delete" data-delete-apt-id="${apt.id}" title="Supprimer">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    // Écouteurs de changement de statut
-    tableBody.querySelectorAll('.status-changer').forEach(select => {
-      select.addEventListener('change', (e) => {
-        this.dashboardManager.updateStatus(select.dataset.aptId, e.target.value);
-        this.renderDashboard();
-        this.showToast('Statut mis à jour !');
-      });
-    });
-
-    // Écouteurs de suppression
-    tableBody.querySelectorAll('[data-delete-apt-id]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (confirm('Confirmer la suppression de cette réservation ?')) {
-          this.dashboardManager.deleteAppointment(btn.dataset.deleteAptId);
-          this.renderDashboard();
-          this.showToast('Rendez-vous supprimé');
-        }
-      });
-    });
-  }
-
-  /* --- 8. Écouteurs d'Événements Globaux --- */
-  setupEventListeners() {
-    // Barre de recherche
-    const searchInput = document.getElementById('serviceSearchInput');
-    const clearBtn = document.getElementById('searchClearBtn');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        this.searchQuery = e.target.value;
-        if (clearBtn) {
-          clearBtn.style.display = this.searchQuery ? 'block' : 'none';
-        }
-        this.renderServices();
-      });
-    }
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        this.searchQuery = '';
-        clearBtn.style.display = 'none';
-        this.renderServices();
-        searchInput.focus();
-      });
-    }
-
-    // Modals Close
-    document.querySelectorAll('[data-close-modal]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const dialog = e.target.closest('dialog');
-        if (dialog) dialog.close();
-      });
-    });
-
-    // Clic en dehors du modal pour fermer
-    ['bookingDialog', 'dashboardDialog'].forEach(id => {
-      const dialog = document.getElementById(id);
-      if (dialog) {
-        dialog.addEventListener('click', (e) => {
-          if (e.target === dialog) {
-            dialog.close();
-          }
-        });
-      }
-    });
-
-    // Formulaire de réservation Client
-    const bookingForm = document.getElementById('bookingForm');
-    if (bookingForm) {
-      bookingForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.handleBookingSubmit();
-      });
-    }
-
-    // Déclencheur Espace Salon (Bouton Header + Lien Footer)
-    document.querySelectorAll('[data-trigger-dashboard]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.openDashboardModal();
-      });
-    });
-
-    // Filtres Dashboard
-    const dashDateFilter = document.getElementById('dashDateFilter');
-    if (dashDateFilter) {
-      dashDateFilter.addEventListener('change', () => this.renderAppointmentsTable());
-    }
-
-    const dashSearch = document.getElementById('dashSearchInput');
-    if (dashSearch) {
-      dashSearch.addEventListener('input', () => this.renderAppointmentsTable());
-    }
-
-    // Export CSV Dashboard
-    const exportBtn = document.getElementById('btnExportCSV');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        this.dashboardManager.exportCSV();
-        this.showToast('Export CSV téléchargé !');
-      });
-    }
-
-    // Toggle Formulaire Ajout Rapide Salon
-    const toggleQuickAdd = document.getElementById('btnToggleQuickAdd');
-    const quickAddForm = document.getElementById('quickAddForm');
-    if (toggleQuickAdd && quickAddForm) {
-      toggleQuickAdd.addEventListener('click', () => {
-        quickAddForm.classList.toggle('open');
-      });
-    }
-
-    // Soumission Formulaire Ajout Rapide Salon
-    if (quickAddForm) {
-      quickAddForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const clientName = document.getElementById('quickClientName').value.trim();
-        const clientPhone = document.getElementById('quickClientPhone').value.trim();
-        const serviceName = document.getElementById('quickServiceName').value.trim();
-        const date = document.getElementById('quickDate').value;
-        const timeSlot = document.getElementById('quickTime').value;
-        const price = Number(document.getElementById('quickPrice').value) || 0;
-
-        if (!clientName || !clientPhone || !serviceName || !date || !timeSlot) {
-          alert('Veuillez remplir tous les champs obligatoires.');
-          return;
-        }
-
-        this.dashboardManager.addAppointment({
-          clientName,
-          clientPhone,
-          serviceName,
-          specialist: 'Salon Elle & Lui',
-          date,
-          timeSlot,
-          price,
-          priceLabel: new Intl.NumberFormat('fr-FR').format(price) + ' FCFA',
-          status: 'confirmed',
-          notes: 'Ajouté directement au salon'
-        });
-
-        quickAddForm.reset();
-        quickAddForm.classList.remove('open');
-        this.renderDashboard();
-        this.showToast('Rendez-vous ajouté avec succès !');
-      });
-    }
-
-    // Mobile Navigation Drawer Toggle
-    const mobileToggle = document.getElementById('mobileMenuToggle');
-    const mainNav = document.getElementById('mainNav');
-    if (mobileToggle && mainNav) {
-      mobileToggle.addEventListener('click', () => {
-        mainNav.classList.toggle('mobile-open');
-      });
-
-      // Fermer le menu lors du clic sur un lien
-      mainNav.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
-          mainNav.classList.remove('mobile-open');
-        });
-      });
-    }
-
-    // Réservation Forfait Mariée direct
-    document.querySelectorAll('[data-book-wedding]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const pkg = btn.dataset.bookWedding;
-        const serviceId = pkg === '1mois' ? 'forfait-mariee-1mois' : 'forfait-mariee-3mois';
-        this.openBookingModal(serviceId);
-      });
-    });
-
-    // Bouton Prendre RDV dans le Hero
-    const heroBookBtn = document.getElementById('heroBookBtn');
-    if (heroBookBtn) {
-      heroBookBtn.addEventListener('click', () => {
-        this.openBookingModal();
-      });
-    }
-    const navBookBtn = document.getElementById('navBookBtn');
-    if (navBookBtn) {
-      navBookBtn.addEventListener('click', () => {
-        this.openBookingModal();
-      });
-    }
-  }
-
-  /* --- 9. Traitement de la Réservation Client --- */
   handleBookingSubmit() {
     const serviceSelect = document.getElementById('modalServiceSelect');
-    const serviceId = serviceSelect.value;
+    const serviceId = serviceSelect ? serviceSelect.value : null;
     const date = document.getElementById('modalBookingDate').value;
     const clientName = document.getElementById('modalClientName').value.trim();
     const clientPhone = document.getElementById('modalClientPhone').value.trim();
     const notes = document.getElementById('modalClientNotes').value.trim();
 
     if (!serviceId) {
-      alert('Veuillez sélectionner une prestation.');
+      this.goToBookingStep(1);
+      this.showToast('Veuillez sélectionner une prestation.');
       return;
     }
     if (!this.selectedTimeSlot) {
-      alert('Veuillez sélectionner un créneau horaire.');
+      this.goToBookingStep(3);
+      this.showToast('Veuillez sélectionner un créneau horaire.');
       return;
     }
     if (!clientName || !clientPhone) {
-      alert('Veuillez renseigner votre nom et votre numéro de téléphone.');
+      this.goToBookingStep(4);
+      this.showToast('Veuillez renseigner votre nom et votre numéro de téléphone.');
       return;
     }
 
@@ -888,20 +1839,17 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       status: 'pending'
     };
 
-    // 1. Sauvegarder dans le système local du salon
     this.dashboardManager.addAppointment(bookingPayload);
-
-    // 2. Générer l'URL WhatsApp
     const whatsappUrl = getWhatsAppBookingUrl(bookingPayload);
 
-    // 3. Fermer le modal et réinitialiser
     document.getElementById('bookingDialog').close();
     document.getElementById('bookingForm').reset();
     this.selectedTimeSlot = null;
     this.selectedService = null;
-    document.getElementById('bookingSummaryBox').style.display = 'none';
+    this.goToBookingStep(1);
+    const summaryBox = document.getElementById('bookingSummaryBox');
+    if (summaryBox) summaryBox.style.display = 'none';
 
-    // 4. Notification et ouverture WhatsApp
     this.showToast('Rendez-vous enregistré ! Ouverture de WhatsApp...');
 
     setTimeout(() => {
@@ -909,7 +1857,9 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     }, 600);
   }
 
-  /* --- 9. Modale de Paiement Sécurisé Wave Côte d'Ivoire --- */
+  /* ==========================================================================
+     9. MODALE PAIEMENT WAVE
+     ========================================================================== */
   setupWavePaymentModal() {
     const dialog = document.getElementById('wavePaymentDialog');
     const openBtn = document.getElementById('navWavePayBtn');
@@ -941,7 +1891,6 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       amountInput.addEventListener('input', () => {
         let val = parseInt(amountInput.value, 10);
         if (isNaN(val) || val < 0) val = 0;
-        // Mettre à jour l'état actif des boutons de montants rapides
         quickBtns.forEach(btn => {
           btn.classList.toggle('active', parseInt(btn.dataset.amount, 10) === val);
         });
@@ -965,7 +1914,7 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
         const url = directLink ? directLink.href : (this.waveBaseUrl + '10000');
         navigator.clipboard.writeText(url).then(() => {
           if (copyText) copyText.textContent = 'Copié !';
-          this.showToast('Lien de paiement Wave copié dans le presse-papier !');
+          this.showToast('Lien Wave copié !');
           setTimeout(() => {
             if (copyText) copyText.textContent = 'Copier lien';
           }, 2500);
@@ -983,20 +1932,10 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
 
     const paymentUrl = this.waveBaseUrl + (amount > 0 ? amount : '');
 
-    if (directLink) {
-      directLink.href = paymentUrl;
-    }
+    if (directLink) directLink.href = paymentUrl;
+    if (amountLabel) amountLabel.textContent = (amount > 0 ? amount.toLocaleString('fr-FR') : '0') + ' FCFA';
 
-    if (amountLabel) {
-      amountLabel.textContent = (amount > 0 ? amount.toLocaleString('fr-FR') : '0') + ' FCFA';
-    }
-
-    if (!qrBox) return;
-
-    if (typeof QRCode === 'undefined') {
-      qrBox.innerHTML = '<p style="font-size:0.8rem; color:#888;">Module QRCode en cours de chargement...</p>';
-      return;
-    }
+    if (!qrBox || typeof QRCode === 'undefined') return;
 
     try {
       if (!this.waveQrCodeInstance) {
@@ -1017,7 +1956,121 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     }
   }
 
-  /* --- 10. Effets de Défilement (Header Sticky Blur) --- */
+  /* ==========================================================================
+     10. ÉCOUTEURS D'ÉVÉNEMENTS GLOBAUX & DÉCLENCHEURS DE MODALES
+     ========================================================================== */
+  setupEventListeners() {
+    // Boutons flottants bas-gauche
+    const floatProdBtn = document.getElementById('btnFloatingProductsModal');
+    if (floatProdBtn) {
+      floatProdBtn.addEventListener('click', () => this.openCatalogModal('coiffure'));
+    }
+
+    const floatEventsBtn = document.getElementById('btnFloatingEventsModal');
+    if (floatEventsBtn) {
+      floatEventsBtn.addEventListener('click', () => this.openEventsModal());
+    }
+
+    // Déclencheurs de Modale de Catalogue (Nav, Hero, Footer)
+    document.querySelectorAll('[data-trigger-catalog]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const realm = btn.dataset.triggerCatalog || 'coiffure';
+        this.openCatalogModal(realm);
+      });
+    });
+
+    // Déclencheurs de Modale Événementielle (Nav & Footer)
+    document.querySelectorAll('[data-trigger-events]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openEventsModal();
+      });
+    });
+
+    // Déclencheurs Dashboard Espace Salon
+    document.querySelectorAll('[data-trigger-dashboard]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openDashboardModal();
+      });
+    });
+
+    // Gestion globale du scroll lock et des modales
+    const updateModalScrollLock = () => {
+      const anyOpen = document.querySelectorAll('dialog[open]').length > 0;
+      if (anyOpen) {
+        document.body.classList.add('modal-open');
+      } else {
+        document.body.classList.remove('modal-open');
+      }
+    };
+
+    // Écouter l'ouverture et la fermeture de tous les dialogues
+    document.querySelectorAll('dialog').forEach(dialog => {
+      // Observer le changement d'attribut 'open'
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+          if (mutation.attributeName === 'open') {
+            updateModalScrollLock();
+          }
+        });
+      });
+      observer.observe(dialog, { attributes: true });
+
+      // Événement standard close
+      dialog.addEventListener('close', () => {
+        updateModalScrollLock();
+      });
+
+      // Fermeture au clic sur le backdrop
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+          dialog.close();
+        }
+      });
+    });
+
+    // Bouton Fermer générique de dialogue ([data-close-modal])
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const dialog = e.target.closest('dialog');
+        if (dialog) dialog.close();
+      });
+    });
+
+    // Formulaire de réservation
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+      bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleBookingSubmit();
+      });
+    }
+
+    // Boutons Prendre RDV dans le Hero et Nav
+    const heroBookBtn = document.getElementById('heroBookBtn');
+    if (heroBookBtn) heroBookBtn.addEventListener('click', () => this.openBookingModal());
+
+    const navBookBtn = document.getElementById('navBookBtn');
+    if (navBookBtn) navBookBtn.addEventListener('click', () => this.openBookingModal());
+
+    // Mobile Navigation Drawer Toggle
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const mainNav = document.getElementById('mainNav');
+    if (mobileToggle && mainNav) {
+      mobileToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('mobile-open');
+      });
+
+      mainNav.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          mainNav.classList.remove('mobile-open');
+        });
+      });
+    }
+  }
+
   setupScrollEffects() {
     const header = document.querySelector('.main-header');
     if (!header) return;
@@ -1031,7 +2084,6 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     }, { passive: true });
   }
 
-  /* --- 11. Toast Notification --- */
   showToast(message) {
     let toast = document.getElementById('appToast');
     if (!toast) {
