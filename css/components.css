@@ -213,7 +213,7 @@ body.modal-open {
   justify-content: center;
   color: var(--color-terracotta);
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .service-meta-tags {
@@ -277,53 +277,189 @@ body.modal-open {
   border-color: var(--color-gold-500);
 }
 
-/* Ligne 0 : Tresses & Tissages (Coiffure) */
-.sprite-tresses-classiques          { background-position: 0 0; }
-.sprite-tresses-marcoussis           { background-position: -100px 0; }
-.sprite-tresses-non-coupees          { background-position: -200px 0; }
-.sprite-tissage-simple               { background-position: -300px 0; }
-.sprite-tissage-rajout               { background-position: -400px 0; }
-.sprite-tissage-coupe                { background-position: -500px 0; }
+/* Ligne 0 : Tresses & Tissages (Coiffure) + 6 Catégories des Planches */
+.sprite-tresses-classiques {
+  background-position: 0 0;
+}
+
+.sprite-tresses-marcoussis {
+  background-position: -100px 0;
+}
+
+.sprite-tresses-non-coupees {
+  background-position: -200px 0;
+}
+
+.sprite-tresses-cat1-nattes-collees,
+.sprite-tresses-cat2-box-knotless,
+.sprite-tresses-cat3-tribales,
+.sprite-tresses-cat4-vanilles-twists,
+.sprite-tresses-cat5-boho-goddess,
+.sprite-tresses-cat6-sculpturales-locs {
+  background-size: cover !important;
+  background-position: top center !important;
+}
+
+.sprite-tresses-cat1-nattes-collees {
+  background-image: url('../ignore/imgs/generated/00_vue_d_ensemble/models/cat_01.jpg');
+}
+
+.sprite-tresses-cat2-box-knotless {
+  background-image: url('../ignore/imgs/generated/00_vue_d_ensemble/models/cat_02.jpg');
+}
+
+.sprite-tresses-cat3-tribales {
+  background-image: url('../ignore/imgs/generated/00_vue_d_ensemble/models/cat_03.jpg');
+}
+
+.sprite-tresses-cat4-vanilles-twists {
+  background-image: url('../ignore/imgs/generated/00_vue_d_ensemble/models/cat_04.jpg');
+}
+
+.sprite-tresses-cat5-boho-goddess {
+  background-image: url('../ignore/imgs/generated/00_vue_d_ensemble/models/cat_05.jpg');
+}
+
+.sprite-tresses-cat6-sculpturales-locs {
+  background-image: url('../ignore/imgs/generated/00_vue_d_ensemble/models/cat_06.jpg');
+}
+
+.sprite-tissage-simple {
+  background-position: -300px 0;
+}
+
+.sprite-tissage-rajout {
+  background-position: -400px 0;
+}
+
+.sprite-tissage-coupe {
+  background-position: -500px 0;
+}
 
 /* Ligne 1 : Événement & Shampoings (Coiffure) */
-.sprite-chignon-evenement            { background-position: 0 -100px; }
-.sprite-mise-en-forme                { background-position: -100px -100px; }
-.sprite-coup-de-peigne               { background-position: -200px -100px; }
-.sprite-shampoing-bain-huile         { background-position: -300px -100px; }
-.sprite-shampoing-brushing           { background-position: -400px -100px; }
-.sprite-shampoing-babyliss           { background-position: -500px -100px; }
+.sprite-chignon-evenement {
+  background-position: 0 -100px;
+}
+
+.sprite-mise-en-forme {
+  background-position: -100px -100px;
+}
+
+.sprite-coup-de-peigne {
+  background-position: -200px -100px;
+}
+
+.sprite-shampoing-bain-huile {
+  background-position: -300px -100px;
+}
+
+.sprite-shampoing-brushing {
+  background-position: -400px -100px;
+}
+
+.sprite-shampoing-babyliss {
+  background-position: -500px -100px;
+}
 
 /* Ligne 2 : Défrisages, Coloration, Coupes & Soin Visage */
-.sprite-defrisage-salon              { background-position: 0 -200px; }
-.sprite-defrisage-client             { background-position: -100px -200px; }
-.sprite-coloration-balayage          { background-position: -200px -200px; }
-.sprite-coupe-homme                  { background-position: -300px -200px; }
-.sprite-coupe-enfant                 { background-position: -400px -200px; }
-.sprite-soin-visage-eclat            { background-position: -500px -200px; }
+.sprite-defrisage-salon {
+  background-position: 0 -200px;
+}
+
+.sprite-defrisage-client {
+  background-position: -100px -200px;
+}
+
+.sprite-coloration-balayage {
+  background-position: -200px -200px;
+}
+
+.sprite-coupe-homme {
+  background-position: -300px -200px;
+}
+
+.sprite-coupe-enfant {
+  background-position: -400px -200px;
+}
+
+.sprite-soin-visage-eclat {
+  background-position: -500px -200px;
+}
 
 /* Ligne 3 : Massages, Amincissement, Rituel & Ongles */
-.sprite-massage-relaxant             { background-position: 0 -300px; }
-.sprite-cure-amincissante            { background-position: -100px -300px; }
-.sprite-soin-corps-rituel            { background-position: -200px -300px; }
-.sprite-duo-manucure-pedicure        { background-position: -300px -300px; }
-.sprite-vernis-permanent             { background-position: -400px -300px; }
-.sprite-faux-ongles-resine           { background-position: -500px -300px; }
+.sprite-massage-relaxant {
+  background-position: 0 -300px;
+}
+
+.sprite-cure-amincissante {
+  background-position: -100px -300px;
+}
+
+.sprite-soin-corps-rituel {
+  background-position: -200px -300px;
+}
+
+.sprite-duo-manucure-pedicure {
+  background-position: -300px -300px;
+}
+
+.sprite-vernis-permanent {
+  background-position: -400px -300px;
+}
+
+.sprite-faux-ongles-resine {
+  background-position: -500px -300px;
+}
 
 /* Ligne 4 : Cils, Épilations & Forfaits Mariée */
-.sprite-faux-cils                    { background-position: 0 -400px; }
-.sprite-epilation-jambes             { background-position: -100px -400px; }
-.sprite-epilation-aisselles-maillot  { background-position: -200px -400px; }
-.sprite-epilation-sourcils           { background-position: -300px -400px; }
-.sprite-forfait-mariee-1mois         { background-position: -400px -400px; }
-.sprite-forfait-mariee-3mois         { background-position: -500px -400px; }
+.sprite-faux-cils {
+  background-position: 0 -400px;
+}
+
+.sprite-epilation-jambes {
+  background-position: -100px -400px;
+}
+
+.sprite-epilation-aisselles-maillot {
+  background-position: -200px -400px;
+}
+
+.sprite-epilation-sourcils {
+  background-position: -300px -400px;
+}
+
+.sprite-forfait-mariee-1mois {
+  background-position: -400px -400px;
+}
+
+.sprite-forfait-mariee-3mois {
+  background-position: -500px -400px;
+}
 
 /* Ligne 5 : Produits Phares */
-.sprite-prod-huile-pousse            { background-position: 0 -500px; }
-.sprite-prod-masque-keratine         { background-position: -100px -500px; }
-.sprite-prod-edge-control            { background-position: -200px -500px; }
-.sprite-prod-meches-bresiliennes     { background-position: -300px -500px; }
-.sprite-prod-gommage-corps           { background-position: -400px -500px; }
-.sprite-prod-huile-scintillante      { background-position: -500px -500px; }
+.sprite-prod-huile-pousse {
+  background-position: 0 -500px;
+}
+
+.sprite-prod-masque-keratine {
+  background-position: -100px -500px;
+}
+
+.sprite-prod-edge-control {
+  background-position: -200px -500px;
+}
+
+.sprite-prod-meches-bresiliennes {
+  background-position: -300px -500px;
+}
+
+.sprite-prod-gommage-corps {
+  background-position: -400px -500px;
+}
+
+.sprite-prod-huile-scintillante {
+  background-position: -500px -500px;
+}
 
 .service-card-content {
   flex-grow: 1;
@@ -732,22 +868,26 @@ body.modal-open {
   font-weight: 600;
 }
 
-/* --- Modal Dialog de Réservation (Horizontal Wizard 5 Étapes) --- */
+/* --- Modal Dialog de Réservation (Horizontal Wizard 4 Étapes) --- */
 .booking-dialog {
   border: none;
   border-radius: var(--radius-lg);
   padding: 0;
-  max-width: 680px;
-  width: 92vw;
+  max-width: 760px;
+  width: 94vw;
+  max-height: 92vh;
   background: var(--bg-surface);
-  box-shadow: var(--shadow-dark);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 163, 115, 0.35);
   margin: auto;
+  inset: 0;
+  position: fixed;
   overflow: hidden;
 }
 
 .booking-dialog::backdrop {
-  background: rgba(26, 22, 20, 0.65);
-  backdrop-filter: blur(6px);
+  background: rgba(26, 22, 20, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .modal-header {
@@ -859,8 +999,9 @@ body.modal-open {
 }
 
 .booking-modal-body {
-  padding: 1.5rem 1.8rem;
-  overflow: hidden;
+  padding: 1.25rem 1.6rem;
+  overflow-y: auto;
+  max-height: 84vh;
 }
 
 /* Horizontal Slider Viewport & Track (Scroll Horizontal Naturel) */
@@ -999,19 +1140,19 @@ body.modal-open {
 }
 
 .service-card-square {
-  width: 100px;
-  height: 100px;
-  flex: 0 0 100px;
+  width: 105px;
+  height: 105px;
+  flex: 0 0 105px;
   border-radius: var(--radius-sm);
-  background: var(--bg-surface);
-  border: 1.5px solid rgba(212, 163, 115, 0.35);
+  background: #1a1614;
+  border: 1.5px solid rgba(212, 163, 115, 0.45);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.45rem 0.35rem;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 0.5rem 0.45rem;
+  text-align: left;
   cursor: pointer;
   transition: all var(--transition-fast);
   position: relative;
@@ -1020,81 +1161,117 @@ body.modal-open {
   box-sizing: border-box;
 }
 
+/* Overlay sombre dégradé pour garantir un contraste optimal du texte et du prix */
+.service-card-square::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(26, 22, 20, 0.15) 0%, rgba(26, 22, 20, 0.45) 45%, rgba(18, 14, 12, 0.92) 100%);
+  z-index: 2;
+  pointer-events: none;
+  transition: background var(--transition-fast);
+}
+
 .service-card-square:hover {
-  border-color: var(--color-gold-500);
+  border-color: var(--color-gold-400);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 163, 115, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.service-card-square:hover::before {
+  background: linear-gradient(180deg, rgba(26, 22, 20, 0.05) 0%, rgba(26, 22, 20, 0.35) 40%, rgba(18, 14, 12, 0.95) 100%);
+}
+
+.service-card-square:hover .service-card-img {
+  transform: scale(1.08);
 }
 
 .service-card-square.selected {
-  border: 2px solid var(--color-gold-600);
-  background: #fffdf9;
-  box-shadow: 0 0 12px rgba(212, 163, 115, 0.45);
-  transform: scale(1.02);
+  border: 2.5px solid var(--color-gold-400) !important;
+  box-shadow: 0 0 16px rgba(212, 163, 115, 0.7);
+  transform: scale(1.03);
 }
 
 .service-card-square.selected::after {
   content: '✓';
   position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 16px;
-  height: 16px;
-  background: var(--color-gold-600);
-  color: #ffffff;
-  font-size: 0.65rem;
-  font-weight: 800;
+  top: 5px;
+  right: 5px;
+  width: 18px;
+  height: 18px;
+  background: var(--color-gold-500);
+  color: #1a1614;
+  font-size: 0.7rem;
+  font-weight: 900;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
+/* L'image prend désormais TOUTE la carte en arrière-plan */
 .service-card-img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  flex-shrink: 0;
-  border: 1.5px solid rgba(212, 163, 115, 0.4);
+  z-index: 1;
+  border-radius: 0;
+  border: none;
+  transition: transform 0.35s ease;
 }
 
 .service-card-icon-fallback {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--bg-surface-soft);
-  color: var(--color-gold-700);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: linear-gradient(135deg, #2e241e, #1a1512);
+  color: var(--color-gold-400);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  flex-shrink: 0;
+  font-size: 1.8rem;
+  z-index: 1;
 }
 
+/* Nom de la prestation contrasté par-dessus l'image */
 .service-card-name {
+  position: relative;
+  z-index: 3;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: #ffffff;
   line-height: 1.15;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.8);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 90px;
+  max-width: 100%;
+  margin-bottom: 0.2rem;
 }
 
+/* Prix contrasté sous forme de badge chic par-dessus l'image */
 .service-card-price {
-  font-size: 0.66rem;
+  position: relative;
+  z-index: 3;
+  font-size: 0.65rem;
   font-weight: 800;
-  color: var(--color-gold-700);
-  background: rgba(212, 163, 115, 0.15);
+  color: #1a1614;
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
   padding: 0.12rem 0.35rem;
   border-radius: 4px;
   line-height: 1;
   white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.02em;
 }
 
 /* Date shortcuts */
@@ -1214,10 +1391,12 @@ body.modal-open {
   .booking-stepper .step-label {
     display: none;
   }
+
   .booking-stepper {
     padding: 0.75rem 1rem;
     justify-content: center;
   }
+
   .booking-modal-body {
     padding: 1rem;
   }
@@ -1437,9 +1616,11 @@ body.modal-open {
   .fixed-realm-switcher {
     display: none;
   }
+
   .realm-segmented-control {
     border-radius: var(--radius-md);
   }
+
   .realm-segment-btn {
     padding: 0.5rem 0.9rem;
   }
@@ -1531,8 +1712,15 @@ body.modal-open {
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  100% { transform: scale(1.4); opacity: 0; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
 
 /* --- Modale Détail Prestation --- */
@@ -1762,13 +1950,14 @@ body.modal-open {
 }
 
 .wave-header-icon {
-  width: 20px;
-  height: 20px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
   background: #1ba5f8;
-  border: 1.5px solid #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform var(--transition-fast);
 }
 
 .wave-dialog {
@@ -2127,14 +2316,16 @@ body.modal-open {
   border: none;
   border-radius: var(--radius-lg);
   padding: 0;
-  max-width: 1260px;
-  width: 95vw;
-  height: 92vh;
-  max-height: 92vh;
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-dark);
+  width: 95vw !important;
+  max-width: 1300px !important;
+  height: 94vh;
+  max-height: 94vh;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 163, 115, 0.35);
   margin: auto;
+  inset: 0;
+  position: fixed;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
 .catalog-fullscreen-dialog[open] {
@@ -2148,6 +2339,103 @@ body.modal-open {
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* ==========================================================================
+   LES 3 PALETTES DÉDIÉES (AMBIANCE & COULEUR DE FOND PAR MENU CHOISI)
+   ========================================================================== */
+
+/* 1. Salon Coiffure : Ambiance Ivoire Doré / Or Ambré (couleur par défaut) */
+.catalog-fullscreen-dialog.realm-coiffure {
+  background-color: #FAF6EF;
+}
+.realm-coiffure .catalog-sticky-filters {
+  background-color: #F4ECE1;
+  border-bottom: 1.5px solid rgba(212, 163, 115, 0.45);
+}
+.realm-coiffure .catalog-modal-body {
+  background-color: #FAF6EF;
+}
+.realm-coiffure .subfilter-chip {
+  background: #FFFDF9;
+  border-color: rgba(212, 163, 115, 0.35);
+  color: #4A3B32;
+}
+.realm-coiffure .subfilter-chip:hover {
+  background: #ffffff;
+  border-color: var(--color-gold-500);
+}
+.realm-coiffure .subfilter-chip.active {
+  background: #1a1614;
+  color: #D4A373;
+  border-color: #D4A373;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.realm-coiffure .modal-search-box input {
+  background: #ffffff;
+  border-color: rgba(212, 163, 115, 0.45);
+}
+
+/* 2. Institut Esthétique & Spa : Ambiance Rose Poudré & Nude Doux */
+.catalog-fullscreen-dialog.realm-esthetic {
+  background-color: #FDF2F4;
+}
+.realm-esthetic .catalog-sticky-filters {
+  background-color: #FAEAEE;
+  border-bottom: 1.5px solid rgba(217, 119, 142, 0.4);
+}
+.realm-esthetic .catalog-modal-body {
+  background-color: #FDF2F4;
+}
+.realm-esthetic .subfilter-chip {
+  background: #FFF9FA;
+  border-color: rgba(217, 119, 142, 0.35);
+  color: #5C2D3B;
+}
+.realm-esthetic .subfilter-chip:hover {
+  background: #ffffff;
+  border-color: #D47A94;
+}
+.realm-esthetic .subfilter-chip.active {
+  background: #5A1E2F;
+  color: #FCE4EC;
+  border-color: #D47A94;
+  box-shadow: 0 2px 8px rgba(90, 30, 47, 0.22);
+}
+.realm-esthetic .modal-search-box input {
+  background: #ffffff;
+  border-color: rgba(217, 119, 142, 0.45);
+}
+
+/* 3. Produits Phares : Ambiance Vert Sauge Botanique & Céladon */
+.catalog-fullscreen-dialog.realm-produits {
+  background-color: #EEF6F2;
+}
+.realm-produits .catalog-sticky-filters {
+  background-color: #E2EFE7;
+  border-bottom: 1.5px solid rgba(82, 163, 120, 0.4);
+}
+.realm-produits .catalog-modal-body {
+  background-color: #EEF6F2;
+}
+.realm-produits .subfilter-chip {
+  background: #F7FCFA;
+  border-color: rgba(82, 163, 120, 0.35);
+  color: #1F4D33;
+}
+.realm-produits .subfilter-chip:hover {
+  background: #ffffff;
+  border-color: #4C9C72;
+}
+.realm-produits .subfilter-chip.active {
+  background: #16462B;
+  color: #E1EFE8;
+  border-color: #4C9C72;
+  box-shadow: 0 2px 8px rgba(22, 70, 43, 0.22);
+}
+.realm-produits .modal-search-box input {
+  background: #ffffff;
+  border-color: rgba(82, 163, 120, 0.45);
+}
+
 .catalog-modal-container {
   display: flex;
   flex-direction: column;
@@ -2155,10 +2443,11 @@ body.modal-open {
   width: 100%;
 }
 
+/* EN-TÊTE ULTRA-COMPACT ET COLLÉ */
 .catalog-modal-header {
   background: var(--bg-dark);
   color: var(--text-inverse);
-  padding: 1.25rem 2rem;
+  padding: 0.5rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2168,105 +2457,191 @@ body.modal-open {
 
 .catalog-modal-badge {
   font-family: var(--font-subheading);
-  font-size: 0.75rem;
-  letter-spacing: 2px;
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--color-gold-400);
   font-weight: 700;
   display: block;
+  margin: 0;
+  line-height: 1.1;
 }
 
 .catalog-modal-title {
   font-family: var(--font-heading);
-  font-size: 1.6rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #ffffff;
-  margin-top: 0.15rem;
+  margin-top: 0.05rem;
+  margin-bottom: 0;
+  line-height: 1.2;
 }
 
-/* FILTRES IMBRIQUÉS COLLÉS EN HAUT (STICKY) */
+.catalog-modal-header .modal-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  color: #d6cfc8;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.catalog-modal-header .modal-close-btn:hover {
+  background: rgba(212, 163, 115, 0.25);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* FILTRES IMBRIQUÉS COLLÉS DIRECTEMENT SOUS L'EN-TÊTE (STICKY) */
 .catalog-sticky-filters {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--bg-surface);
-  padding: 1.1rem 2rem;
-  border-bottom: 1.5px solid rgba(212, 163, 115, 0.35);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  padding: 0.35rem 1.25rem 0.45rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Filtre Niveau 1 : Univers / Type Principal */
+/* Filtre Niveau 1 : Univers / Bannières Pleine Largeur Ultra-Compactes */
 .filter-level-1 {
-  display: flex;
-  justify-content: center;
-  gap: 0.85rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  width: 100%;
 }
 
 .level1-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 1.4rem;
-  border-radius: var(--radius-full);
-  background: var(--bg-surface-soft);
-  color: var(--text-main);
+  position: relative;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
   border: 1.5px solid rgba(212, 163, 115, 0.35);
+  background: #1a1614;
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
+  padding: 0;
+  display: block;
+}
+
+.level1-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.level1-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(16, 12, 10, 0.88) 0%, rgba(20, 16, 14, 0.76) 55%, rgba(20, 16, 14, 0.6) 100%);
+  transition: background var(--transition-fast);
+}
+
+.level1-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.65rem;
+  height: 100%;
+}
+
+.level1-btn:hover .level1-bg {
+  transform: scale(1.06);
 }
 
 .level1-btn:hover {
-  border-color: var(--color-gold-500);
-  background: #ffffff;
-  transform: translateY(-1px);
+  border-color: var(--color-gold-400);
+  box-shadow: 0 3px 12px rgba(212, 163, 115, 0.3);
 }
 
 .level1-btn.active {
+  border-color: var(--color-gold-400);
+  box-shadow: 0 0 14px rgba(212, 163, 115, 0.4);
+}
+
+.level1-btn.active .level1-overlay {
+  background: linear-gradient(90deg, rgba(28, 20, 12, 0.92) 0%, rgba(35, 24, 15, 0.8) 60%, rgba(45, 30, 18, 0.65) 100%);
+}
+
+.level1-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: var(--gradient-gold);
-  color: #1a1614;
-  border-color: transparent;
-  box-shadow: var(--shadow-gold);
+  z-index: 3;
 }
 
 .level1-icon {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .level1-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.15;
+  overflow: hidden;
 }
 
 .level1-text strong {
-  font-size: 0.95rem;
+  font-size: 0.84rem;
   font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.level1-text .title-short {
+  display: none;
+}
+
+.level1-btn.active .level1-text strong {
+  color: var(--color-gold-300);
 }
 
 .level1-text small {
-  font-size: 0.75rem;
-  opacity: 0.85;
+  font-size: 0.68rem;
+  color: #d6cfc8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
 }
 
-/* Filtre Niveau 2 : Sous-filtres imbriqués + Recherche */
+/* Filtre Niveau 2 : Sous-filtres Illustrés Compacts + Recherche */
 .filter-level-2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1.25rem;
-  margin-top: 1rem;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
   flex-wrap: wrap;
-  padding-top: 0.75rem;
+  padding-top: 0.35rem;
   border-top: 1px dashed rgba(212, 163, 115, 0.25);
 }
 
 .subfilters-chips-bar {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -2275,40 +2650,382 @@ body.modal-open {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.45rem 1.15rem;
-  border-radius: var(--radius-full);
-  background: var(--bg-surface-soft);
-  color: var(--text-muted);
-  font-size: 0.86rem;
+  padding: 0.15rem 0.65rem 0.15rem 0.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
   font-weight: 600;
   border: 1px solid rgba(212, 163, 115, 0.3);
   cursor: pointer;
   transition: all var(--transition-fast);
+  height: 30px;
 }
 
 .subfilter-chip:hover {
-  color: var(--text-main);
-  border-color: var(--color-gold-500);
-  background: #ffffff;
+  transform: translateY(-1px);
 }
 
-.subfilter-chip.active {
-  background: var(--bg-dark);
-  color: var(--color-gold-400);
-  border-color: var(--bg-dark);
+.subfilter-thumb-img {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.subfilter-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-left: 0.1rem;
+}
+
+/* ==========================================================================
+   LES 3 PALETTES DE TONS CLAIRS POUR LES CARDS (COIFFURE, ESTHÉTIQUE, PRODUITS)
+   ========================================================================== */
+
+/* --- THÈME COIFFURE (Ivoire Doré & Ambre Pâle) --- */
+.service-card.theme-coiffure {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F0 100%);
+  border: 1.5px solid rgba(217, 163, 94, 0.35);
+}
+
+.service-card.theme-coiffure:hover {
+  border-color: var(--color-gold-500);
+  box-shadow: 0 8px 24px rgba(217, 163, 94, 0.18);
+}
+
+.theme-coiffure .badge-main-cat {
+  background: #F7EEDB;
+  color: #8B5A18;
+  border: 1px solid rgba(139, 90, 24, 0.25);
+}
+
+.theme-coiffure .badge-sub-cat {
+  background: #EFE3D0;
+  color: #69430F;
+  border: 1px solid rgba(105, 67, 15, 0.25);
+}
+
+.theme-coiffure .service-price-amount {
+  color: #9C5E1B;
+}
+
+/* --- THÈME ESTHÉTIQUE (Rose Poudré & Nude Doux) --- */
+.service-card.theme-esthetic {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF0F3 100%);
+  border: 1.5px solid rgba(224, 160, 175, 0.4);
+}
+
+.service-card.theme-esthetic:hover {
+  border-color: #D47A94;
+  box-shadow: 0 8px 24px rgba(217, 119, 142, 0.18);
+}
+
+.theme-esthetic .badge-main-cat {
+  background: #FCE4EC;
+  color: #882946;
+  border: 1px solid rgba(136, 41, 70, 0.25);
+}
+
+.theme-esthetic .badge-sub-cat {
+  background: #F8D7E0;
+  color: #6B1D34;
+  border: 1px solid rgba(107, 29, 52, 0.25);
+}
+
+.theme-esthetic .service-price-amount {
+  color: #9E3354;
+}
+
+/* --- THÈME PRODUITS (Vert Sauge & Céladon Botanique) --- */
+.product-card.theme-produits {
+  background: linear-gradient(180deg, #FFFFFF 0%, #EDF7F2 100%);
+  border: 1.5px solid rgba(130, 185, 155, 0.42);
+}
+
+.product-card.theme-produits:hover {
+  border-color: #4C9C72;
+  box-shadow: 0 8px 24px rgba(82, 163, 120, 0.18);
+}
+
+.theme-produits .badge-main-cat {
+  background: #E1EFE8;
+  color: #1E5B3C;
+  border: 1px solid rgba(30, 91, 60, 0.25);
+}
+
+.theme-produits .badge-sub-cat {
+  background: #D0E6DB;
+  color: #14462C;
+  border: 1px solid rgba(20, 70, 44, 0.25);
+}
+
+.theme-produits .product-price {
+  color: #1A6B41;
+}
+
+/* --- BADGES HIÉRARCHIQUES DE CATÉGORIE VISIBLES SUR CHAQUE CARD --- */
+.card-hierarchical-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.badge-main-cat,
+.badge-sub-cat {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  box-shadow: var(--shadow-sm);
+  line-height: 1.15;
+  padding: 0.22rem 0.6rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: transform var(--transition-fast);
+}
+
+.badge-main-cat:hover,
+.badge-sub-cat:hover {
+  transform: translateY(-1px);
+}
+
+/* Bouton Roue Dentée (⚙️) d'édition rapide sur chaque card */
+.card-gear-edit-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(212, 163, 115, 0.55);
+  color: #5c4638;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: all var(--transition-fast);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.card-gear-edit-btn:hover {
+  background: var(--bg-dark);
+  color: #f7d794;
+  border-color: var(--color-gold-500);
+  transform: rotate(35deg) scale(1.1);
+}
+
+.service-card .card-gear-edit-btn {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 12;
+}
+
+.product-card .card-gear-edit-btn {
+  position: absolute;
+  top: 0.65rem;
+  left: 2.9rem;
+  z-index: 12;
+}
+
+/* Bouton Planches 51 modèles sur les 6 cards de tresses du catalogue */
+.btn-service-planches {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.38rem 0.68rem;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 163, 115, 0.6);
+  background: #fdf6ec;
+  color: #7c4d15;
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-service-planches:hover {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  box-shadow: 0 3px 10px rgba(212, 163, 115, 0.35);
+}
+
+/* --- BOUTON PERMALIEN SEO EN HAUT À GAUCHE DE LA CARD (OUVRE NOUVEL ONGLET) --- */
+.card-seo-link-btn {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(212, 163, 115, 0.45);
+  color: #7a6254;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+
+.card-seo-link-btn:hover {
+  background: #ffffff;
+  color: var(--color-gold-600);
+  border-color: var(--color-gold-500);
+  transform: scale(1.12);
+  box-shadow: 0 3px 10px rgba(212, 163, 115, 0.35);
+}
+
+.theme-coiffure .card-seo-link-btn {
+  border-color: rgba(217, 163, 94, 0.45);
+}
+.theme-coiffure .card-seo-link-btn:hover {
+  color: #9C5E1B;
+  border-color: #D4A373;
+}
+
+.theme-esthetic .card-seo-link-btn {
+  border-color: rgba(224, 160, 175, 0.5);
+  color: #882946;
+}
+.theme-esthetic .card-seo-link-btn:hover {
+  color: #9E3354;
+  border-color: #D47A94;
+}
+
+.theme-produits .card-seo-link-btn {
+  border-color: rgba(130, 185, 155, 0.5);
+  color: #1E5B3C;
+}
+.theme-produits .card-seo-link-btn:hover {
+  color: #14462C;
+  border-color: #4C9C72;
+}
+
+/* Badge produit (e.g. Best-Seller) déplacé en haut à droite */
+.product-card .product-badge {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  left: auto;
+  z-index: 5;
+}
+
+/* --- SECTION SEO DANS LA BOÎTE DE DÉTAILS --- */
+.service-detail-seo-box {
+  background: var(--bg-surface-soft);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin: 1.2rem 0;
+}
+
+.seo-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.seo-box-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.seo-box-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.seo-box-url-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.seo-url-input {
+  flex-grow: 1;
+  font-family: monospace;
+  font-size: 0.78rem;
+  padding: 0.45rem 0.65rem;
+  background: #ffffff;
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  outline: none;
+}
+
+.btn-copy-seo,
+.btn-share-whatsapp-seo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-copy-seo {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid rgba(212, 163, 115, 0.5);
+}
+
+.btn-copy-seo:hover {
+  background: #ffffff;
+  border-color: var(--color-gold-500);
+  color: var(--color-gold-600);
+}
+
+.btn-copy-seo.copied {
+  background: #e6f4ea;
+  color: #137333;
+  border-color: #34a853;
+}
+
+.btn-share-whatsapp-seo {
+  background: #25D366;
+  color: #ffffff;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-share-whatsapp-seo:hover {
+  background: #1da851;
+  transform: translateY(-1px);
 }
 
 .modal-search-box {
   position: relative;
-  min-width: 280px;
-  flex-grow: 0.35;
+  min-width: 240px;
+  flex-grow: 0.3;
 }
 
 .modal-search-box svg {
   position: absolute;
-  left: 1rem;
+  left: 0.85rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-light);
@@ -2317,13 +3034,14 @@ body.modal-open {
 
 .modal-search-box input {
   width: 100%;
-  padding: 0.55rem 2rem 0.55rem 2.5rem;
+  padding: 0.35rem 1.8rem 0.35rem 2.2rem;
   border-radius: var(--radius-full);
   border: 1px solid rgba(212, 163, 115, 0.4);
-  background: var(--bg-surface);
-  font-size: 0.88rem;
+  background: #ffffff;
+  font-size: 0.82rem;
   color: var(--text-main);
   outline: none;
+  height: 30px;
   transition: all var(--transition-fast);
 }
 
@@ -2334,23 +3052,23 @@ body.modal-open {
 
 .modal-search-clear {
   position: absolute;
-  right: 0.8rem;
+  right: 0.65rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   padding: 0.2rem;
 }
 
 /* Corps du catalogue scrollable */
 .catalog-modal-body {
-  padding: 2rem;
+  padding: 1.25rem 1.5rem;
   overflow-y: auto;
   flex-grow: 1;
-  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 /* ==========================================================================
@@ -2360,14 +3078,17 @@ body.modal-open {
   border: none;
   border-radius: var(--radius-lg);
   padding: 0;
-  max-width: 1040px;
+  max-width: 1100px;
   width: 95vw;
-  max-height: 90vh;
+  height: 92vh;
+  max-height: 94vh;
   background: var(--bg-dark);
-  box-shadow: var(--shadow-dark);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 163, 115, 0.35);
   margin: auto;
+  inset: 0;
+  position: fixed;
   overflow: hidden;
-  border: 2px solid var(--color-gold-500);
+  border: 1.5px solid var(--color-gold-500);
 }
 
 .event-modal-dialog[open] {
@@ -2573,28 +3294,37 @@ body.modal-open {
 
 /* Responsive */
 @media (max-width: 900px) {
+
   .wedding-cards-wrapper,
   .wedding-cards-wrapper.in-modal {
     grid-template-columns: 1fr;
   }
+
   .gallery-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .gallery-item.col-span-2 {
     grid-column: span 1;
   }
+
   .catalog-sticky-filters {
-    padding: 1rem;
+    padding: 0.35rem 0.75rem 0.35rem;
   }
+
   .filter-level-1 {
-    gap: 0.5rem;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.35rem;
   }
+
   .level1-btn {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
   }
+
   .catalog-modal-body {
-    padding: 1rem;
+    padding: 0.85rem;
   }
 }
 
@@ -2602,27 +3332,1896 @@ body.modal-open {
   .btn-salon-space span {
     display: none;
   }
+
   .btn-salon-space {
     padding: 0.55rem;
   }
+
   .btn-wave-pay {
     padding: 0.5rem 0.7rem;
     font-size: 0.78rem;
   }
+
   .services-grid {
     grid-template-columns: 1fr;
   }
+
   .time-slots-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
   .gallery-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Sur mobile, maintien absolu des 3 colonnes pour le niveau 1 */
   .filter-level-1 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.25rem;
+  }
+
+  .level1-btn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+  }
+
+  .level1-content {
+    padding: 0.15rem 0.35rem;
+    gap: 0.3rem;
+    justify-content: center;
+  }
+
+  .level1-icon {
+    font-size: 1rem;
+  }
+
+  .level1-text strong.title-full {
+    display: none !important;
+  }
+
+  .level1-text strong.title-short {
+    display: inline-block !important;
+    font-size: 0.76rem;
+  }
+
+  .level1-text small {
+    display: none !important;
+  }
+
+  .filter-level-2 {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
   }
-  .level1-btn {
-    justify-content: flex-start;
+
+  .subfilters-chips-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .subfilters-chips-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subfilter-chip {
+    height: 28px;
+    font-size: 0.74rem;
+    padding: 0.1rem 0.5rem 0.1rem 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .subfilter-thumb-img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .modal-search-box {
+    width: 100%;
+    min-width: 100%;
+    margin-top: 0.2rem;
+  }
+
+  .modal-search-box input {
+    height: 28px;
+    font-size: 0.78rem;
+    padding: 0.2rem 1.6rem 0.2rem 2rem;
+  }
+
+  .modal-search-box svg {
+    left: 0.65rem;
+    width: 14px;
+    height: 14px;
+  }
+
+  .header-actions {
+    gap: 0.5rem;
+  }
+
+  .header-actions .header-icon-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 12px !important;
+  }
+
+  .header-actions .header-icon-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .wave-header-icon {
+    width: 28px;
+    height: 28px;
   }
 }
+
+/* ==========================================================================
+   MODALE 7 : CATALOGUE VISUEL DES COIFFURES & PLANCHES DE MODÈLES
+   ========================================================================== */
+
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.hair-catalog-modal {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: 95vw !important;
+  max-width: 1300px !important;
+  height: 94vh;
+  max-height: 94vh;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 163, 115, 0.35);
+  margin: auto;
+  inset: 0;
+  position: fixed;
+  overflow: hidden;
+  background: var(--bg-surface, #ffffff);
+}
+
+.hair-catalog-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.hair-catalog-modal::backdrop {
+  background: rgba(26, 22, 20, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hair-catalog-modal .hair-catalog-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 94vh;
+  width: 100%;
+}
+
+.hair-catalog-header h2,
+#hairCatalogModalTitle {
+  color: #ffffff !important;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  margin: 0.15rem 0 0 0;
+  line-height: 1.2;
+}
+
+/* Actions d'en-tête du Lookbook & Bouton de Recherche escamotable */
+.hair-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.hair-header-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hair-header-search-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(212, 163, 115, 0.45);
+  color: #f7d794;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hair-header-search-btn:hover,
+.hair-header-search-wrap.active .hair-header-search-btn {
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
+  color: #1a1614;
+  border-color: #ffffff;
+  transform: scale(1.05);
+}
+
+.hair-header-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, margin 0.22s ease;
+  margin-left: 0;
+}
+
+.hair-header-search-wrap.active .hair-header-search-box {
+  max-width: 340px;
+  opacity: 1;
+  margin-left: 0.5rem;
+}
+
+.hair-header-search-box input {
+  width: 250px;
+  padding: 0.42rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--color-gold-500);
+  background: #ffffff;
+  color: #1a1614;
+  font-size: 0.82rem;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.hair-header-search-box input:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.5);
+}
+
+.hair-header-search-clear {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hair-header-search-clear:hover {
+  background: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
+.hair-catalog-sticky-nav {
+  background: #fdfbf9;
+  border-bottom: 1px solid rgba(212, 163, 115, 0.3);
+  padding: 0.7rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.hair-cat-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+}
+
+.hair-cat-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  border: 1.5px solid rgba(212, 163, 115, 0.35);
+  color: var(--text-main);
+  font-size: 0.83rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hair-cat-tab-btn:hover {
+  border-color: var(--color-gold-600);
+  background: rgba(212, 163, 115, 0.1);
+}
+
+.hair-cat-tab-btn.active {
+  background: linear-gradient(135deg, #1a1614 0%, #322620 100%);
+  color: #f7d794;
+  border-color: var(--color-gold-500);
+  box-shadow: 0 4px 12px rgba(26, 22, 20, 0.2);
+}
+
+.hair-cat-tab-count {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(212, 163, 115, 0.22);
+  color: inherit;
+}
+
+.hair-catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hair-style-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--bg-surface-soft);
+  padding: 0.25rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  flex-wrap: wrap;
+}
+
+.hair-style-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hair-style-btn.active {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  box-shadow: 0 2px 8px rgba(212, 163, 115, 0.35);
+}
+
+.hair-catalog-search {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.hair-catalog-search svg {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.hair-catalog-search input {
+  width: 100%;
+  padding: 0.42rem 0.9rem 0.42rem 2.25rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  background: #ffffff;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  outline: none;
+}
+
+.hair-catalog-search input:focus {
+  border-color: var(--color-gold-600);
+  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+}
+
+.hair-catalog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Bannière d'introduction de la catégorie sélectionnée */
+.hair-cat-banner {
+  background: linear-gradient(135deg, #1d1714 0%, #2f231d 100%);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hair-cat-banner-info {
+  flex: 1;
+  min-width: 260px;
+}
+
+.hair-cat-banner-info h3 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  color: #f7d794;
+  margin-bottom: 0.35rem;
+}
+
+.hair-cat-banner-info p {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.5;
+}
+
+.hair-cat-metrics {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.hair-metric-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(247, 215, 148, 0.35);
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 115px;
+}
+
+.hair-metric-pill small {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-gold-400);
+}
+
+.hair-metric-pill strong {
+  font-size: 0.86rem;
+  color: #ffffff;
+}
+
+/* Grille des Planches Visuelles */
+.hair-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(212, 163, 115, 0.28);
+}
+
+.hair-section-heading h4 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hair-boards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.25rem;
+}
+
+.hair-boards-grid.single-overview {
+  grid-template-columns: minmax(280px, 760px);
+  justify-content: center;
+}
+
+.hair-board-card {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgba(212, 163, 115, 0.35);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.hair-board-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(26, 22, 20, 0.14);
+  border-color: var(--color-gold-600);
+}
+
+.hair-board-img-wrap {
+  position: relative;
+  background: #14110f;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Bouton œil 👁️ en haut à gauche de la carte pour zoom plein écran */
+.board-eye-zoom-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(20, 16, 14, 0.88);
+  color: #f7d794;
+  border: 1.5px solid rgba(212, 163, 115, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all var(--transition-fast);
+}
+
+.board-eye-zoom-btn:hover {
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
+  color: #1a1614;
+  border-color: #ffffff;
+  transform: scale(1.12);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+
+.hair-board-click-tag {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(26, 22, 20, 0.85);
+  color: #ffffff;
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+  transition: all var(--transition-fast);
+}
+
+.hair-board-card:hover .hair-board-click-tag {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  border-color: #ffffff;
+}
+
+.hair-board-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.hair-board-card:hover .hair-board-img-wrap img {
+  transform: scale(1.025);
+}
+
+.hair-board-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(20, 17, 15, 0.88);
+  color: #f7d794;
+  border: 1px solid rgba(247, 215, 148, 0.5);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
+.hair-board-zoom-hint {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(212, 163, 115, 0.95);
+  color: #1a1614;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hair-board-meta {
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hair-board-meta strong {
+  font-size: 0.94rem;
+  color: var(--text-main);
+}
+
+.hair-board-meta span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Grille des Fiches Modèles Individuelles */
+.hair-models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.hair-model-card {
+  background: #ffffff;
+  border: 1.5px solid rgba(212, 163, 115, 0.35);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hair-model-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-gold-600);
+  box-shadow: 0 10px 22px rgba(26, 22, 20, 0.14);
+}
+
+.hair-model-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: #14110f;
+  overflow: hidden;
+  cursor: zoom-in;
+  border-bottom: 1px solid rgba(212, 163, 115, 0.25);
+}
+
+.hair-model-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.hair-model-card:hover .hair-model-img-wrap img {
+  transform: scale(1.04);
+}
+
+.hair-model-cat-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(20, 17, 15, 0.88);
+  color: #f7d794;
+  border: 1px solid rgba(247, 215, 148, 0.55);
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  backdrop-filter: blur(6px);
+  z-index: 4;
+  max-width: calc(100% - 88px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hair-model-cat-inline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #f7eedb;
+  color: #7c4d15;
+  border: 1px solid rgba(139, 90, 24, 0.28);
+  border-radius: 999px;
+  padding: 0.16rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.hair-model-zoom-pill {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(20, 17, 15, 0.82);
+  color: #f7d794;
+  border: 1px solid rgba(247, 215, 148, 0.45);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+  opacity: 0.9;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.hair-model-card:hover .hair-model-zoom-pill {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.hair-model-card-body {
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.hair-model-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.hair-model-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1614 0%, #382a22 100%);
+  color: #f7d794;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(247, 215, 148, 0.45);
+}
+
+.hair-model-title-box {
+  flex: 1;
+}
+
+.hair-model-title-box strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.hair-model-style-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  color: var(--color-gold-700);
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+
+.hair-model-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.42;
+}
+
+.hair-model-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(212, 163, 115, 0.3);
+  flex-wrap: wrap;
+}
+
+.hair-model-badges {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.hair-badge-chip {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 6px;
+  background: var(--bg-surface-soft);
+  color: var(--text-main);
+}
+
+.hair-model-choose-btn {
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-gold-600);
+  background: rgba(212, 163, 115, 0.14);
+  color: #1a1614;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hair-model-choose-btn:hover {
+  background: var(--gradient-gold);
+  box-shadow: 0 3px 10px rgba(212, 163, 115, 0.35);
+}
+
+/* Visionneuse Plein Écran (Lightbox) */
+.hair-board-lightbox {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  background: rgba(14, 11, 10, 0.96);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(8px);
+}
+
+.hair-board-lightbox[hidden] {
+  display: none !important;
+}
+
+.hair-lightbox-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.4rem;
+  background: rgba(26, 22, 20, 0.95);
+  border-bottom: 1px solid rgba(247, 215, 148, 0.25);
+  color: #ffffff;
+  flex-wrap: wrap;
+}
+
+.hair-lightbox-caption strong {
+  color: #f7d794;
+  font-size: 0.98rem;
+  display: block;
+}
+
+.hair-lightbox-caption span {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hair-lightbox-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hair-lightbox-nav-btn,
+.hair-lightbox-close-btn {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(247, 215, 148, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  transition: all var(--transition-fast);
+}
+
+.hair-lightbox-close-btn {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  border-color: transparent;
+}
+
+.hair-lightbox-nav-btn:hover {
+  background: rgba(247, 215, 148, 0.22);
+}
+
+.hair-lightbox-stage {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.hair-lightbox-stage img {
+  max-width: 100%;
+  max-height: calc(92vh - 90px);
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+}
+
+/* ==========================================================================
+   REFONTE HIÉRARCHIQUE DES SERVICES (2 À 3 NIVEAUX) & FIL D'ARIANE
+   ========================================================================== */
+.catalog-breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.25rem;
+  margin-top: 0.35rem;
+  border-top: 1px dashed rgba(212, 163, 115, 0.25);
+  flex-wrap: wrap;
+}
+
+.catalog-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+.breadcrumb-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(212, 163, 115, 0.45);
+  background: rgba(212, 163, 115, 0.12);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.breadcrumb-back-btn:hover {
+  background: var(--color-gold-500);
+  color: #1a1614;
+}
+
+.breadcrumb-item {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.breadcrumb-item:hover {
+  color: var(--color-gold-600);
+}
+
+.breadcrumb-item.current {
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: default;
+}
+
+.breadcrumb-separator {
+  color: var(--color-gold-500);
+  opacity: 0.6;
+}
+
+.service-search-compact {
+  max-width: 280px;
+  min-width: 180px;
+}
+
+/* Grille des Familles de Services */
+.service-families-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.service-family-card {
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #fffbf5 100%);
+  border: 1.5px solid rgba(212, 163, 115, 0.35);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 14px rgba(45, 36, 32, 0.05);
+}
+
+.service-family-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-gold-500);
+  box-shadow: 0 10px 24px rgba(212, 163, 115, 0.2);
+}
+
+.family-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.family-card-thumb-wrap {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid rgba(212, 163, 115, 0.45);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+  background: var(--bg-surface-soft);
+}
+
+.family-card-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-fast);
+}
+
+.service-family-card:hover .family-card-thumb-img {
+  transform: scale(1.08);
+}
+
+.family-card-icon-pill {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: rgba(26, 22, 20, 0.85);
+  border: 1px solid var(--color-gold-500);
+  border-radius: 999px;
+  width: 22px;
+  height: 22px;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.family-card-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(212, 163, 115, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(212, 163, 115, 0.3);
+}
+
+.family-card-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(212, 163, 115, 0.2);
+  color: var(--color-gold-700, #93652d);
+}
+
+.family-card-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: var(--text-main);
+  margin-bottom: 0.3rem;
+}
+
+.family-card-body p {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.family-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.65rem;
+  border-top: 1px dashed rgba(212, 163, 115, 0.25);
+  font-size: 0.82rem;
+}
+
+.family-card-price {
+  font-weight: 700;
+  color: var(--color-gold-600);
+}
+
+.family-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Bannière Lookbook Foldable */
+.hair-cat-banner {
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.hair-cat-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hair-cat-banner-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hair-banner-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(247, 215, 148, 0.35);
+  color: #f7d794;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hair-banner-toggle-btn:hover {
+  background: rgba(247, 215, 148, 0.25);
+}
+
+.hair-cat-metrics.compact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.hair-metric-chip-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(247, 215, 148, 0.3);
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+  font-size: 0.75rem;
+  color: #ffffff;
+}
+
+.hair-metric-chip-inline span.chip-label {
+  color: var(--color-gold-400);
+  font-weight: 600;
+}
+
+/* État foldé par défaut */
+.hair-cat-banner.folded .hair-cat-banner-info p {
+  display: none;
+}
+
+/* État unfold : paragraphe visible avec typographie agrandie */
+.hair-cat-banner.unfolded .hair-cat-banner-info p {
+  display: block;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(247, 215, 148, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* Vue Détail de la Planche Choisie */
+.hair-board-detail-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* Barre collante sous .hair-catalog-sticky-nav avec bouton retour */
+.hair-board-sticky-header {
+  position: sticky;
+  top: -1.25rem;
+  z-index: 25;
+  background: rgba(253, 251, 249, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.65rem 1.5rem;
+  margin: -1.25rem -1.5rem 0.85rem;
+  border-bottom: 1.5px solid rgba(212, 163, 115, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px rgba(45, 36, 32, 0.06);
+}
+
+.hair-board-sticky-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  flex-wrap: wrap;
+}
+
+.hair-board-sticky-badge {
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
+  color: #1a1614;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hair-board-sticky-zoom-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-back-to-boards {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-soft);
+  border: 1px solid var(--color-gold-500);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-back-to-boards:hover {
+  background: var(--gradient-gold);
+  color: #1a1614;
+}
+
+/* Hero Fusionné et Compact (fusion de l'ancienne barre et du mini hero) */
+.hair-board-hero-unified {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, #fffdfa 0%, #fbf5ee 100%);
+  border: 1.5px solid rgba(212, 163, 115, 0.45);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.15rem;
+  box-shadow: 0 4px 18px rgba(212, 163, 115, 0.12);
+  margin-bottom: 1rem;
+}
+
+.hair-board-hero-thumb-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 130px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1.5px solid rgba(212, 163, 115, 0.5);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hair-board-hero-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.hair-board-hero-thumb-wrap:hover img {
+  transform: scale(1.08);
+}
+
+.hair-board-hero-zoom-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(26, 22, 20, 0.82);
+  color: #f7d794;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.hair-board-hero-content {
+  flex: 1;
+  min-width: 220px;
+}
+
+.hair-board-hero-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.hair-board-hero-tags .badge-gold {
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
+  color: #1a1614;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.hair-board-hero-tags .badge-subtle {
+  background: rgba(212, 163, 115, 0.15);
+  color: var(--color-gold-800, #734e20);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 163, 115, 0.35);
+}
+
+.hair-board-hero-content h3 {
+  font-family: var(--font-heading);
+  font-size: 1.18rem;
+  color: var(--text-main);
+  margin: 0 0 0.25rem 0;
+  line-height: 1.25;
+}
+
+.hair-board-hero-content p {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Finition & Harmonisation du Footer de la Modale Catalogue / Lookbook */
+.catalog-modal-footer {
+  background: #ffffff;
+  border-top: 1.5px solid rgba(212, 163, 115, 0.35);
+  padding: 0.85rem 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.catalog-modal-footer p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  flex: 1 1 300px;
+}
+
+.catalog-modal-footer .btn-primary {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.catalog-modal-footer .btn-secondary {
+  padding: 0.65rem 1.15rem;
+  font-size: 0.88rem;
+}
+
+/* Navigation hiérarchique dans le Booking Wizard Étape 1 */
+.booking-hierarchy-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px dashed rgba(212, 163, 115, 0.25);
+}
+
+.booking-hierarchy-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-gold-700, #93652d);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.booking-hierarchy-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   NOUVEAUX STYLES : BOUTON RETOUR WIZARD & CARDS 2ND NIVEAU CLIC-TOTAL
+   ========================================================================== */
+.booking-header-with-back {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-booking-back-prev {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-full);
+  background: rgba(212, 163, 115, 0.15);
+  border: 1px solid var(--color-gold-500);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-booking-back-prev:hover {
+  background: var(--gradient-gold);
+  color: #1a1614;
+  transform: translateX(-2px);
+}
+
+/* Cards 2nd Niveau (Entièrement Cliquables & Épurées) */
+.service-card.level2-category-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.service-card.level2-category-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-gold-500);
+  box-shadow: 0 10px 24px rgba(212, 163, 115, 0.22);
+}
+
+.level2-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.level2-card-thumb-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid rgba(212, 163, 115, 0.45);
+  flex-shrink: 0;
+  background: var(--bg-surface-soft);
+}
+
+.level2-card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.level2-cat-num {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(26, 22, 20, 0.85);
+  color: var(--color-gold-400);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.05rem 0.3rem;
+  border-top-left-radius: 6px;
+}
+
+.level2-header-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.card-action-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(212, 163, 115, 0.15);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+}
+
+.card-action-icon-btn:hover {
+  background: var(--color-gold-500);
+  color: #1a1614;
+}
+
+/* Badges alignés au-dessus du footer */
+.service-card-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-top: 1px dashed rgba(212, 163, 115, 0.2);
+}
+
+.service-models-count-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(212, 163, 115, 0.18);
+  color: var(--color-gold-700, #93652d);
+}
+
+/* Actions footer espacées uniformément (spaced evenly) */
+.level2-actions-spaced-evenly {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.level2-actions-spaced-evenly button {
+  flex: 1;
+  min-width: 75px;
+  text-align: center;
+  justify-content: center;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+/* ==========================================================================
+   10. CALENDRIER 2.0 FULLCALENDAR.IO (TUNNEL DE RÉSERVATION ÉTAPE 2)
+   ========================================================================== */
+.booking-calendar-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  background: rgba(212, 163, 115, 0.08);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  border-radius: 9px;
+}
+
+.calendar-views-switcher {
+  display: inline-flex;
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  border-radius: 7px;
+  overflow: hidden;
+  padding: 2px;
+  gap: 2px;
+}
+
+.btn-cal-view {
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #706b67);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.btn-cal-view:hover {
+  color: var(--text-main, #1a1614);
+  background: rgba(212, 163, 115, 0.15);
+}
+
+.btn-cal-view.active {
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
+  color: #1a1614;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(212, 163, 115, 0.35);
+}
+
+.booking-cal-format-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #706b67);
+  margin-left: auto;
+}
+
+.btn-cal-format {
+  background: #ffffff;
+  border: 1px dashed rgba(212, 163, 115, 0.45);
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-gold-700, #93652d);
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.btn-cal-format:hover {
+  background: rgba(212, 163, 115, 0.12);
+  border-style: solid;
+}
+
+/* Conteneur FullCalendar */
+.booking-fullcalendar-container {
+  background: #ffffff;
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  border-radius: 10px;
+  padding: 0.45rem 0.6rem;
+  box-shadow: 0 4px 16px rgba(212, 163, 115, 0.08);
+  margin-bottom: 0.65rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Limite de hauteur propre pour les vues timeGrid avec scroll interne */
+.fc .fc-timegrid-body {
+  max-height: 320px;
+}
+
+.fc-timegrid-slot {
+  height: 26px !important;
+}
+
+.fc-timegrid-slot-label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+/* Surcharges Visuelles FullCalendar Chic Salon Elle & Lui */
+.fc {
+  font-family: inherit;
+  font-size: 0.82rem;
+  --fc-border-color: rgba(212, 163, 115, 0.22);
+  --fc-today-bg-color: rgba(212, 163, 115, 0.12);
+  --fc-neutral-bg-color: rgba(212, 163, 115, 0.04);
+  --fc-button-text-color: #1a1614;
+  --fc-button-bg-color: #ffffff;
+  --fc-button-border-color: rgba(212, 163, 115, 0.45);
+  --fc-button-hover-bg-color: rgba(212, 163, 115, 0.2);
+  --fc-button-hover-border-color: var(--color-gold-600, #b88755);
+  --fc-button-active-bg-color: var(--color-gold-500, #d4a373);
+  --fc-button-active-border-color: var(--color-gold-600, #b88755);
+  --fc-event-bg-color: rgba(184, 59, 42, 0.88);
+  --fc-event-border-color: rgba(184, 59, 42, 0.95);
+  --fc-event-text-color: #ffffff;
+}
+
+.fc .fc-toolbar {
+  margin-bottom: 0.35rem;
+  gap: 0.4rem;
+}
+
+.fc .fc-toolbar-title {
+  font-family: var(--font-heading, "Cinzel Decorative", Georgia, serif);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-main, #1a1614);
+  text-transform: capitalize;
+}
+
+.fc .fc-button {
+  padding: 0.22rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 5px;
+  box-shadow: none !important;
+}
+
+.fc .fc-col-header-cell {
+  background: rgba(212, 163, 115, 0.08);
+  padding: 0.25rem 0;
+  font-weight: 700;
+  font-size: 0.74rem;
+  color: var(--color-gold-800, #734e20);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fc-daygrid-day-frame {
+  min-height: 38px;
+  padding: 2px;
+  cursor: pointer;
+  transition: background var(--transition-fast, 0.15s ease);
+}
+
+.fc-daygrid-day-frame:hover {
+  background: rgba(212, 163, 115, 0.16);
+}
+
+.fc-daygrid-day-top {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.fc-daygrid-day-number {
+  font-weight: 600;
+  color: var(--text-main, #1a1614);
+  padding: 2px 5px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+}
+
+/* Jour sélectionné actif */
+.fc-daygrid-day.selected-booking-day .fc-daygrid-day-frame {
+  background: rgba(212, 163, 115, 0.28) !important;
+  border: 1.5px solid var(--color-gold-600, #b88755) !important;
+  border-radius: 6px;
+}
+
+.fc-daygrid-day.selected-booking-day .fc-daygrid-day-number {
+  background: var(--gradient-gold, linear-gradient(135deg, #d4a373, #b88755));
+  color: #1a1614;
+  font-weight: 800;
+}
+
+/* Jours passés désactivés */
+.fc .fc-day-disabled,
+.fc .fc-day-past {
+  opacity: 0.38;
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+.fc .fc-day-disabled .fc-daygrid-day-frame,
+.fc .fc-day-past .fc-daygrid-day-frame {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Événements déjà réservés sur le calendrier */
+.booking-calendar-busy-event {
+  background: rgba(184, 59, 42, 0.85) !important;
+  border-color: rgba(184, 59, 42, 0.95) !important;
+  color: #ffffff !important;
+  font-size: 0.7rem !important;
+  border-radius: 4px !important;
+  padding: 1px 3px !important;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Section Créneaux Horaires Synchronisés */
+.booking-time-selection-wrap {
+  background: #ffffff;
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 4px 16px rgba(212, 163, 115, 0.08);
+}
+
+.booking-time-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed rgba(212, 163, 115, 0.3);
+}
+
+.booking-time-title {
+  font-size: 0.92rem;
+  color: var(--text-main, #1a1614);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.booking-time-title strong {
+  color: var(--color-gold-700, #93652d);
+}
+
+.booking-time-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.76rem;
+  color: var(--text-muted, #706b67);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-dot.available {
+  background: var(--color-gold-500, #d4a373);
+}
+
+.legend-dot.booked {
+  background: #b83b2a;
+}
+
+/* État d'un créneau déjà réservé */
+.time-slot-chip.booked {
+  opacity: 0.45;
+  background: rgba(184, 59, 42, 0.08) !important;
+  border-color: rgba(184, 59, 42, 0.35) !important;
+  color: #b83b2a !important;
+  text-decoration: line-through;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* Grille de créneaux compacte dans la sélection horaire */
+.booking-time-selection-wrap .time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 0.35rem;
+  max-height: 130px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.booking-time-selection-wrap .time-slot-chip {
+  padding: 0.35rem 0.2rem;
+  font-size: 0.8rem;
+  text-align: center;
+}
+

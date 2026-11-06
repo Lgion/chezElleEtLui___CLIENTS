@@ -53,6 +53,10 @@ function formatDateFR(dateString) {
  */
 function buildWhatsAppBookingMessage({
   serviceName,
+  family,
+  category,
+  modelNum,
+  modelName,
   specialist,
   priceLabel,
   date,
@@ -67,11 +71,22 @@ function buildWhatsAppBookingMessage({
     ? `${Math.floor(durationMinutes / 60)}h${durationMinutes % 60 ? (durationMinutes % 60) + 'm' : ''}`
     : `${durationMinutes} min`;
 
+  // Construction hiérarchique claire du service (jusqu'à 3 niveaux)
+  let prestationText = serviceName || 'Prestation Salon';
+  if (family && category && (modelNum || modelName)) {
+    const modelLabel = modelNum ? `Modèle #${modelNum}${modelName ? ' (' + modelName + ')' : ''}` : modelName;
+    prestationText = `${family} > ${category} > ${modelLabel}`;
+  } else if (family && category) {
+    prestationText = `${family} > ${category}`;
+  } else if (family && serviceName && serviceName !== family) {
+    prestationText = `${family} > ${serviceName}`;
+  }
+
   return `✨ *RÉSERVATION - SALON DE BEAUTÉ ELLE & LUI* ✨
 📍 *Abidjan Cocody N°39*
 
 Bonjour l'équipe, je souhaite confirmer mon rendez-vous :
-💆‍♀️ *Prestation :* ${serviceName}
+💆‍♀️ *Prestation :* ${prestationText}
 👩‍🦱 *Spécialiste :* ${specialist || 'Salon Elle & Lui'}
 📅 *Date :* ${dateFR}
 ⏰ *Créneau :* ${timeSlot} (durée estimée : ~${durationText})

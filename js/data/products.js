@@ -3,10 +3,21 @@
  * Capillaires & Cosmétiques sélectionnés par Blandine et Judith.
  */
 
+const PRODUCT_SUBCATEGORIES = [
+  { id: 'all', name: 'Tous les produits', image: 'assets/img/blandine-coiffure.jpg' },
+  { id: 'prod-capillaire', name: 'Soins Capillaires', image: 'assets/img/coiffure-postes.jpg' },
+  { id: 'prod-meches', name: 'Mèches Remy', image: 'assets/img/coiffure-equipe.jpg' },
+  { id: 'prod-spa', name: 'Soins Spa K.V.S', image: 'assets/img/esthetic-spa-ambiance.jpg' }
+];
+
 const PRODUCTS_DATA = [
   {
     id: 'prod-huile-pousse',
+    slug: 'elixir-croissance-antichute',
     name: 'Élixir Capillaire Croissance & Antichute',
+    mainCategory: 'Produits Phares',
+    subCategory: 'Soins Capillaires',
+    subCategoryId: 'prod-capillaire',
     category: 'Capillaire',
     tagline: 'Formule concentrée Ricin noir & Chébé',
     price: 5000,
@@ -18,7 +29,11 @@ const PRODUCTS_DATA = [
   },
   {
     id: 'prod-masque-keratine',
+    slug: 'masque-reparateur-keratine',
     name: 'Masque Réparateur Intense Kératine & Karité Bio',
+    mainCategory: 'Produits Phares',
+    subCategory: 'Soins Capillaires',
+    subCategoryId: 'prod-capillaire',
     category: 'Soin Cheveux',
     tagline: 'Nutrition pour cheveux défrisés ou naturels',
     price: 7500,
@@ -30,7 +45,11 @@ const PRODUCTS_DATA = [
   },
   {
     id: 'prod-edge-control',
+    slug: 'gel-edge-control-extra-hold',
     name: 'Gel Fixateur Edge Control Extra Hold',
+    mainCategory: 'Produits Phares',
+    subCategory: 'Soins Capillaires',
+    subCategoryId: 'prod-capillaire',
     category: 'Coiffage',
     tagline: 'Tenue 48h sans résidus blancs',
     price: 3500,
@@ -42,7 +61,11 @@ const PRODUCTS_DATA = [
   },
   {
     id: 'prod-meches-bresiliennes',
+    slug: 'meches-tissages-remy-12a',
     name: 'Mèches & Tissages 100% Cheveux Humains Remy',
+    mainCategory: 'Produits Phares',
+    subCategory: 'Mèches Remy',
+    subCategoryId: 'prod-meches',
     category: 'Mèches & Tissages',
     tagline: 'Grade 12A – Lisse, Ondulé ou Bouclé',
     price: 18000,
@@ -54,7 +77,11 @@ const PRODUCTS_DATA = [
   },
   {
     id: 'prod-gommage-corps',
+    slug: 'gommage-corps-detox-cafe-sucre',
     name: 'Gommage Corps Détox Café & Sucre Roux',
+    mainCategory: 'Produits Phares',
+    subCategory: 'Soins Spa K.V.S',
+    subCategoryId: 'prod-spa',
     category: 'Esthétique K.V.S',
     tagline: 'Peau satinée & grain affiné',
     price: 8000,
@@ -66,7 +93,11 @@ const PRODUCTS_DATA = [
   },
   {
     id: 'prod-huile-scintillante',
+    slug: 'huile-seche-scintillante-tiare',
     name: 'Huile Sèche Scintillante Fleur de Tiaré',
+    mainCategory: 'Produits Phares',
+    subCategory: 'Soins Spa K.V.S',
+    subCategoryId: 'prod-spa',
     category: 'Esthétique K.V.S',
     tagline: 'Reflets dorés pour sublimer votre éclat',
     price: 10000,

@@ -3,59 +3,317 @@
  * Établi selon les tarifs réels de Blandine Youbouet et Judith (Abidjan Cocody).
  */
 
+/**
+ * Données officielles des prestations du Salon Elle & Lui (Coiffure & Institut K.V.S)
+ * Établi selon les tarifs réels de Blandine Youbouet et Judith (Abidjan Cocody).
+ */
+
+const SERVICE_FAMILIES = [
+  // --- COIFFURE (6 GRANDES FAMILLES) ---
+  {
+    id: 'fam-coiffure-tresses',
+    realm: 'coiffure',
+    levels: 3,
+    name: 'Nattes, Tresses & Vanilles',
+    shortName: 'Tresses & Nattes',
+    icon: '✨',
+    badge: '3 Niveaux • 6 Catégories • 306 Modèles',
+    tagline: 'Cornrows, Knotless, Fulani, Twists, Boho, Locs...',
+    description: 'Le savoir-faire emblématique du salon. Explorez nos 6 grandes catégories de tresses et leurs 51 modèles illustrés par des planches visuelles haute précision.',
+    priceRange: 'À partir de 5 000 FCFA',
+    durationRange: '1h30 à 7h00',
+    image: 'assets/img/families/fam-coiffure-tresses.jpg',
+    serviceIds: [
+      'tresses-cat1-nattes-collees',
+      'tresses-cat2-box-knotless',
+      'tresses-cat3-tribales',
+      'tresses-cat4-vanilles-twists',
+      'tresses-cat5-boho-goddess',
+      'tresses-cat6-sculpturales-locs'
+    ]
+  },
+  {
+    id: 'fam-coiffure-tissages',
+    realm: 'coiffure',
+    levels: 2,
+    name: 'Tissages & Extensions',
+    shortName: 'Tissages',
+    icon: '🪡',
+    badge: '2 Niveaux • 3 Prestations',
+    tagline: 'Pose naturelle, volume & coupe stylisée',
+    description: 'Tressage de base minutieux et couture invisible pour un tombé soyeux, fluide et une tenue longue durée avec vos mèches ou les nôtres.',
+    priceRange: '6 000 – 10 000 FCFA',
+    durationRange: '1h00 à 1h45',
+    image: 'assets/img/families/fam-coiffure-tissages.jpg',
+    serviceIds: ['tissage-simple', 'tissage-rajout', 'tissage-coupe']
+  },
+  {
+    id: 'fam-coiffure-chignons',
+    realm: 'coiffure',
+    levels: 2,
+    name: 'Chignons & Coiffures Événement',
+    shortName: 'Chignons',
+    icon: '👑',
+    badge: '2 Niveaux • 1 Prestation de prestige',
+    tagline: 'Cérémonies, soirées & réceptions',
+    description: 'Chignons sculptés, attaches royales et mises en beauté de gala pour vos sorties, mariages et grandes occasions.',
+    priceRange: '5 000 – 15 000 FCFA',
+    durationRange: '45m à 1h30',
+    image: 'assets/img/families/fam-coiffure-chignons.jpg',
+    serviceIds: ['chignon-evenement']
+  },
+  {
+    id: 'fam-coiffure-soins',
+    realm: 'coiffure',
+    levels: 2,
+    name: 'Shampoings & Soins Capillaires',
+    shortName: 'Shampoings & Soins',
+    icon: '🧴',
+    badge: '2 Niveaux • 3 Prestations',
+    tagline: 'Bain d’huile vapeur, brushing soyeux & mise en plis',
+    description: 'Bacs professionnels, rituels profonds de nutrition du cheveu texturé et finitions brushing ou boucles sous casque.',
+    priceRange: '4 000 – 10 000 FCFA',
+    durationRange: '45m à 1h00',
+    image: 'assets/img/families/fam-coiffure-soins.jpg',
+    serviceIds: ['shampoing-bain-huile', 'shampoing-brushing', 'shampoing-babyliss']
+  },
+  {
+    id: 'fam-coiffure-couleurs',
+    realm: 'coiffure',
+    levels: 2,
+    name: 'Couleurs, Mèches & Défrisages',
+    shortName: 'Couleurs & Défrisages',
+    icon: '🎨',
+    badge: '2 Niveaux • 3 Prestations',
+    tagline: 'Balayages lumineux, nuances & lissage sécurisé',
+    description: 'Colorimétrie sur-mesure pour carnations noires et métissées, défrisages maîtrisés avec protecteurs du cuir chevelu.',
+    priceRange: '6 000 – 15 000 FCFA',
+    durationRange: '1h00 à 1h30',
+    image: 'assets/img/families/fam-coiffure-couleurs.jpg',
+    serviceIds: ['coloration-balayage', 'defrisage-salon', 'defrisage-client']
+  },
+  {
+    id: 'fam-coiffure-ciseaux',
+    realm: 'coiffure',
+    levels: 2,
+    name: 'Coupes Ciseaux & Peigne (Homme, Enfant, Dame)',
+    shortName: 'Ciseaux & Peigne',
+    icon: '✂️',
+    badge: '2 Niveaux • 4 Prestations',
+    tagline: 'Coupe homme & barbe, coupe enfant, mise en forme',
+    description: 'Service barbier et coupe soignée pour toute la famille. Ambiance chaleureuse et attentionnée.',
+    priceRange: '1 000 – 3 000 FCFA',
+    durationRange: '15m à 30m',
+    image: 'assets/img/families/fam-coiffure-ciseaux.jpg',
+    serviceIds: ['coupe-homme', 'coupe-enfant', 'mise-en-forme', 'coup-de-peigne']
+  },
+
+  // --- ESTHÉTIQUE & SPA (5 GRANDES FAMILLES) ---
+  {
+    id: 'fam-esthetic-visage-corps',
+    realm: 'esthetic',
+    levels: 2,
+    name: 'Soins du Visage & Rituels Corps',
+    shortName: 'Visage & Rituels',
+    icon: '💆‍♀️',
+    badge: '2 Niveaux • 2 Rituels',
+    tagline: 'Nettoyage en profondeur, éclat, vapeur & sauna',
+    description: 'Protocoles de soin complets signés Judith (K.V.S Institut) : vapozone, extraction douce, masque thermique et sauna détoxifiant.',
+    priceRange: '15 000 – 30 000 FCFA',
+    durationRange: '1h00 à 1h45',
+    image: 'assets/img/families/fam-esthetic-visage-corps.jpg',
+    serviceIds: ['soin-visage-eclat', 'soin-corps-rituel']
+  },
+  {
+    id: 'fam-esthetic-massages',
+    realm: 'esthetic',
+    levels: 2,
+    name: 'Massages Relaxants & Remodelage Spa',
+    shortName: 'Massages & Minceur',
+    icon: '🌸',
+    badge: '2 Niveaux • 2 Prestations',
+    tagline: 'Huiles chaudes précieuses & couverture chauffante',
+    description: 'Détente absolue du corps et de l’esprit en cabine climatisée feutrée, ou séances ciblées amincissantes.',
+    priceRange: '20 000 – 45 000 FCFA',
+    durationRange: '1h00',
+    image: 'assets/img/families/fam-esthetic-massages.jpg',
+    serviceIds: ['massage-relaxant', 'cure-amincissante']
+  },
+  {
+    id: 'fam-esthetic-ongles-cils',
+    realm: 'esthetic',
+    levels: 2,
+    name: 'Onglerie, Cils & Beauté du Regard',
+    shortName: 'Onglerie & Cils',
+    icon: '💅',
+    badge: '2 Niveaux • 4 Prestations',
+    tagline: 'Duo manucure-pédicure, vernis semi-permanent & cils',
+    description: 'Mise en beauté des mains et des pieds au bar à ongles, nuanciers longue tenue et extension du regard.',
+    priceRange: '4 000 – 10 000 FCFA',
+    durationRange: '30m à 1h15',
+    image: 'assets/img/families/fam-esthetic-ongles-cils.jpg',
+    serviceIds: ['duo-manucure-pedicure', 'vernis-permanent', 'faux-ongles-resine', 'faux-cils']
+  },
+  {
+    id: 'fam-esthetic-epilations',
+    realm: 'esthetic',
+    levels: 2,
+    name: 'Épilations à la Cire Douce',
+    shortName: 'Épilations',
+    icon: '🌿',
+    badge: '2 Niveaux • 3 Prestations',
+    tagline: 'Jambes complètes, aisselles, maillot & sourcils',
+    description: 'Cire tiède haute tolérance hypoallergénique, bande douce et huile post-épilatoire apaisante pour une peau satinée.',
+    priceRange: '2 000 – 15 000 FCFA',
+    durationRange: '15m à 45m',
+    image: 'assets/img/families/fam-esthetic-epilations.jpg',
+    serviceIds: ['epilation-jambes', 'epilation-aisselles-maillot', 'epilation-sourcils']
+  },
+  {
+    id: 'fam-esthetic-mariee',
+    realm: 'esthetic',
+    levels: 2,
+    name: 'Forfaits Mariée & Grand Jour',
+    shortName: 'Forfaits Mariée',
+    icon: '👰',
+    badge: '2 Niveaux • 2 Forfaits Royaux',
+    tagline: 'Cures sur-mesure 1 à 3 mois pour le Grand Jour',
+    description: 'Accompagnement d’exception réunissant le duo Blandine & Judith : soins visage, sauna, gommages, massages, coiffure et mise en beauté totale.',
+    priceRange: '120 000 – 220 000 FCFA',
+    durationRange: 'Cure 1 à 3 mois',
+    image: 'assets/img/families/fam-esthetic-mariee.jpg',
+    serviceIds: ['forfait-mariee-1mois', 'forfait-mariee-3mois']
+  }
+];
+
 const SERVICE_CATEGORIES = [
-  { id: 'all', name: 'Tous les services', icon: 'sparkles' },
-  { id: 'coiffure-tresses', name: 'Tresses & Tissages (Phares)', icon: 'scissors' },
-  { id: 'coiffure-soins', name: 'Coiffure & Shampoings', icon: 'wand' },
-  { id: 'esthetic-spa', name: 'Soins Visage & Massages', icon: 'heart' },
-  { id: 'esthetic-ongles', name: 'Onglerie & Épilation', icon: 'gem' },
-  { id: 'mariee', name: 'Forfaits Mariée', icon: 'crown' }
+  { id: 'all', name: 'Tous les services', icon: 'sparkles', realm: 'all', image: 'assets/img/blandine-coiffure.jpg' },
+  { id: 'coiffure-tresses', name: 'Tresses & Nattes', icon: 'scissors', realm: 'coiffure', image: 'assets/img/blandine-coiffure.jpg' },
+  { id: 'coiffure-soins', name: 'Coiffure & Shampoings', icon: 'wand', realm: 'coiffure', image: 'assets/img/coiffure-postes.jpg' },
+  { id: 'esthetic-spa', name: 'Visage & Massages', icon: 'heart', realm: 'esthetic', image: 'assets/img/esthetic-massage-bed.jpg' },
+  { id: 'esthetic-ongles', name: 'Onglerie & Épilation', icon: 'gem', realm: 'esthetic', image: 'assets/img/esthetic-manucure-bar.jpg' },
+  { id: 'mariee', name: 'Forfaits Mariée', icon: 'crown', realm: 'mariee', image: 'assets/img/esthetic-blandine.jpg' }
 ];
 
 const SERVICES_DATA = [
-  // --- TRESSES & TISSAGES (SERVICES PHARES) ---
+  // --- TRESSES & TISSAGES : LES 6 GRANDES CATÉGORIES DES PLANCHES DU SALON (FAMILLE 1 : 3 NIVEAUX) ---
   {
-    id: 'tresses-classiques',
+    id: 'tresses-cat1-nattes-collees',
+    familyId: 'fam-coiffure-tresses',
+    familyName: 'Nattes, Tresses & Vanilles',
     category: 'coiffure-tresses',
-    name: 'Tresses Classiques',
-    tagline: 'Service phare le plus demandé',
-    price: 10000,
-    priceLabel: 'À partir de 10 000 FCFA',
-    durationMinutes: 120,
-    featured: true,
-    description: 'Tresses soignées, régulières et confortables. Modèles variés au choix selon vos inspirations (nattes collées, vanilles, box braids).',
-    responsible: 'Blandine Youbouet',
-    image: 'assets/img/coiffure-sieges.jpg'
-  },
-  {
-    id: 'tresses-marcoussis',
-    category: 'coiffure-tresses',
-    name: 'Tresses Marcoussis',
-    tagline: 'Élégance africaine intemporelle',
+    categoryBadge: 'Cat. 1 • Nattes Collées',
+    levels: 3,
+    hairCatalogId: 'cat1',
+    name: '1. Nattes Collées (Cornrows, Stitch & Ghana)',
+    tagline: 'Stitch Braids, Feed-in, Ghana Braids & Renversées',
     price: 5000,
     priceLabel: 'À partir de 5 000 FCFA',
-    durationMinutes: 90,
+    durationMinutes: 150,
     featured: true,
-    description: 'Tressage fin et stylé traditionnel ou moderne pour sublimer votre port de tête avec précision.',
+    description: 'Tressées à même le cuir chevelu à trois brins pour créer des lignes droites, courbes ou géométriques (Stitch Braids au peigne fin, Feed-in naturelles, Ghana Braids, Koroba). Pose : 1h30 à 3h30 • Tenue : 2 à 4 semaines (51 modèles en planches).',
     responsible: 'Blandine Youbouet',
-    image: 'assets/img/coiffure-postes.jpg'
+    image: 'ignore/imgs/generated/00_vue_d_ensemble/models/cat_01.jpg'
   },
   {
-    id: 'tresses-non-coupees',
+    id: 'tresses-cat2-box-knotless',
+    familyId: 'fam-coiffure-tresses',
+    familyName: 'Nattes, Tresses & Vanilles',
     category: 'coiffure-tresses',
-    name: 'Tresses Non Coupées (Longues)',
-    tagline: 'Longueur majestueuse',
-    price: 15000,
-    priceLabel: 'À partir de 15 000 FCFA',
-    durationMinutes: 180,
+    categoryBadge: 'Cat. 2 • Box Braids & Knotless',
+    levels: 3,
+    hairCatalogId: 'cat2',
+    name: '2. Tresses Libres (Box Braids & Knotless)',
+    tagline: 'Sans nœuds (Knotless), Classiques, Jumbo à Micro',
+    price: 10000,
+    priceLabel: 'À partir de 10 000 FCFA',
+    durationMinutes: 300,
     featured: true,
-    description: 'Tresses intégrales pleine longueur sans recoupe. Finition douce aux pointes et longue tenue garantie.',
+    description: 'Sections carrées, triangulaires, losanges ou cœurs tressées individuellement à trois brins. Départ Knotless sans tension ou Box Braids classiques, du carré Bob aux longueurs taille. Pose : 4h00 à 7h00 • Tenue : 6 à 8 semaines (51 modèles en planches).',
     responsible: 'Blandine Youbouet',
-    image: 'assets/img/blandine-coiffure.jpg'
+    image: 'ignore/imgs/generated/00_vue_d_ensemble/models/cat_02.jpg'
   },
+  {
+    id: 'tresses-cat3-tribales',
+    familyId: 'fam-coiffure-tresses',
+    familyName: 'Nattes, Tresses & Vanilles',
+    category: 'coiffure-tresses',
+    categoryBadge: 'Cat. 3 • Tresses Tribales',
+    levels: 3,
+    hairCatalogId: 'cat3',
+    name: '3. Tresses Tribales (Fulani, Lemonade & Koroba)',
+    tagline: 'Tresses Peules, Lemonade latérales, Shuku & Cauris',
+    price: 8000,
+    priceLabel: 'À partir de 8 000 FCFA',
+    durationMinutes: 240,
+    featured: true,
+    description: 'Coiffures associant des nattes collées géométriques à des longueurs libres ou des motifs culturels royaux (Fulani Braids, Lemonade, Koroba, Shuku) parées de perles, cauris ou anneaux dorés. Pose : 3h00 à 5h00 • Tenue : 4 à 6 semaines (51 modèles en planches).',
+    responsible: 'Blandine Youbouet',
+    image: 'ignore/imgs/generated/00_vue_d_ensemble/models/cat_03.jpg'
+  },
+  {
+    id: 'tresses-cat4-vanilles-twists',
+    familyId: 'fam-coiffure-tresses',
+    familyName: 'Nattes, Tresses & Vanilles',
+    category: 'coiffure-tresses',
+    categoryBadge: 'Cat. 4 • Vanilles (Twists)',
+    levels: 3,
+    hairCatalogId: 'cat4',
+    name: '4. Vanilles & Torsades (Senegalese, Passion, Spring)',
+    tagline: 'Senegalese, Passion, Marley, Spring & Flat Twists',
+    price: 10000,
+    priceLabel: 'À partir de 10 000 FCFA',
+    durationMinutes: 270,
+    featured: true,
+    description: 'Réalisées à deux brins enroulés l’un sur l’autre pour un aspect torsadé souple et volumineux : Senegalese Twists lisses, Passion Twists ondulées, Marley/Havana texturées et Spring Twists rebondies. Pose : 3h30 à 6h00 • Tenue : 4 à 6 semaines (51 modèles en planches).',
+    responsible: 'Blandine Youbouet',
+    image: 'ignore/imgs/generated/00_vue_d_ensemble/models/cat_04.jpg'
+  },
+  {
+    id: 'tresses-cat5-boho-goddess',
+    familyId: 'fam-coiffure-tresses',
+    familyName: 'Nattes, Tresses & Vanilles',
+    category: 'coiffure-tresses',
+    categoryBadge: 'Cat. 5 • Boho & Goddess',
+    levels: 3,
+    hairCatalogId: 'cat5',
+    name: '5. Tresses Bohèmes & Hybrides (Boho / Goddess)',
+    tagline: 'Boho Knotless, Goddess Braids & Pick and Drop',
+    price: 12000,
+    priceLabel: 'À partir de 12 000 FCFA',
+    durationMinutes: 330,
+    featured: true,
+    description: 'Mélange de tressage structuré et de mèches bouclées laissées libres sur les longueurs et aux pointes pour un effet vaporeux, romantique et aérien. Pose : 4h30 à 7h00 • Tenue : 4 à 6 semaines (51 modèles en planches).',
+    responsible: 'Blandine Youbouet',
+    image: 'ignore/imgs/generated/00_vue_d_ensemble/models/cat_05.jpg'
+  },
+  {
+    id: 'tresses-cat6-sculpturales-locs',
+    familyId: 'fam-coiffure-tresses',
+    familyName: 'Nattes, Tresses & Vanilles',
+    category: 'coiffure-tresses',
+    categoryBadge: 'Cat. 6 • Sculpturales & Locs',
+    levels: 3,
+    hairCatalogId: 'cat6',
+    name: '6. Sculpturales, Crochet & Fausses Locks',
+    tagline: 'Bantu Knots, Faux Locs, Soft/Butterfly Locs & Crochet',
+    price: 8000,
+    priceLabel: 'À partir de 8 000 FCFA',
+    durationMinutes: 210,
+    featured: true,
+    description: 'Coiffures en reliefs (Bantu Knots / Macarons), fausses locks protectrices par enroulement (Soft Locs, Butterfly Locs, Goddess Locs) et poses rapides au crochet sur base nattée. Pose : 1h30 à 6h00 • Tenue : 2 à 8 semaines (51 modèles en planches).',
+    responsible: 'Blandine Youbouet',
+    image: 'ignore/imgs/generated/00_vue_d_ensemble/models/cat_06.jpg'
+  },
+
+  // --- FAMILLE 2 : TISSAGES & EXTENSIONS (2 NIVEAUX) ---
   {
     id: 'tissage-simple',
+    familyId: 'fam-coiffure-tissages',
+    familyName: 'Tissages & Extensions',
     category: 'coiffure-tresses',
+    categoryBadge: 'Tissages',
+    levels: 2,
     name: 'Pose de Tissage Simple',
     tagline: 'Pose naturelle et discrète',
     price: 8000,
@@ -68,8 +326,12 @@ const SERVICES_DATA = [
   },
   {
     id: 'tissage-rajout',
+    familyId: 'fam-coiffure-tissages',
+    familyName: 'Tissages & Extensions',
     category: 'coiffure-tresses',
-    name: 'Tissage avec Rajout',
+    categoryBadge: 'Tissages',
+    levels: 2,
+    name: 'Tissage avec Rajout & Volume',
     tagline: 'Volume & maintien',
     price: 6000,
     priceLabel: '6 000 FCFA',
@@ -81,8 +343,12 @@ const SERVICES_DATA = [
   },
   {
     id: 'tissage-coupe',
+    familyId: 'fam-coiffure-tissages',
+    familyName: 'Tissages & Extensions',
     category: 'coiffure-tresses',
-    name: 'Tissage Coupe Stylisée',
+    categoryBadge: 'Tissages',
+    levels: 2,
+    name: 'Tissage Coupe Stylisée (Carré, Dégradé)',
     tagline: 'Coupe sur-mesure (carré, dégradé)',
     price: 10000,
     priceLabel: '10 000 FCFA',
@@ -92,9 +358,15 @@ const SERVICES_DATA = [
     responsible: 'Blandine Youbouet',
     image: 'assets/img/coiffure-vue-entree.jpg'
   },
+
+  // --- FAMILLE 3 : CHIGNONS & COIFFURES ÉVÉNEMENT (2 NIVEAUX) ---
   {
     id: 'chignon-evenement',
+    familyId: 'fam-coiffure-chignons',
+    familyName: 'Chignons & Coiffures Événement',
     category: 'coiffure-tresses',
+    categoryBadge: 'Chignons',
+    levels: 2,
     name: 'Chignon de Cérémonie (Shion)',
     tagline: 'Grandes occasions & soirées',
     price: 5000,
@@ -106,36 +378,14 @@ const SERVICES_DATA = [
     image: 'assets/img/coiffure-postes.jpg'
   },
 
-  // --- COIFFURE & SHAMPOINGS ---
-  {
-    id: 'mise-en-forme',
-    category: 'coiffure-soins',
-    name: 'Mise en Forme Rapide',
-    tagline: 'Retouche express du quotidien',
-    price: 3000,
-    priceLabel: '3 000 FCFA',
-    durationMinutes: 30,
-    featured: false,
-    description: 'Remise en beauté de votre coiffure, hydratation légère et reprise des contours.',
-    responsible: 'Blandine Youbouet',
-    image: 'assets/img/coiffure-sieges.jpg'
-  },
-  {
-    id: 'coup-de-peigne',
-    category: 'coiffure-soins',
-    name: 'Coup de Peigne Express',
-    tagline: 'Pour un départ impeccable',
-    price: 1000,
-    priceLabel: '1 000 FCFA',
-    durationMinutes: 15,
-    featured: false,
-    description: 'Démêlage soigné, coiffage rapide avant une réunion ou un événement.',
-    responsible: 'Blandine Youbouet',
-    image: 'assets/img/coiffure-sieges.jpg'
-  },
+  // --- FAMILLE 4 : SHAMPOINGS & SOINS CAPILLAIRES (2 NIVEAUX) ---
   {
     id: 'shampoing-bain-huile',
+    familyId: 'fam-coiffure-soins',
+    familyName: 'Shampoings & Soins Capillaires',
     category: 'coiffure-soins',
+    categoryBadge: 'Soins Capillaires',
+    levels: 2,
     name: 'Shampoing & Bain d’Huile Nourrissant',
     tagline: 'Soin profond réparateur',
     price: 5000,
@@ -148,7 +398,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'shampoing-brushing',
+    familyId: 'fam-coiffure-soins',
+    familyName: 'Shampoings & Soins Capillaires',
     category: 'coiffure-soins',
+    categoryBadge: 'Soins Capillaires',
+    levels: 2,
     name: 'Shampoing + Brushing Professionnel',
     tagline: 'Lissage soyeux & souple',
     price: 10000,
@@ -161,7 +415,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'shampoing-babyliss',
+    familyId: 'fam-coiffure-soins',
+    familyName: 'Shampoings & Soins Capillaires',
     category: 'coiffure-soins',
+    categoryBadge: 'Soins Capillaires',
+    levels: 2,
     name: 'Shampoing + Babyliss / Rouleaux',
     tagline: 'Boucles glamour ou lissage parfait',
     price: 4000,
@@ -172,9 +430,32 @@ const SERVICES_DATA = [
     responsible: 'Blandine Youbouet',
     image: 'assets/img/blandine-coiffure.jpg'
   },
+
+  // --- FAMILLE 5 : COULEURS, MÈCHES & DÉFRISAGES (2 NIVEAUX) ---
+  {
+    id: 'coloration-balayage',
+    familyId: 'fam-coiffure-couleurs',
+    familyName: 'Couleurs, Mèches & Défrisages',
+    category: 'coiffure-soins',
+    categoryBadge: 'Couleurs & Mèches',
+    levels: 2,
+    name: 'Couleur / Balayage & Mèches Salon',
+    tagline: 'Reflets lumineux & éclat',
+    price: 12000,
+    priceLabel: '8 000 – 15 000 FCFA',
+    durationMinutes: 90,
+    featured: false,
+    description: 'Nuances chaudes, cuivrées, dorées ou chocolat. Balayage sur-mesure pour sublimer votre carnation.',
+    responsible: 'Blandine Youbouet',
+    image: 'assets/img/coiffure-vue-entree.jpg'
+  },
   {
     id: 'defrisage-salon',
+    familyId: 'fam-coiffure-couleurs',
+    familyName: 'Couleurs, Mèches & Défrisages',
     category: 'coiffure-soins',
+    categoryBadge: 'Défrisages',
+    levels: 2,
     name: 'Défrisage Complet (Produit Salon Fourni)',
     tagline: 'Protection et lissage sécurisé',
     price: 14000,
@@ -187,7 +468,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'defrisage-client',
+    familyId: 'fam-coiffure-couleurs',
+    familyName: 'Couleurs, Mèches & Défrisages',
     category: 'coiffure-soins',
+    categoryBadge: 'Défrisages',
+    levels: 2,
     name: 'Défrisage (Votre Pot Apporté)',
     tagline: 'Application experte',
     price: 6000,
@@ -198,23 +483,16 @@ const SERVICES_DATA = [
     responsible: 'Blandine Youbouet',
     image: 'assets/img/coiffure-postes.jpg'
   },
-  {
-    id: 'coloration-balayage',
-    category: 'coiffure-soins',
-    name: 'Couleur / Balayage & Mèches Salon',
-    tagline: 'Reflets lumineux & éclat',
-    price: 12000,
-    priceLabel: '8 000 – 15 000 FCFA',
-    durationMinutes: 90,
-    featured: false,
-    description: 'Nuances chaudes, cuivrées, dorées ou chocolat. Balayage sur-mesure pour sublimer votre carnation.',
-    responsible: 'Blandine Youbouet',
-    image: 'assets/img/coiffure-vue-entree.jpg'
-  },
+
+  // --- FAMILLE 6 : COUPES CISEAUX & PEIGNE (2 NIVEAUX) ---
   {
     id: 'coupe-homme',
+    familyId: 'fam-coiffure-ciseaux',
+    familyName: 'Coupes Ciseaux & Peigne',
     category: 'coiffure-soins',
-    name: 'Coupe Homme & Finitions',
+    categoryBadge: 'Coupes Homme',
+    levels: 2,
+    name: 'Coupe Homme & Finitions Barbe',
     tagline: 'Service Elle & Lui',
     price: 2000,
     priceLabel: '2 000 FCFA',
@@ -226,7 +504,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'coupe-enfant',
+    familyId: 'fam-coiffure-ciseaux',
+    familyName: 'Coupes Ciseaux & Peigne',
     category: 'coiffure-soins',
+    categoryBadge: 'Coupes Enfant',
+    levels: 2,
     name: 'Coupe Enfant Douce',
     tagline: 'Patience & écoute pour les petits',
     price: 1000,
@@ -237,11 +519,50 @@ const SERVICES_DATA = [
     responsible: 'Blandine Youbouet',
     image: 'assets/img/coiffure-sieges.jpg'
   },
+  {
+    id: 'mise-en-forme',
+    familyId: 'fam-coiffure-ciseaux',
+    familyName: 'Coupes Ciseaux & Peigne',
+    category: 'coiffure-soins',
+    categoryBadge: 'Coiffage Rapide',
+    levels: 2,
+    name: 'Mise en Forme Rapide & Contours',
+    tagline: 'Retouche express du quotidien',
+    price: 3000,
+    priceLabel: '3 000 FCFA',
+    durationMinutes: 30,
+    featured: false,
+    description: 'Remise en beauté de votre coiffure, hydratation légère et reprise des contours.',
+    responsible: 'Blandine Youbouet',
+    image: 'assets/img/coiffure-sieges.jpg'
+  },
+  {
+    id: 'coup-de-peigne',
+    familyId: 'fam-coiffure-ciseaux',
+    familyName: 'Coupes Ciseaux & Peigne',
+    category: 'coiffure-soins',
+    categoryBadge: 'Coiffage Rapide',
+    levels: 2,
+    name: 'Coup de Peigne Express',
+    tagline: 'Pour un départ impeccable',
+    price: 1000,
+    priceLabel: '1 000 FCFA',
+    durationMinutes: 15,
+    featured: false,
+    description: 'Démêlage soigné, coiffage rapide avant une réunion ou un événement.',
+    responsible: 'Blandine Youbouet',
+    image: 'assets/img/coiffure-sieges.jpg'
+  },
 
   // --- ESTHÉTIQUE & SPA (JUDITH - ÉTAGE K.V.S) ---
+  // --- FAMILLE 1 : SOINS DU VISAGE & RITUELS CORPS (2 NIVEAUX) ---
   {
     id: 'soin-visage-eclat',
+    familyId: 'fam-esthetic-visage-corps',
+    familyName: 'Soins du Visage & Rituels Corps',
     category: 'esthetic-spa',
+    categoryBadge: 'Soins Visage',
+    levels: 2,
     name: 'Soin du Visage Éclat & Détox',
     tagline: 'Pureté, fraîcheur et teint radieux',
     price: 15000,
@@ -253,8 +574,31 @@ const SERVICES_DATA = [
     image: 'assets/img/esthetic-massage-bed.jpg'
   },
   {
-    id: 'massage-relaxant',
+    id: 'soin-corps-rituel',
+    familyId: 'fam-esthetic-visage-corps',
+    familyName: 'Soins du Visage & Rituels Corps',
     category: 'esthetic-spa',
+    categoryBadge: 'Rituels Corps',
+    levels: 2,
+    name: 'Rituel Corps Complet (Gommage + Sauna + Massage + Masque)',
+    tagline: 'L’expérience bien-être ultime à Cocody',
+    price: 30000,
+    priceLabel: '30 000 FCFA',
+    durationMinutes: 105,
+    featured: true,
+    description: 'Gommage exfoliant corporel, passage au sauna détoxifiant, massage enveloppant et masque régénérant pour une peau douce comme de la soie.',
+    responsible: 'Judith (K.V.S Institut)',
+    image: 'assets/img/esthetic-spa-ambiance.jpg'
+  },
+
+  // --- FAMILLE 2 : MASSAGES RELAXANTS & REMODELAGE SPA (2 NIVEAUX) ---
+  {
+    id: 'massage-relaxant',
+    familyId: 'fam-esthetic-massages',
+    familyName: 'Massages Relaxants & Remodelage Spa',
+    category: 'esthetic-spa',
+    categoryBadge: 'Massages Spa',
+    levels: 2,
     name: 'Massage Relaxant aux Huiles Précieuses',
     tagline: 'Détente absolue du corps et de l’esprit',
     price: 20000,
@@ -267,7 +611,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'cure-amincissante',
+    familyId: 'fam-esthetic-massages',
+    familyName: 'Massages Relaxants & Remodelage Spa',
     category: 'esthetic-spa',
+    categoryBadge: 'Remodelage Minceur',
+    levels: 2,
     name: 'Massage Amincissant + Couverture Chauffante',
     tagline: 'Remodelage & élimination des toxines',
     price: 45000,
@@ -278,24 +626,15 @@ const SERVICES_DATA = [
     responsible: 'Judith (K.V.S Institut)',
     image: 'assets/img/esthetic-massage-bed.jpg'
   },
-  {
-    id: 'soin-corps-rituel',
-    category: 'esthetic-spa',
-    name: 'Rituel Corps Complet (Gommage + Sauna + Massage + Masque)',
-    tagline: 'L’expérience bien-être ultime à Cocody',
-    price: 30000,
-    priceLabel: '30 000 FCFA',
-    durationMinutes: 105,
-    featured: true,
-    description: 'Gommage exfoliant corporel, passage au sauna détoxifiant, massage enveloppant et masque régénérant pour une peau douce comme de la soie.',
-    responsible: 'Judith (K.V.S Institut)',
-    image: 'assets/img/esthetic-spa-ambiance.jpg'
-  },
 
-  // --- ONGLERIE & ÉPILATION (JUDITH & ÉQUIPE) ---
+  // --- FAMILLE 3 : ONGLERIE, CILS & REGARD (2 NIVEAUX) ---
   {
     id: 'duo-manucure-pedicure',
+    familyId: 'fam-esthetic-ongles-cils',
+    familyName: 'Onglerie, Cils & Beauté du Regard',
     category: 'esthetic-ongles',
+    categoryBadge: 'Manucure & Pédicure',
+    levels: 2,
     name: 'Duo Complet Manucure & Pédicure',
     tagline: 'Mains & pieds parfaits',
     price: 10000,
@@ -308,7 +647,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'vernis-permanent',
+    familyId: 'fam-esthetic-ongles-cils',
+    familyName: 'Onglerie, Cils & Beauté du Regard',
     category: 'esthetic-ongles',
+    categoryBadge: 'Vernis Semi-Permanent',
+    levels: 2,
     name: 'Pose de Vernis Semi-Permanent',
     tagline: 'Brillance et tenue jusqu’à 3 semaines',
     price: 5000,
@@ -321,7 +664,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'faux-ongles-resine',
+    familyId: 'fam-esthetic-ongles-cils',
+    familyName: 'Onglerie, Cils & Beauté du Regard',
     category: 'esthetic-ongles',
+    categoryBadge: 'Faux Ongles',
+    levels: 2,
     name: 'Pose de Faux Ongles & Capsules',
     tagline: 'Longueur & raffinement',
     price: 4000,
@@ -334,7 +681,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'faux-cils',
+    familyId: 'fam-esthetic-ongles-cils',
+    familyName: 'Onglerie, Cils & Beauté du Regard',
     category: 'esthetic-ongles',
+    categoryBadge: 'Faux Cils',
+    levels: 2,
     name: 'Pose de Faux Cils Regard Intense',
     tagline: 'Volume & profondeur',
     price: 5000,
@@ -345,9 +696,15 @@ const SERVICES_DATA = [
     responsible: 'Judith (K.V.S Institut)',
     image: 'assets/img/esthetic-blandine.jpg'
   },
+
+  // --- FAMILLE 4 : ÉPILATIONS À LA CIRE DOUCE (2 NIVEAUX) ---
   {
     id: 'epilation-jambes',
+    familyId: 'fam-esthetic-epilations',
+    familyName: 'Épilations à la Cire Douce',
     category: 'esthetic-ongles',
+    categoryBadge: 'Épilations',
+    levels: 2,
     name: 'Épilation à la Cire Douce (Jambes Complètes)',
     tagline: 'Douceur longue durée',
     price: 15000,
@@ -360,7 +717,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'epilation-aisselles-maillot',
+    familyId: 'fam-esthetic-epilations',
+    familyName: 'Épilations à la Cire Douce',
     category: 'esthetic-ongles',
+    categoryBadge: 'Épilations',
+    levels: 2,
     name: 'Épilation Aisselles ou Maillot',
     tagline: 'Finition nette et soignée',
     price: 8000,
@@ -373,7 +734,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'epilation-sourcils',
+    familyId: 'fam-esthetic-epilations',
+    familyName: 'Épilations à la Cire Douce',
     category: 'esthetic-ongles',
+    categoryBadge: 'Épilations',
+    levels: 2,
     name: 'Ligne de Sourcils (Pince ou Cire)',
     tagline: 'Redéfinition du regard',
     price: 2000,
@@ -385,10 +750,14 @@ const SERVICES_DATA = [
     image: 'assets/img/esthetic-blandine.jpg'
   },
 
-  // --- FORFAITS MARIÉE (OFFRES EXCLUSIVES) ---
+  // --- FAMILLE 5 : FORFAITS MARIÉE (2 NIVEAUX) ---
   {
     id: 'forfait-mariee-1mois',
+    familyId: 'fam-esthetic-mariee',
+    familyName: 'Forfaits Mariée & Grand Jour',
     category: 'mariee',
+    categoryBadge: 'Forfait Mariée',
+    levels: 2,
     name: 'Forfait Mariée Sublime (Cure 1 Mois)',
     tagline: 'Accompagnement complet pour votre grand jour',
     price: 120000,
@@ -401,7 +770,11 @@ const SERVICES_DATA = [
   },
   {
     id: 'forfait-mariee-3mois',
+    familyId: 'fam-esthetic-mariee',
+    familyName: 'Forfaits Mariée & Grand Jour',
     category: 'mariee',
+    categoryBadge: 'Forfait Mariée',
+    levels: 2,
     name: 'Forfait Reine de Beauté (Cure Prestige 3 Mois)',
     tagline: 'Meilleure Offre – Sérénité & Éclat Royal',
     price: 220000,

@@ -24,13 +24,41 @@ class SalonApp {
     this.dashSpecialist = 'all';
     this.dashStatus = 'all';
 
+    // État de la Hiérarchie des Services (2 à 3 Niveaux)
+    this.activeServiceFamilyId = null;
+    this.activeServiceCatId = null;
+    this.servicesSearchQuery = '';
+
+    // État de la Modale Catalogue des Coiffures (Lookbook & Planches)
+    this.activeHairCatId = 'cat1';
+    this.activeHairStyle = 'all'; // 'all', 'style1', 'style2'
+    this.hairSearchQuery = '';
+    this.selectedBoardIdx = null; // Planche sélectionnée en premier
+    this.isBannerUnfolded = false; // Bannière foldée par défaut
+    this.currentLightboxBoards = [];
+    this.currentLightboxIndex = 0;
+
+    // État Booking Hiérarchique
+    this.bookingFamily = null;
+    this.bookingCategory = null;
+    this.bookingModelNum = null;
+    this.bookingModelName = null;
+    this.bookingCalendarInstance = null;
+    this.bookingDateFormat = 'fr';
+    this.selectedBookingDate = new Date().toISOString().split('T')[0];
+
     this.init();
   }
 
   init() {
+    this.cardOverridesKey = 'salon_elle_lui_card_overrides_v1';
+    this.snapshotOriginalCardsData();
+    this.loadCardOverrides();
     this.applySalonSettings();
     this.setupLiveStatus();
     this.setupCatalogModal();
+    this.setupHairCatalogModal();
+    this.setupCardEditorModal();
     this.setupEventsModal();
     this.setupGalleryToggle();
     this.renderPublicGallery();
@@ -43,6 +71,34 @@ class SalonApp {
     this.setupWavePaymentModal();
     this.setupDashboardCalendar();
     this.setupEditAppointmentModal();
+    this.handleUrlDeepLinking();
+  }
+
+  handleUrlDeepLinking() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('service')) {
+        const sId = params.get('service');
+        const service = SERVICES_DATA.find(s => s.id === sId);
+        if (service) {
+          setTimeout(() => {
+            this.openCatalogModal(service.category.startsWith('coiffure-') ? 'coiffure' : 'esthetic');
+            this.openServiceDetailModal(sId);
+          }, 350);
+        }
+      } else if (params.has('produit')) {
+        const pId = params.get('produit');
+        const product = PRODUCTS_DATA.find(p => p.id === pId);
+        if (product) {
+          setTimeout(() => {
+            this.openCatalogModal('produits');
+            this.openProductDetailModal(pId);
+          }, 350);
+        }
+      }
+    } catch (err) {
+      console.warn('Deep-linking init error:', err);
+    }
   }
 
   /* ==========================================================================
@@ -75,7 +131,7 @@ class SalonApp {
   }
 
   /* ==========================================================================
-     2. MODALE CATALOGUE DES SOINS & PRODUITS (FUSIONNÉE + FILTRES IMBRIQUÉS)
+     2. MODALE CATALOGUE DES SOINS & PRODUITS (HIÉRARCHIE 2 À 3 NIVEAUX & DRILL-DOWN)
      ========================================================================== */
   setupCatalogModal() {
     const dialog = document.getElementById('catalogModalDialog');
@@ -90,95 +146,182 @@ class SalonApp {
       });
     });
 
-    // Champ de Recherche du Catalogue
-    const searchInput = document.getElementById('modalServiceSearchInput');
-    const clearBtn = document.getElementById('modalSearchClearBtn');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
+    // Champ de Recherche des Produits Phares (dans filter-level-2)
+    const prodSearchInput = document.getElementById('modalServiceSearchInput');
+    const prodClearBtn = document.getElementById('modalSearchClearBtn');
+    if (prodSearchInput) {
+      prodSearchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value.toLowerCase().trim();
-        if (clearBtn) {
-          clearBtn.style.display = this.searchQuery ? 'block' : 'none';
+        if (prodClearBtn) {
+          prodClearBtn.style.display = this.searchQuery ? 'block' : 'none';
         }
         this.renderCatalogItems();
       });
     }
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        if (searchInput) {
-          searchInput.value = '';
+    if (prodClearBtn) {
+      prodClearBtn.addEventListener('click', () => {
+        if (prodSearchInput) {
+          prodSearchInput.value = '';
           this.searchQuery = '';
-          clearBtn.style.display = 'none';
+          prodClearBtn.style.display = 'none';
           this.renderCatalogItems();
-          searchInput.focus();
+          prodSearchInput.focus();
         }
       });
     }
 
+    // Champ de Recherche des Prestations (dans le fil d'Ariane pour Coiffure & Esthétique)
+    const servicesSearchInput = document.getElementById('modalCatalogServicesSearchInput');
+    if (servicesSearchInput) {
+      servicesSearchInput.addEventListener('input', (e) => {
+        this.servicesSearchQuery = e.target.value.toLowerCase().trim();
+        this.renderCatalogItems();
+      });
+    }
+
     // Initialisation par défaut
-    this.renderSubfilterChips();
-    this.renderCatalogItems();
+    this.setCatalogRealm('coiffure');
   }
 
   setCatalogRealm(realm) {
     this.activeRealm = realm;
     this.activeCategory = 'all';
+    this.activeServiceFamilyId = null;
+    this.activeServiceCatId = null;
+    this.servicesSearchQuery = '';
 
-    // Mettre à jour les boutons Niveau 1
+    const servInput = document.getElementById('modalCatalogServicesSearchInput');
+    if (servInput) servInput.value = '';
+
+    // Mettre à jour les boutons Niveau 1 et le thème de fond dédié
     const dialog = document.getElementById('catalogModalDialog');
     if (dialog) {
+      dialog.classList.remove('realm-coiffure', 'realm-esthetic', 'realm-produits');
+      dialog.classList.add(`realm-${realm}`);
       dialog.querySelectorAll('.level1-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.realm === realm);
       });
     }
 
-    // Basculer l'affichage des grilles
+    // Basculer l'affichage : .filter-level-2 masqué pour les services (réservé aux produits)
+    const filterLevel2 = document.getElementById('catalogFilterLevel2');
+    const breadcrumbBar = document.getElementById('catalogBreadcrumbBar');
     const servicesGrid = document.getElementById('modalServicesGrid');
     const productsGrid = document.getElementById('modalProductsGrid');
 
     if (realm === 'produits') {
+      if (filterLevel2) filterLevel2.style.display = 'flex';
+      if (breadcrumbBar) breadcrumbBar.style.display = 'none';
       if (servicesGrid) servicesGrid.style.display = 'none';
       if (productsGrid) productsGrid.style.display = 'grid';
+      this.renderSubfilterChips();
     } else {
+      if (filterLevel2) filterLevel2.style.display = 'none';
+      if (breadcrumbBar) breadcrumbBar.style.display = 'flex';
       if (servicesGrid) servicesGrid.style.display = 'grid';
       if (productsGrid) productsGrid.style.display = 'none';
     }
 
-    this.renderSubfilterChips();
     this.renderCatalogItems();
+  }
+
+  renderCatalogBreadcrumb() {
+    const breadcrumb = document.getElementById('catalogBreadcrumb');
+    if (!breadcrumb) return;
+
+    const realmName = this.activeRealm === 'coiffure' ? 'Coiffure' : 'Institut Esthétique';
+    const realmIcon = this.activeRealm === 'coiffure' ? '💇‍♀️' : '✨';
+    const families = (typeof SERVICE_FAMILIES !== 'undefined')
+      ? SERVICE_FAMILIES.filter(f => f.realm === this.activeRealm)
+      : [];
+    const activeFamily = this.activeServiceFamilyId
+      ? families.find(f => f.id === this.activeServiceFamilyId)
+      : null;
+
+    // Niveau 1 : Vue d'ensemble des familles
+    if (!this.activeServiceFamilyId) {
+      breadcrumb.innerHTML = `
+        <span class="breadcrumb-item current">${realmIcon} <strong>${realmName}</strong> (${families.length} familles de soins)</span>
+      `;
+      return;
+    }
+
+    // Niveau 2 : Une famille est sélectionnée (ex: Nattes ou Couleurs)
+    if (this.activeServiceFamilyId && !this.activeServiceCatId) {
+      breadcrumb.innerHTML = `
+        <button type="button" class="breadcrumb-back-btn" id="btnBreadcrumbBack" title="Revenir aux familles">
+          ← Retour aux familles
+        </button>
+        <span class="breadcrumb-item" data-breadcrumb-jump="root">${realmName}</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-item current">${activeFamily ? activeFamily.name : ''}</span>
+      `;
+    } else if (this.activeServiceFamilyId && this.activeServiceCatId) {
+      // Niveau 3 : Une catégorie de nattes/tresses est sélectionnée
+      let catTitle = `Catégorie ${this.activeServiceCatId.replace('cat', '')}`;
+      if (typeof HAIR_CATALOG_DATA !== 'undefined') {
+        const cData = HAIR_CATALOG_DATA.find(c => c.id === this.activeServiceCatId);
+        if (cData) catTitle = cData.shortTitle;
+      }
+      breadcrumb.innerHTML = `
+        <button type="button" class="breadcrumb-back-btn" id="btnBreadcrumbBack" title="Revenir aux catégories">
+          ← Retour aux catégories
+        </button>
+        <span class="breadcrumb-item" data-breadcrumb-jump="root">${realmName}</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-item" data-breadcrumb-jump="family">${activeFamily ? activeFamily.shortName : ''}</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-item current">${catTitle}</span>
+      `;
+    }
+
+    // Écouteurs sur le bouton retour et les miettes de pain
+    const backBtn = breadcrumb.querySelector('#btnBreadcrumbBack');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        if (this.activeServiceCatId) {
+          this.activeServiceCatId = null;
+        } else {
+          this.activeServiceFamilyId = null;
+        }
+        this.renderCatalogItems();
+      });
+    }
+
+    breadcrumb.querySelectorAll('[data-breadcrumb-jump]').forEach(el => {
+      el.addEventListener('click', () => {
+        const jump = el.dataset.breadcrumbJump;
+        if (jump === 'root') {
+          this.activeServiceFamilyId = null;
+          this.activeServiceCatId = null;
+        } else if (jump === 'family') {
+          this.activeServiceCatId = null;
+        }
+        this.renderCatalogItems();
+      });
+    });
   }
 
   renderSubfilterChips() {
     const container = document.getElementById('catalogSubfilterChips');
     if (!container) return;
 
-    let subfilters = [];
-    if (this.activeRealm === 'coiffure') {
-      subfilters = [
-        { id: 'all', name: 'Toutes les coiffures' },
-        { id: 'coiffure-tresses', name: '✂️ Tresses & Tissages' },
-        { id: 'coiffure-soins', name: '🪄 Coiffure & Shampoings' }
-      ];
-    } else if (this.activeRealm === 'esthetic') {
-      subfilters = [
-        { id: 'all', name: 'Tous les soins spa' },
-        { id: 'esthetic-spa', name: '💆‍♀️ Visage & Massages' },
-        { id: 'esthetic-ongles', name: '💅 Onglerie & Épilation' }
-      ];
-    } else {
-      subfilters = [
-        { id: 'all', name: 'Tous les produits' },
-        { id: 'Capillaire', name: '🌿 Capillaires' },
-        { id: 'Soin Cheveux', name: '🧴 Soins & Masques' },
-        { id: 'Coiffage', name: '✨ Coiffage' },
-        { id: 'Mèches & Tissages', name: '💇‍♀️ Mèches Remy' },
-        { id: 'Esthétique K.V.S', name: '🌸 Soins Spa' }
-      ];
-    }
+    const allProdCount = PRODUCTS_DATA.length;
+    const countBySub = (subId) => PRODUCTS_DATA.filter(p => p.subCategoryId === subId).length;
+
+    const subfilters = [
+      { id: 'all', name: 'Tous les produits', count: allProdCount, image: 'assets/img/coiffure-sieges.jpg' },
+      { id: 'prod-capillaire', name: 'Soins Capillaires', count: countBySub('prod-capillaire'), image: 'assets/img/coiffure-postes.jpg' },
+      { id: 'prod-meches', name: 'Mèches Remy', count: countBySub('prod-meches'), image: 'assets/img/coiffure-equipe.jpg' },
+      { id: 'prod-spa', name: 'Soins Spa K.V.S', count: countBySub('prod-spa'), image: 'assets/img/esthetic-spa-ambiance.jpg' }
+    ];
 
     container.innerHTML = subfilters.map(sub => `
       <button class="subfilter-chip ${this.activeCategory === sub.id ? 'active' : ''}" data-sub-id="${sub.id}">
-        <span>${sub.name}</span>
+        <img src="${sub.image}" alt="" class="subfilter-thumb-img" loading="lazy" />
+        <span class="subfilter-label">${sub.name}</span>
+        <span class="subfilter-count">(${sub.count})</span>
       </button>
     `).join('');
 
@@ -204,51 +347,300 @@ class SalonApp {
     const container = document.getElementById('modalServicesGrid');
     if (!container) return;
 
-    let filtered = SERVICES_DATA.filter(s => {
-      const isCoiffure = s.category.startsWith('coiffure-');
-      return this.activeRealm === 'coiffure' ? isCoiffure : !isCoiffure;
-    });
+    this.renderCatalogBreadcrumb();
 
-    if (this.activeCategory !== 'all') {
-      filtered = filtered.filter(s => s.category === this.activeCategory);
-    }
+    // 1. Si une recherche textuelle est saisie
+    if (this.servicesSearchQuery) {
+      let filtered = SERVICES_DATA.filter(s => {
+        const isCoiffure = s.category.startsWith('coiffure-');
+        const matchesRealm = this.activeRealm === 'coiffure' ? isCoiffure : !isCoiffure;
+        if (!matchesRealm) return false;
+        const q = this.servicesSearchQuery;
+        return s.name.toLowerCase().includes(q) ||
+          s.description.toLowerCase().includes(q) ||
+          (s.tagline && s.tagline.toLowerCase().includes(q)) ||
+          s.responsible.toLowerCase().includes(q);
+      });
 
-    if (this.searchQuery) {
-      filtered = filtered.filter(s =>
-        s.name.toLowerCase().includes(this.searchQuery) ||
-        s.description.toLowerCase().includes(this.searchQuery) ||
-        s.responsible.toLowerCase().includes(this.searchQuery)
-      );
-    }
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+            <p style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Aucune prestation trouvée pour « ${this.servicesSearchQuery} »</p>
+            <p style="font-size: 0.92rem;">Modifiez vos termes de recherche ou parcourez nos familles de services ci-dessous.</p>
+          </div>
+        `;
+        return;
+      }
 
-    if (filtered.length === 0) {
-      container.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
-          <p style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Aucune prestation trouvée</p>
-          <p style="font-size: 0.92rem;">Modifiez vos termes de recherche ou réinitialisez les sous-filtres.</p>
-        </div>
-      `;
+      container.innerHTML = this.renderServiceCardsHtml(filtered);
+      this.attachServiceCardsEvents(container);
       return;
     }
 
-    container.innerHTML = filtered.map(service => {
+    // 2. Navigation Hiérarchique Normale
+    // CAS A : Niveau 1 - Affichage des Familles de l'Univers Actif (avec petites images représentatives)
+    if (!this.activeServiceFamilyId) {
+      const families = (typeof SERVICE_FAMILIES !== 'undefined')
+        ? SERVICE_FAMILIES.filter(f => f.realm === this.activeRealm)
+        : [];
+
+      container.innerHTML = `
+        <div class="service-families-grid" style="grid-column: 1/-1;">
+          ${families.map(fam => `
+            <article class="service-family-card" data-family-id="${fam.id}">
+              <div class="family-card-header">
+                <div class="family-card-thumb-wrap">
+                  <img src="${fam.image}" alt="${fam.name}" class="family-card-thumb-img" loading="lazy" />
+                  <span class="family-card-icon-pill" aria-hidden="true">${fam.icon}</span>
+                </div>
+                <span class="family-card-badge">${fam.badge}</span>
+              </div>
+              <div class="family-card-body">
+                <h3>${fam.name}</h3>
+                <p>${fam.tagline || fam.description}</p>
+              </div>
+              <div class="family-card-footer">
+                <span class="family-card-price">${fam.priceRange}</span>
+                <span class="family-card-cta">
+                  <span>${fam.levels === 3 ? 'Voir les 6 catégories' : 'Découvrir'}</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      `;
+
+      container.querySelectorAll('.service-family-card').forEach(card => {
+        card.addEventListener('click', () => {
+          this.activeServiceFamilyId = card.dataset.familyId;
+          this.activeServiceCatId = null;
+          this.renderCatalogItems();
+          const modalBody = document.querySelector('#catalogModalDialog .catalog-modal-body');
+          if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+      return;
+    }
+
+    // CAS B : Une famille est sélectionnée
+    const family = (typeof SERVICE_FAMILIES !== 'undefined')
+      ? SERVICE_FAMILIES.find(f => f.id === this.activeServiceFamilyId)
+      : null;
+
+    if (!family) {
+      this.activeServiceFamilyId = null;
+      this.renderCatalogItems();
+      return;
+    }
+
+    // SOUS-CAS B1 : Famille à 3 niveaux (ex: Nattes, Tresses & Vanilles)
+    if (family.levels === 3) {
+      // Si aucune catégorie n'est choisie -> Afficher les 6 Catégories (Cards 2nd niveau cliquables en entier)
+      if (!this.activeServiceCatId) {
+        const tressesServices = SERVICES_DATA.filter(s => s.familyId === family.id || s.category === 'coiffure-tresses');
+
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; margin-bottom: 0.5rem;">
+            <p style="font-size: 0.95rem; color: var(--text-muted);">
+              Choisissez l'une des <strong>6 catégories</strong> de tresses et nattes réalisées au salon pour explorer ses modèles :
+            </p>
+          </div>
+          ${this.renderLevel2CategoryCardsHtml(tressesServices, family)}
+        `;
+        this.attachLevel2CategoryCardsEvents(container, family);
+        return;
+      }
+
+      // Niveau 3 : Les modèles de la catégorie choisie
+      const catId = this.activeServiceCatId;
+      const catData = (typeof HAIR_CATALOG_DATA !== 'undefined')
+        ? HAIR_CATALOG_DATA.find(c => c.id === catId)
+        : null;
+
+      if (catData) {
+        const allModels = [...(catData.style1Models || []), ...(catData.style2Models || [])];
+        const defaultCatBadge = `Cat. ${catData.number} • ${catData.shortTitle.replace(/^\d+\.\s*/, '')}`;
+        const gearSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; background: #fffdf9; border: 1.5px solid rgba(212, 163, 115, 0.35); border-radius: 12px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--text-main); margin-bottom: 0.25rem;">${catData.title}</h3>
+              <p style="font-size: 0.86rem; color: var(--text-muted);">${catData.description}</p>
+            </div>
+            <button type="button" class="btn-primary" id="btnOpenPlanchesFromCatalog" style="padding: 0.6rem 1.1rem; font-size: 0.88rem;">
+              <span>🖼️ Consulter les Planches Visuelles</span>
+            </button>
+          </div>
+          <div class="hair-models-grid" style="grid-column: 1/-1;">
+            ${allModels.map(m => {
+          const badgeText = m.categoryBadge || defaultCatBadge;
+          const isStyle2 = Boolean(m.packs);
+          return `
+                <div class="hair-model-card">
+                  ${m.image ? `
+                    <div class="hair-model-img-wrap" data-zoom-single-img="${m.image}"
+                      data-zoom-single-title="Modèle N°${m.num} — ${m.name.replace(/"/g, '&quot;')}"
+                      data-zoom-single-sub="${badgeText} • Pose : ${m.pose} • Tenue : ${m.tenue}">
+                      <img src="${m.image}" alt="Modèle ${m.num} - ${m.name.replace(/"/g, '&quot;')}" loading="lazy" />
+                      <span class="hair-model-zoom-pill">🔍 Zoom</span>
+                    </div>
+                  ` : ''}
+                  <div class="hair-model-card-body">
+                    <div>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.45rem;">
+                        <span class="hair-model-cat-inline-badge">🏷️ ${badgeText}</span>
+                        <button type="button" class="card-gear-edit-btn"
+                          data-edit-hair-model="${m.num}"
+                          data-edit-hair-cat="${catData.id}"
+                          data-edit-hair-style="${isStyle2 ? 'style2Models' : 'style1Models'}"
+                          title="Modifier le contenu de cette carte"
+                          aria-label="Modifier le modèle ${m.num} ${m.name.replace(/"/g, '&quot;')}">
+                          ${gearSvg}
+                        </button>
+                      </div>
+                      <div class="hair-model-top">
+                        <span class="hair-model-num">${m.num}</span>
+                        <div class="hair-model-title-box">
+                          <strong>${m.name}</strong>
+                          <span class="hair-model-style-tag">${isStyle2 ? 'Style 2 Lookbook' : 'Style 1 Mannequin'} • N°${m.num}</span>
+                        </div>
+                      </div>
+                      <p class="hair-model-desc" style="margin-top: 0.45rem;">${m.desc}</p>
+                    </div>
+                    <div class="hair-model-bottom">
+                      <div class="hair-model-badges">
+                        <span class="hair-badge-chip">⏱️ ${m.pose}</span>
+                        <span class="hair-badge-chip">📅 ${m.tenue}</span>
+                      </div>
+                      <button type="button" class="hair-model-choose-btn"
+                        data-choose-hair-model="${m.name.replace(/"/g, '&quot;')}"
+                        data-choose-hair-num="${m.num}"
+                        data-choose-hair-cat="${catData.id}"
+                        data-choose-hair-family="${family.name}">
+                        Choisir ce modèle →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+        }).join('')}
+          </div>
+        `;
+
+        const openPlanchesBtn = container.querySelector('#btnOpenPlanchesFromCatalog');
+        if (openPlanchesBtn) {
+          openPlanchesBtn.addEventListener('click', () => {
+            this.openHairCatalogModal(catData.id);
+          });
+        }
+
+        container.querySelectorAll('[data-choose-hair-model]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const modelName = btn.dataset.chooseHairModel;
+            const modelNum = btn.dataset.chooseHairNum;
+            const catId = btn.dataset.chooseHairCat;
+            const catToServiceMap = {
+              cat1: 'tresses-cat1-nattes-collees',
+              cat2: 'tresses-cat2-box-knotless',
+              cat3: 'tresses-cat3-tribales',
+              cat4: 'tresses-cat4-vanilles-twists',
+              cat5: 'tresses-cat5-boho-goddess',
+              cat6: 'tresses-cat6-sculpturales-locs'
+            };
+            const targetServiceId = catToServiceMap[catId] || 'tresses-cat1-nattes-collees';
+
+            this.openBookingModal(targetServiceId, {
+              family: family.name,
+              category: catData.shortTitle,
+              modelNum,
+              modelName
+            });
+          });
+        });
+
+        // Zoom sur les vignettes modèles
+        container.querySelectorAll('[data-zoom-single-img]').forEach(el => {
+          el.addEventListener('click', () => {
+            this.currentLightboxBoards = [{
+              image: el.dataset.zoomSingleImg,
+              title: el.dataset.zoomSingleTitle,
+              styleBadge: 'Modèle Individuel',
+              subtitle: el.dataset.zoomSingleSub
+            }];
+            this.openHairBoardLightbox(0);
+          });
+        });
+        return;
+      }
+    }
+
+    // SOUS-CAS B2 : Famille à 2 niveaux (Tissages, Chignons, Shampoings, Couleurs, Ciseaux, Soins Visage, Massages, Onglerie, Épilations, Mariée)
+    const familyServices = SERVICES_DATA.filter(s =>
+      s.familyId === family.id || (family.serviceIds && family.serviceIds.includes(s.id))
+    );
+
+    container.innerHTML = this.renderServiceCardsHtml(familyServices);
+    this.attachServiceCardsEvents(container, family.name);
+  }
+
+  renderServiceCardsHtml(services) {
+    return services.map(service => {
+      const isCoiffure = service.category.startsWith('coiffure-');
+      const themeClass = isCoiffure ? 'theme-coiffure' : 'theme-esthetic';
+      const mainEmoji = isCoiffure ? '💇‍♀️' : '✨';
+      const mainTitle = isCoiffure ? 'Salon Coiffure' : 'Institut Esthétique';
+      let subEmoji = '✂️';
+      let subTitle = 'Soin Professionnel';
+      if (service.category === 'coiffure-tresses') { subEmoji = '✂️'; subTitle = 'Tresses & Nattes'; }
+      else if (service.category === 'coiffure-soins') { subEmoji = '🪄'; subTitle = 'Coiffure & Shampoings'; }
+      else if (service.category === 'esthetic-spa') { subEmoji = '💆‍♀️'; subTitle = 'Visage & Massages'; }
+      else if (service.category === 'esthetic-ongles') { subEmoji = '💅'; subTitle = 'Onglerie & Épilation'; }
+
       const durationHours = Math.floor(service.durationMinutes / 60);
       const durationMins = service.durationMinutes % 60;
       const durationStr = durationHours > 0
         ? `${durationHours}h${durationMins > 0 ? durationMins : ''}`
         : `${durationMins}m`;
 
+      const permalink = `${window.location.origin}${window.location.pathname}?service=${service.id}`;
+      const catBadgeLabel = service.categoryBadge || subTitle;
+      const customBgStyle = service.customImage
+        ? `style="background-image: url('${service.customImage.replace(/'/g, "\\'")}'); background-size: cover; background-position: top center;"`
+        : '';
+
       return `
-        <article class="service-card" data-service-id="${service.id}">
-          <div class="service-card-top">
-            <div class="sprite-thumb sprite-${service.id}" aria-hidden="true"></div>
+        <article class="service-card ${themeClass}" data-service-id="${service.id}">
+          <a href="${permalink}" target="_blank" rel="noopener" class="card-seo-link-btn" title="Ouvrir le permalien de ${service.name} dans un nouvel onglet" aria-label="Permalien de ${service.name}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </a>
+
+          <button type="button" class="card-gear-edit-btn" data-edit-card="service" data-target-id="${service.id}"
+            title="Modifier le contenu de cette carte" aria-label="Modifier la carte ${service.name.replace(/"/g, '&quot;')}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+
+          <div class="service-card-top" style="padding-left: 2.2rem; padding-right: 1.8rem;">
+            <div class="sprite-thumb sprite-${service.id}" ${customBgStyle} aria-hidden="true"></div>
             <div class="service-meta-tags">
-              <div class="service-specialist-label">✦ ${service.responsible}</div>
-              ${service.featured ? `<span class="service-badge-pill">Phare</span>` : ''}
-              <span class="service-duration-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                ~${durationStr}
-              </span>
+              <div class="card-hierarchical-badges">
+                <span class="badge-main-cat" title="${mainTitle}">${mainEmoji} ${isCoiffure ? 'Coiffure' : 'Spa K.V.S'}</span>
+                <span class="badge-sub-cat" title="${subTitle}">${subEmoji} ${catBadgeLabel}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                ${service.featured ? `<span class="service-badge-pill">Phare</span>` : ''}
+                <span class="service-duration-badge">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  ~${durationStr}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -263,15 +655,20 @@ class SalonApp {
               <span class="service-price-amount">${service.priceLabel}</span>
             </div>
             <div class="service-actions-group">
-              <button class="btn-service-detail" data-action="detail" data-service-id="${service.id}" title="Voir détails et description" aria-label="Voir les détails de ${service.name}">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              ${service.hairCatalogId ? `
+                <button type="button" class="btn-service-planches" data-action="open-hair-cat" data-hair-cat="${service.hairCatalogId}" title="Voir les planches et les 51 modèles de cette catégorie">
+                  📖 Planches
+                </button>
+              ` : ''}
+              <button type="button" class="btn-service-detail" data-action="detail" data-service-id="${service.id}" title="Voir détails et description" aria-label="Voir les détails de ${service.name}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
               </button>
 
-              <button class="btn-book-service" data-action="book" data-service-id="${service.id}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <button type="button" class="btn-book-service" data-action="book" data-service-id="${service.id}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
                 Réserver
@@ -281,8 +678,9 @@ class SalonApp {
         </article>
       `;
     }).join('');
+  }
 
-    // Écouteurs sur bouton œil et réservation
+  attachServiceCardsEvents(container, defaultFamilyName = null) {
     container.querySelectorAll('[data-action="detail"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -290,12 +688,154 @@ class SalonApp {
       });
     });
 
+    container.querySelectorAll('[data-action="open-hair-cat"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openHairCatalogModal(btn.dataset.hairCat);
+      });
+    });
+
+    container.querySelectorAll('[data-edit-card="service"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openCardEditorModal({ kind: 'service', targetId: btn.dataset.targetId });
+      });
+    });
+
     container.querySelectorAll('[data-action="book"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const catalogDialog = document.getElementById('catalogModalDialog');
-        if (catalogDialog) catalogDialog.close();
-        this.openBookingModal(btn.dataset.serviceId);
+        const service = SERVICES_DATA.find(s => s.id === btn.dataset.serviceId);
+        this.openBookingModal(btn.dataset.serviceId, {
+          family: service ? service.familyName || defaultFamilyName : defaultFamilyName,
+          category: service ? service.name : null
+        });
+      });
+    });
+  }
+
+  renderLevel2CategoryCardsHtml(services, family) {
+    return services.map(service => {
+      const catData = (typeof HAIR_CATALOG_DATA !== 'undefined')
+        ? HAIR_CATALOG_DATA.find(c => c.id === service.hairCatalogId)
+        : null;
+
+      const catNum = catData ? catData.number : (service.hairCatalogId ? service.hairCatalogId.replace('cat', '') : '1');
+      let thumbImg = service.customImage || (family ? family.image : 'assets/img/families/fam-coiffure-tresses.jpg');
+      if (!service.customImage && catData && catData.style1Models && catData.style1Models.length > 0 && catData.style1Models[0].image) {
+        thumbImg = catData.style1Models[0].image;
+      }
+
+      const durationHours = Math.floor(service.durationMinutes / 60);
+      const durationMins = service.durationMinutes % 60;
+      const durationStr = durationHours > 0
+        ? `${durationHours}h${durationMins > 0 ? durationMins : ''}`
+        : `${durationMins}m`;
+
+      const permalink = `${window.location.origin}${window.location.pathname}?service=${service.id}`;
+
+      return `
+        <article class="service-card theme-coiffure level2-category-card" data-cat-id="${service.hairCatalogId || 'cat1'}" data-service-id="${service.id}">
+          <!-- Header : Miniature à gauche + Actions icônes alignées à droite -->
+          <div class="level2-card-header">
+            <div class="level2-card-thumb-wrap">
+              <img src="${thumbImg}" alt="${service.name}" class="level2-card-thumb" loading="lazy" />
+              <span class="level2-cat-num">Cat. ${catNum}</span>
+            </div>
+            <div class="level2-header-actions">
+              <a href="${permalink}" target="_blank" rel="noopener" class="card-action-icon-btn card-seo-link-btn" title="Ouvrir le permalien de ${service.name}" aria-label="Permalien de ${service.name}" data-no-drill="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+              </a>
+              <button type="button" class="card-action-icon-btn card-gear-edit-btn" data-edit-card="service" data-target-id="${service.id}" title="Modifier le contenu de cette carte" aria-label="Modifier la carte ${service.name.replace(/"/g, '&quot;')}" data-no-drill="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Corps de la carte (Épuré, AUCUNE icône dans le texte) -->
+          <div class="service-card-content" style="padding: 0.25rem 0 0.5rem 0;">
+            <h3 class="service-title" style="margin-bottom: 0.35rem; font-size: 1.12rem;">${service.name}</h3>
+            <p class="service-desc" style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
+              ${service.tagline || service.description}
+            </p>
+          </div>
+
+          <!-- Badges tous alignés sur une rangée juste au-dessus du footer -->
+          <div class="service-card-badges-row">
+            <span class="service-models-count-badge">51 Modèles</span>
+            <span class="badge-sub-cat">${service.categoryBadge || 'Nattes & Tresses'}</span>
+            <span class="service-duration-badge">~${durationStr}</span>
+            <span class="service-price-amount" style="margin-left: auto; font-weight: 700; color: var(--color-gold-700); font-size: 0.92rem;">${service.priceLabel}</span>
+          </div>
+
+          <!-- Footer : Actions espacées uniformément (spaced evenly) -->
+          <div class="service-card-bottom" style="padding-top: 0.5rem;">
+            <div class="level2-actions-spaced-evenly">
+              <button type="button" class="btn-service-planches" data-action="open-hair-cat" data-hair-cat="${service.hairCatalogId || 'cat1'}" data-no-drill="true" title="Consulter les planches et le Lookbook">
+                📖 Planches
+              </button>
+              <button type="button" class="btn-service-detail" data-action="detail" data-service-id="${service.id}" data-no-drill="true" title="Voir les détails de la prestation">
+                👁️ Détails
+              </button>
+              <button type="button" class="btn-book-service" data-action="book" data-service-id="${service.id}" data-no-drill="true" title="Réserver cette catégorie">
+                📅 Réserver
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  attachLevel2CategoryCardsEvents(container, family) {
+    // 1. Clic sur la carte entière -> Passe au 3ème niveau (les modèles)
+    container.querySelectorAll('.level2-category-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[data-no-drill="true"]')) return;
+        const catId = card.dataset.catId;
+        this.activeServiceCatId = catId;
+        this.renderCatalogItems();
+        const modalBody = document.querySelector('#catalogModalDialog .catalog-modal-body');
+        if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // 2. Boutons d'actions avec propagation arrêtée (ne ferment JAMAIS le catalogue)
+    container.querySelectorAll('[data-action="open-hair-cat"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openHairCatalogModal(btn.dataset.hairCat);
+      });
+    });
+
+    container.querySelectorAll('[data-action="detail"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openServiceDetailModal(btn.dataset.serviceId);
+      });
+    });
+
+    container.querySelectorAll('[data-edit-card="service"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openCardEditorModal({ kind: 'service', targetId: btn.dataset.targetId });
+      });
+    });
+
+    container.querySelectorAll('[data-action="book"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const service = SERVICES_DATA.find(s => s.id === btn.dataset.serviceId);
+        this.openBookingModal(btn.dataset.serviceId, {
+          family: family ? family.name : 'Nattes, Tresses & Vanilles',
+          category: service ? service.name : null
+        });
       });
     });
   }
@@ -307,13 +847,14 @@ class SalonApp {
     let filtered = [...PRODUCTS_DATA];
 
     if (this.activeCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === this.activeCategory);
+      filtered = filtered.filter(p => p.subCategoryId === this.activeCategory || p.category === this.activeCategory);
     }
 
     if (this.searchQuery) {
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(this.searchQuery) ||
         p.description.toLowerCase().includes(this.searchQuery) ||
+        (p.subCategory && p.subCategory.toLowerCase().includes(this.searchQuery)) ||
         p.category.toLowerCase().includes(this.searchQuery)
       );
     }
@@ -328,26 +869,171 @@ class SalonApp {
       return;
     }
 
-    container.innerHTML = filtered.map(product => `
-      <article class="product-card">
-        <div class="product-media">
-          <div class="sprite-thumb sprite-${product.id}" aria-label="${product.name}"></div>
-          <span class="product-badge">${product.badge}</span>
-        </div>
-        <div class="product-body">
-          <span class="product-category">${product.category}</span>
-          <h4 class="product-title">${product.name}</h4>
-          <p class="product-desc">${product.description}</p>
-          <div class="product-footer">
-            <span class="product-price">${product.priceLabel}</span>
-            <a href="${getWhatsAppProductUrl(product)}" target="_blank" rel="noopener" class="btn-whatsapp-order">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
-              Commander
+    container.innerHTML = filtered.map(product => {
+      const permalink = `${window.location.origin}${window.location.pathname}?produit=${product.id}`;
+      let subEmoji = '🌿';
+      let subTitle = product.subCategory || 'Soin Capillaire';
+      if (product.subCategoryId === 'prod-meches') {
+        subEmoji = '💇‍♀️';
+        subTitle = 'Mèches Remy';
+      } else if (product.subCategoryId === 'prod-spa') {
+        subEmoji = '🌸';
+        subTitle = 'Soins Spa K.V.S';
+      }
+      const catBadgeLabel = product.categoryBadge || subTitle;
+      const customBgStyle = product.customImage
+        ? `style="background-image: url('${product.customImage.replace(/'/g, "\\'")}'); background-size: cover; background-position: center;"`
+        : '';
+
+      return `
+        <article class="product-card theme-produits" data-product-id="${product.id}">
+          <div class="product-media">
+            <a href="${permalink}" target="_blank" rel="noopener" class="card-seo-link-btn" title="Ouvrir le permalien de ${product.name} dans un nouvel onglet" aria-label="Permalien de ${product.name}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
             </a>
+            <button type="button" class="card-gear-edit-btn" data-edit-card="product" data-target-id="${product.id}"
+              title="Modifier le contenu de cette carte produit" aria-label="Modifier le produit ${product.name.replace(/"/g, '&quot;')}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
+            <div class="sprite-thumb sprite-${product.id}" ${customBgStyle} aria-label="${product.name}"></div>
+            <span class="product-badge">${product.badge}</span>
           </div>
-        </div>
-      </article>
-    `).join('');
+          <div class="product-body">
+            <div class="card-hierarchical-badges">
+              <span class="badge-main-cat" title="Produits Phares">🛍️ Produits</span>
+              <span class="badge-sub-cat" title="${subTitle}">${subEmoji} ${catBadgeLabel}</span>
+            </div>
+            <h4 class="product-title">${product.name}</h4>
+            <p class="product-desc">${product.description}</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+              <span style="font-size: 0.76rem; color: var(--text-light); font-weight: 600;">Contenance : ${product.volume || '1 unité'}</span>
+            </div>
+            <div class="product-footer">
+              <span class="product-price">${product.priceLabel}</span>
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <button type="button" class="btn-service-detail" data-action="detail-product" data-product-id="${product.id}" title="Voir détails et fiche complète" aria-label="Voir les détails de ${product.name}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+                <a href="${getWhatsAppProductUrl(product)}" target="_blank" rel="noopener" class="btn-whatsapp-order">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771z"/></svg>
+                  Commander
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    // Écouteurs sur bouton œil produit et roue dentée
+    container.querySelectorAll('[data-action="detail-product"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openProductDetailModal(btn.dataset.productId);
+      });
+    });
+
+    container.querySelectorAll('[data-edit-card="product"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openCardEditorModal({ kind: 'product', targetId: btn.dataset.targetId });
+      });
+    });
+  }
+
+  openProductDetailModal(productId) {
+    const dialog = document.getElementById('serviceDetailDialog');
+    if (!dialog) return;
+
+    const product = PRODUCTS_DATA.find(p => p.id === productId);
+    if (!product) return;
+
+    const catBadge = document.getElementById('detailBadgeCategory');
+    if (catBadge) {
+      catBadge.textContent = '🛍️ Produits Phares';
+    }
+
+    const subBadge = document.getElementById('detailBadgeSubcategory');
+    if (subBadge) {
+      subBadge.textContent = product.subCategory || product.category;
+    }
+
+    const specBadge = document.getElementById('detailBadgeSpecialist');
+    if (specBadge) {
+      specBadge.textContent = `✦ Sélection Salon Elle & Lui Cocody`;
+    }
+
+    const iconBox = document.getElementById('detailIconBox');
+    if (iconBox) {
+      iconBox.className = `sprite-thumb sprite-${product.id}`;
+      iconBox.innerHTML = '';
+    }
+
+    const titleEl = document.getElementById('detailServiceName');
+    if (titleEl) titleEl.textContent = product.name;
+
+    const taglineEl = document.getElementById('detailServiceTagline');
+    if (taglineEl) taglineEl.textContent = product.tagline ? `« ${product.tagline} »` : '';
+
+    const priceEl = document.getElementById('detailPriceValue');
+    if (priceEl) priceEl.textContent = product.priceLabel;
+
+    const durationLabel = document.getElementById('detailDurationLabel');
+    if (durationLabel) durationLabel.textContent = 'Contenance / Volume';
+
+    const durationEl = document.getElementById('detailDurationValue');
+    if (durationEl) {
+      durationEl.textContent = product.volume || '1 unité';
+    }
+
+    const descEl = document.getElementById('detailServiceDescription');
+    if (descEl) descEl.textContent = product.description;
+
+    // Permalien SEO Produit
+    const permalink = `${window.location.origin}${window.location.pathname}?produit=${product.id}`;
+    const seoInput = document.getElementById('detailSeoUrlInput');
+    if (seoInput) seoInput.value = permalink;
+
+    const shareWaBtn = document.getElementById('detailShareWhatsAppBtn');
+    if (shareWaBtn) {
+      const shareMsg = `Découvrez le produit "${product.name}" (${product.priceLabel}) au Salon Elle & Lui Cocody : ${permalink}`;
+      shareWaBtn.href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+    }
+
+    // Gestion des boutons d'action
+    const bookBtn = document.getElementById('detailBookBtn');
+    const orderBtn = document.getElementById('detailOrderProductBtn');
+    if (bookBtn) {
+      bookBtn.style.display = 'none';
+    }
+    if (orderBtn) {
+      orderBtn.style.display = 'inline-flex';
+      orderBtn.href = getWhatsAppProductUrl(product);
+    }
+
+    const whatsappBtn = document.getElementById('detailWhatsAppBtn');
+    if (whatsappBtn) {
+      const msg = `Bonjour Salon Elle & Lui ! ✨
+Je souhaite commander le produit suivant :
+✦ *${product.name}* (${product.priceLabel})
+Lien : ${permalink}`;
+      whatsappBtn.href = `https://wa.me/2250759372441?text=${encodeURIComponent(msg)}`;
+    }
+
+    if (window.history.replaceState) {
+      window.history.replaceState({ productId: product.id }, '', `?produit=${product.id}`);
+    }
+
+    dialog.showModal();
   }
 
   openCatalogModal(realm = 'coiffure') {
@@ -368,7 +1054,6 @@ class SalonApp {
       btn.addEventListener('click', () => {
         const pkg = btn.dataset.bookWedding;
         const serviceId = pkg === '1mois' ? 'forfait-mariee-1mois' : 'forfait-mariee-3mois';
-        dialog.close();
         this.openBookingModal(serviceId);
       });
     });
@@ -466,7 +1151,7 @@ class SalonApp {
     // Section Contact: Lignes Secondaires
     const cSec = document.getElementById('contactPhoneSecondaries');
     if (cSec && settings.phones?.secondaries) {
-      const linksHtml = settings.phones.secondaries.map(sec => 
+      const linksHtml = settings.phones.secondaries.map(sec =>
         `<a href="tel:${sec.raw}">${this.escapeHtml(sec.number)}</a>`
       ).join(' • ');
       cSec.innerHTML = `
@@ -523,7 +1208,7 @@ class SalonApp {
 
     const btnText = document.getElementById('galleryToggleBtnText');
     if (btnText && galleryGrid.classList.contains('is-collapsed')) {
-      btnText.textContent = `Afficher la galerie photos (${items.length} clichés)`;
+      btnText.textContent = `Galerie photos (${items.length} clichés)`;
     }
   }
 
@@ -540,11 +1225,11 @@ class SalonApp {
       if (isCollapsed) {
         galleryGrid.classList.remove('is-collapsed');
         btn.setAttribute('aria-expanded', 'true');
-        if (btnText) btnText.textContent = 'Masquer la galerie photos';
+        if (btnText) btnText.textContent = 'Masquer';
       } else {
         galleryGrid.classList.add('is-collapsed');
         btn.setAttribute('aria-expanded', 'false');
-        if (btnText) btnText.textContent = `Afficher la galerie photos (${itemsCount} clichés)`;
+        if (btnText) btnText.textContent = `Galerie photos (${itemsCount} clichés)`;
       }
     });
   }
@@ -808,10 +1493,11 @@ class SalonApp {
 
     const d = this.calendarDate;
     if (this.calendarView === 'daily') {
+      const isMobile = window.innerWidth <= 600;
       label.textContent = new Intl.DateTimeFormat('fr-FR', {
-        weekday: 'long',
+        weekday: isMobile ? 'short' : 'long',
         day: 'numeric',
-        month: 'long',
+        month: isMobile ? 'short' : 'long',
         year: 'numeric'
       }).format(d);
     } else if (this.calendarView === 'weekly') {
@@ -877,8 +1563,8 @@ class SalonApp {
     container.innerHTML = `
       <div class="cal-daily-grid">
         ${timeSlots.map(slot => {
-          const aptsInSlot = appointments.filter(a => a.timeSlot === slot);
-          return `
+      const aptsInSlot = appointments.filter(a => a.timeSlot === slot);
+      return `
             <div class="daily-slot-row">
               <div class="daily-time-col">${slot}</div>
               <div class="daily-content-col">
@@ -920,7 +1606,7 @@ class SalonApp {
               </div>
             </div>
           `;
-        }).join('')}
+    }).join('')}
       </div>
     `;
 
@@ -1349,20 +2035,51 @@ class SalonApp {
 
     const closeBtn = document.getElementById('closeDetailDialogBtn');
     if (closeBtn) {
-      closeBtn.addEventListener('click', () => dialog.close());
+      closeBtn.addEventListener('click', () => {
+        dialog.close();
+        if (window.history.replaceState) {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      });
     }
 
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) {
+        dialog.close();
+        if (window.history.replaceState) {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      }
     });
 
     const bookBtn = document.getElementById('detailBookBtn');
     if (bookBtn) {
       bookBtn.addEventListener('click', () => {
         const serviceId = bookBtn.dataset.serviceId;
-        dialog.close();
         if (serviceId) {
           this.openBookingModal(serviceId);
+        }
+      });
+    }
+
+    // Bouton de copie du permalien SEO
+    const copySeoBtn = document.getElementById('copyDetailSeoBtn');
+    const seoInput = document.getElementById('detailSeoUrlInput');
+    const copySeoText = document.getElementById('copyDetailSeoText');
+    if (copySeoBtn && seoInput) {
+      copySeoBtn.addEventListener('click', () => {
+        const url = seoInput.value;
+        if (navigator.clipboard && url) {
+          navigator.clipboard.writeText(url).then(() => {
+            copySeoBtn.classList.add('copied');
+            if (copySeoText) copySeoText.textContent = 'Copié !';
+            setTimeout(() => {
+              copySeoBtn.classList.remove('copied');
+              if (copySeoText) copySeoText.textContent = 'Copier';
+            }, 2000);
+          }).catch(() => {
+            prompt('Copiez ce lien :', url);
+          });
         }
       });
     }
@@ -1375,15 +2092,25 @@ class SalonApp {
     const service = SERVICES_DATA.find(s => s.id === serviceId);
     if (!service) return;
 
+    const isCoiffure = service.category.startsWith('coiffure-');
     const catBadge = document.getElementById('detailBadgeCategory');
     if (catBadge) {
-      const categoryObj = SERVICE_CATEGORIES.find(c => c.id === service.category);
-      catBadge.textContent = categoryObj ? categoryObj.name : 'Soin Professionnel';
+      catBadge.textContent = isCoiffure ? '💇‍♀️ Salon Coiffure' : '✨ Institut Esthétique';
+    }
+
+    const subBadge = document.getElementById('detailBadgeSubcategory');
+    if (subBadge) {
+      let subCatName = 'Soin Professionnel';
+      if (service.category === 'coiffure-tresses') subCatName = '✂️ Tresses & Tissages';
+      else if (service.category === 'coiffure-soins') subCatName = '🪄 Coiffure & Shampoings';
+      else if (service.category === 'esthetic-spa') subCatName = '💆‍♀️ Visage & Massages';
+      else if (service.category === 'esthetic-ongles') subCatName = '💅 Onglerie & Épilation';
+      subBadge.textContent = subCatName;
     }
 
     const specBadge = document.getElementById('detailBadgeSpecialist');
     if (specBadge) {
-      specBadge.textContent = `✦ Par ${service.responsible}`;
+      specBadge.textContent = isCoiffure ? `✦ Espace Salon Coiffure Cocody` : `✦ Espace Institut & Spa Cocody`;
     }
 
     const iconBox = document.getElementById('detailIconBox');
@@ -1401,6 +2128,9 @@ class SalonApp {
     const priceEl = document.getElementById('detailPriceValue');
     if (priceEl) priceEl.textContent = service.priceLabel;
 
+    const durationLabel = document.getElementById('detailDurationLabel');
+    if (durationLabel) durationLabel.textContent = 'Durée Estimée';
+
     const durationEl = document.getElementById('detailDurationValue');
     if (durationEl) {
       const hours = Math.floor(service.durationMinutes / 60);
@@ -1411,16 +2141,39 @@ class SalonApp {
     const descEl = document.getElementById('detailServiceDescription');
     if (descEl) descEl.textContent = service.description;
 
+    // Permalien SEO Prestation
+    const permalink = `${window.location.origin}${window.location.pathname}?service=${service.id}`;
+    const seoInput = document.getElementById('detailSeoUrlInput');
+    if (seoInput) seoInput.value = permalink;
+
+    const shareWaBtn = document.getElementById('detailShareWhatsAppBtn');
+    if (shareWaBtn) {
+      const shareMsg = `Découvrez la prestation "${service.name}" (${service.priceLabel}) au Salon Elle & Lui Cocody : ${permalink}`;
+      shareWaBtn.href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+    }
+
+    // Boutons d'action
     const bookBtn = document.getElementById('detailBookBtn');
-    if (bookBtn) bookBtn.dataset.serviceId = service.id;
+    const orderBtn = document.getElementById('detailOrderProductBtn');
+    if (bookBtn) {
+      bookBtn.style.display = 'inline-flex';
+      bookBtn.dataset.serviceId = service.id;
+    }
+    if (orderBtn) {
+      orderBtn.style.display = 'none';
+    }
 
     const whatsappBtn = document.getElementById('detailWhatsAppBtn');
     if (whatsappBtn) {
       const msg = `Bonjour Salon Elle & Lui ! ✨
 Je souhaite des renseignements supplémentaires sur la prestation :
 ✦ *${service.name}* (${service.priceLabel})
-Pouvez-vous m'en dire plus sur la disponibilité ?`;
+Lien : ${permalink}`;
       whatsappBtn.href = `https://wa.me/2250759372441?text=${encodeURIComponent(msg)}`;
+    }
+
+    if (window.history.replaceState) {
+      window.history.replaceState({ serviceId: service.id }, '', `?service=${service.id}`);
     }
 
     dialog.showModal();
@@ -1430,7 +2183,7 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
      8. PRISE DE RENDEZ-VOUS CLIENT
      ========================================================================== */
   /* ==========================================================================
-     8. PRISE DE RENDEZ-VOUS CLIENT (Cards Carrées 100x100px & Scroll Horizontal)
+     8. PRISE DE RENDEZ-VOUS CLIENT (Cards Carrées 100x100px & Hiérarchie Fluide)
      ========================================================================== */
   populateServiceDropdown() {
     const catContainer = document.getElementById('bookingCategoryPills');
@@ -1438,10 +2191,10 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     const hiddenInput = document.getElementById('modalServiceSelect');
     if (!cardsGrid) return;
 
-    // Catégories de filtres rapides
+    // Familles & Catégories de filtres rapides
     const categories = [
       { id: 'all', name: 'Tous les soins' },
-      { id: 'coiffure-tresses', name: 'Tresses Phares' },
+      { id: 'coiffure-tresses', name: 'Tresses & Nattes' },
       { id: 'coiffure-soins', name: 'Coiffure & Soins' },
       { id: 'esthetic-spa', name: 'Institut Spa' },
       { id: 'esthetic-ongles', name: 'Onglerie' },
@@ -1479,10 +2232,11 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
         <div class="service-card-square ${this.selectedService?.id === s.id ? 'selected' : ''}" 
              data-service-id="${s.id}" 
              data-category="${s.category}" 
+             data-family="${s.familyName || ''}"
              title="${s.name} - ${s.priceLabel} (${s.responsible})">
-          ${s.image ? 
-            `<img src="${s.image}" alt="${s.name}" class="service-card-img" loading="lazy" />` : 
-            `<div class="service-card-icon-fallback">✦</div>`}
+          ${s.image ?
+          `<img src="${s.image}" alt="${s.name}" class="service-card-img" loading="lazy" />` :
+          `<div class="service-card-icon-fallback">✦</div>`}
           <div class="service-card-name">${s.name}</div>
           <div class="service-card-price">${priceClean}</div>
         </div>
@@ -1496,6 +2250,11 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
         card.classList.add('selected');
         const sId = card.dataset.serviceId;
         if (hiddenInput) hiddenInput.value = sId;
+        const service = SERVICES_DATA.find(s => s.id === sId);
+        this.bookingFamily = service ? service.familyName : null;
+        this.bookingCategory = service ? service.name : null;
+        this.bookingModelNum = null;
+        this.bookingModelName = null;
         this.updateSelectedService(sId);
         // Défilement automatique horizontal vers l'Étape 2 (Date)
         setTimeout(() => this.goToBookingStep(2), 200);
@@ -1513,12 +2272,48 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       const mins = service.durationMinutes % 60;
       const durStr = hours > 0 ? `${hours}h${mins > 0 ? mins : ''}` : `${mins} min`;
 
+      const isHairService = service.levels === 3 || service.category === 'coiffure-tresses' || Boolean(service.hairCatalogId);
+
+      let modelExtraHtml = '';
+      if (this.bookingModelNum || this.bookingModelName) {
+        modelExtraHtml = `
+          <div class="booking-summary-row" style="background: rgba(212, 163, 115, 0.15); padding: 0.35rem 0.6rem; border-radius: 6px; margin: 0.35rem 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+            <div>
+              <span style="color: var(--color-gold-700); font-weight: 700;">Modèle choisi :</span>
+              <strong style="color: #1a1614; margin-left: 0.25rem;">N°${this.bookingModelNum || ''} ${this.bookingModelName || ''}</strong>
+            </div>
+            <button type="button" class="btn-choose-model-inline" id="btnChooseModelInline" data-cat-id="${service.hairCatalogId || 'overview'}" style="padding: 0.22rem 0.6rem; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--color-gold-600); background: #ffffff; color: var(--color-gold-800); font-weight: 700; cursor: pointer;">
+              ✏️ Modifier
+            </button>
+          </div>
+        `;
+      } else if (isHairService) {
+        modelExtraHtml = `
+          <div class="booking-summary-row" style="background: rgba(212, 163, 115, 0.12); padding: 0.35rem 0.6rem; border-radius: 6px; margin: 0.35rem 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+            <div>
+              <span style="color: var(--color-gold-700); font-weight: 700;">Modèle choisi :</span>
+              <strong style="color: var(--text-muted); margin-left: 0.25rem;">N.A</strong>
+            </div>
+            <button type="button" class="btn-choose-model-inline" id="btnChooseModelInline" data-cat-id="${service.hairCatalogId || 'overview'}" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--color-gold-600); background: #ffffff; color: var(--color-gold-800); font-weight: 700; cursor: pointer;">
+              📖 Choisir dans le Lookbook
+            </button>
+          </div>
+        `;
+      }
+
       summaryBox.style.display = 'block';
       summaryBox.innerHTML = `
         <div class="booking-summary-row">
           <span>Prestation :</span>
           <strong>${service.name}</strong>
         </div>
+        ${this.bookingFamily ? `
+          <div class="booking-summary-row">
+            <span>Famille :</span>
+            <span>${this.bookingFamily}</span>
+          </div>
+        ` : ''}
+        ${modelExtraHtml}
         <div class="booking-summary-row">
           <span>Spécialiste :</span>
           <span>${service.responsible}</span>
@@ -1532,6 +2327,15 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
           <span>${service.priceLabel}</span>
         </div>
       `;
+
+      const btnChooseInline = summaryBox.querySelector('#btnChooseModelInline');
+      if (btnChooseInline) {
+        btnChooseInline.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const catId = btnChooseInline.dataset.catId || 'overview';
+          this.openHairCatalogModal(catId);
+        });
+      }
     } else if (summaryBox) {
       summaryBox.style.display = 'none';
     }
@@ -1546,21 +2350,30 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     const stepperItems = document.querySelectorAll('.booking-step-item');
     const dots = document.querySelectorAll('.wizard-dot');
     const viewport = document.getElementById('bookingSliderViewport');
+    const backBtn = document.getElementById('btnBookingBackToPreviousModal');
 
-    // Écoute du défilement horizontal naturel pour synchroniser le stepper et les points
+    // Écoute du défilement horizontal naturel pour synchroniser le stepper et les points (4 étapes)
     if (viewport) {
       viewport.addEventListener('scroll', () => {
         const scrollLeft = viewport.scrollLeft;
         const width = viewport.clientWidth || 1;
-        const step = Math.min(5, Math.max(1, Math.round(scrollLeft / width) + 1));
+        const step = Math.min(4, Math.max(1, Math.round(scrollLeft / width) + 1));
         if (step !== this.currentBookingStep) {
           this.currentBookingStep = step;
           this.updateWizardIndicators(step);
-          if (step === 5) {
+          if (step === 4) {
             this.populateBookingWizardRecap();
           }
         }
       }, { passive: true });
+    }
+
+    // Bouton Retour vers la modale précédente
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        const dialog = document.getElementById('bookingDialog');
+        if (dialog) dialog.close();
+      });
     }
 
     if (submitBtn) {
@@ -1585,46 +2398,220 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       });
     });
 
-    // Raccourcis Date rapide (Aujourd'hui, Demain, Ce Samedi)
+    // Raccourcis Date rapide (Aujourd'hui, Demain, Ce Samedi) & Synchronisation FullCalendar
     const btnToday = document.getElementById('btnDateToday');
     const btnTomorrow = document.getElementById('btnDateTomorrow');
     const btnSat = document.getElementById('btnDateSaturday');
-    const dateInput = document.getElementById('modalBookingDate');
 
-    if (btnToday && dateInput) {
+    if (btnToday) {
       btnToday.addEventListener('click', () => {
         const todayStr = new Date().toISOString().split('T')[0];
-        dateInput.value = todayStr;
-        this.showToast('Date sélectionnée : Aujourd\'hui !');
-        setTimeout(() => this.goToBookingStep(3), 180);
+        this.selectBookingDate(todayStr);
+        if (this.bookingCalendarInstance) {
+          this.bookingCalendarInstance.today();
+        }
+        this.showToast('Date : Aujourd\'hui. Choisissez votre créneau ci-dessous.');
       });
     }
 
-    if (btnTomorrow && dateInput) {
+    if (btnTomorrow) {
       btnTomorrow.addEventListener('click', () => {
         const d = new Date();
         d.setDate(d.getDate() + 1);
-        dateInput.value = d.toISOString().split('T')[0];
-        this.showToast('Date sélectionnée : Demain !');
-        setTimeout(() => this.goToBookingStep(3), 180);
+        const tomStr = d.toISOString().split('T')[0];
+        this.selectBookingDate(tomStr);
+        if (this.bookingCalendarInstance) {
+          this.bookingCalendarInstance.gotoDate(tomStr);
+        }
+        this.showToast('Date : Demain. Choisissez votre créneau ci-dessous.');
       });
     }
 
-    if (btnSat && dateInput) {
+    if (btnSat) {
       btnSat.addEventListener('click', () => {
         const d = new Date();
         const dayOfWeek = d.getDay(); // 0 is Sunday, 6 is Saturday
         const diff = dayOfWeek === 6 ? 7 : (6 - dayOfWeek);
         d.setDate(d.getDate() + diff);
-        dateInput.value = d.toISOString().split('T')[0];
-        this.showToast('Date sélectionnée : Samedi prochain !');
-        setTimeout(() => this.goToBookingStep(3), 180);
+        const satStr = d.toISOString().split('T')[0];
+        this.selectBookingDate(satStr);
+        if (this.bookingCalendarInstance) {
+          this.bookingCalendarInstance.gotoDate(satStr);
+        }
+        this.showToast('Date : Samedi prochain. Choisissez votre créneau ci-dessous.');
       });
     }
+
+    // Basculement des vues FullCalendar 2.0 (Mois, Semaine, Jour)
+    const calViewBtns = document.querySelectorAll('.btn-cal-view');
+    calViewBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        calViewBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const targetView = btn.dataset.calView;
+        if (this.bookingCalendarInstance) {
+          this.bookingCalendarInstance.changeView(targetView);
+          setTimeout(() => this.bookingCalendarInstance.updateSize(), 50);
+        }
+      });
+    });
+
+    // Basculement de convention de format de date (JJ/MM/AAAA vs MM/JJ/AAAA)
+    const btnToggleFormat = document.getElementById('btnToggleDateFormat');
+    const formatTag = document.getElementById('bookingDateFormatTag');
+    if (btnToggleFormat && formatTag) {
+      btnToggleFormat.addEventListener('click', () => {
+        this.bookingDateFormat = this.bookingDateFormat === 'fr' ? 'en' : 'fr';
+        formatTag.textContent = this.bookingDateFormat === 'fr' ? 'JJ/MM/AAAA' : 'MM/JJ/AAAA';
+        this.showToast(`Convention de date : ${this.bookingDateFormat === 'fr' ? 'Jour/Mois/Année (FR)' : 'Mois/Jour/Année (US)'}`);
+        this.updateBookingDateLabel();
+        if (this.currentBookingStep === 4) this.populateBookingWizardRecap();
+      });
+    }
+
+    // Initialisation du Calendrier FullCalendar
+    this.initBookingFullCalendar();
+  }
+
+  initBookingFullCalendar() {
+    const calendarEl = document.getElementById('bookingFullCalendarEl');
+    if (!calendarEl || typeof FullCalendar === 'undefined') return;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const maxDateStr = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0];
+
+    // Extraction des rendez-vous existants pour afficher les créneaux déjà réservés
+    const appointments = this.dashboardManager ? this.dashboardManager.getAppointments() : [];
+    const events = appointments.filter(a => a.status !== 'cancelled').map(apt => ({
+      id: apt.id,
+      title: 'Réservé',
+      start: `${apt.date}T${apt.timeSlot}:00`,
+      allDay: false,
+      display: 'block',
+      classNames: ['booking-calendar-busy-event']
+    }));
+
+    if (this.bookingCalendarInstance) {
+      try { this.bookingCalendarInstance.destroy(); } catch (e) {}
+    }
+
+    this.bookingCalendarInstance = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'fr',
+      firstDay: 1, // Lundi en premier
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: ''
+      },
+      buttonText: {
+        today: 'Aujourd\'hui'
+      },
+      businessHours: {
+        daysOfWeek: [0, 1, 2, 3, 4, 5, 6], // Ouvert 7j/7 non-stop
+        startTime: '08:30',
+        endTime: '19:00'
+      },
+      slotMinTime: '08:30:00',
+      slotMaxTime: '19:00:00',
+      slotDuration: '00:15:00',
+      slotLabelInterval: '01:00',
+      allDaySlot: false,
+      height: 'auto',
+      aspectRatio: 1.42,
+      validRange: {
+        start: todayStr,
+        end: maxDateStr
+      },
+      events: events,
+      dateClick: (info) => {
+        this.handleBookingCalendarDateClick(info);
+      },
+      eventClick: () => {
+        this.showToast('Ce créneau horaire est déjà réservé.');
+      }
+    });
+
+    this.bookingCalendarInstance.render();
+
+    // Sélection de la date du jour par défaut
+    this.selectBookingDate(todayStr);
+  }
+
+  handleBookingCalendarDateClick(info) {
+    const rawStr = info.dateStr;
+
+    // Si clic depuis une vue horaire (Semaine ou Jour) contenant "T"
+    if (rawStr.includes('T')) {
+      const parts = rawStr.split('T');
+      const datePart = parts[0];
+      const timePart = parts[1].slice(0, 5); // "HH:MM"
+
+      // Vérifier si le créneau est déjà réservé
+      const appointments = this.dashboardManager ? this.dashboardManager.getAppointments() : [];
+      const isTaken = appointments.some(a => a.date === datePart && a.timeSlot === timePart && a.status !== 'cancelled');
+
+      if (isTaken) {
+        this.showToast(`Le créneau de ${timePart} le ${this.formatDisplayDate(datePart)} est déjà réservé.`);
+        return;
+      }
+
+      this.selectBookingDate(datePart);
+      this.selectedTimeSlot = timePart;
+      this.renderTimeSlots(datePart);
+      this.showToast(`Rendez-vous : ${this.formatDisplayDate(datePart)} à ${timePart}`);
+
+      // Avancement fluide vers l'Étape 3 (Coordonnées)
+      setTimeout(() => this.goToBookingStep(3), 220);
+      return;
+    }
+
+    // Vue mensuelle (dayGridMonth) : sélection du jour et actualisation des créneaux
+    this.selectBookingDate(rawStr);
+    this.showToast(`Date : ${this.formatDisplayDate(rawStr)}. Choisissez votre créneau ci-dessous.`);
+  }
+
+  selectBookingDate(dateStr) {
+    this.selectedBookingDate = dateStr;
+    const dateInput = document.getElementById('modalBookingDate');
+    if (dateInput) dateInput.value = dateStr;
+
+    this.updateBookingDateLabel();
+
+    // Surlignage du jour dans FullCalendar
+    document.querySelectorAll('.fc-daygrid-day').forEach(el => {
+      el.classList.toggle('selected-booking-day', el.dataset.date === dateStr);
+    });
+
+    // Actualisation des créneaux horaires pour ce jour
+    this.renderTimeSlots(dateStr);
+  }
+
+  updateBookingDateLabel() {
+    const label = document.getElementById('bookingSelectedDateLabel');
+    if (!label) return;
+    const dateStr = this.selectedBookingDate || document.getElementById('modalBookingDate')?.value;
+    if (!dateStr) {
+      label.textContent = 'Aujourd\'hui';
+      return;
+    }
+    label.textContent = this.formatDisplayDate(dateStr);
+  }
+
+  formatDisplayDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return dateStr;
+
+    if (this.bookingDateFormat === 'en') {
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric', year: 'numeric' });
+    }
+    const str = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   goToBookingStep(step) {
-    const clampedStep = Math.max(1, Math.min(5, step));
+    const clampedStep = Math.max(1, Math.min(4, step));
     this.currentBookingStep = clampedStep;
 
     const viewport = document.getElementById('bookingSliderViewport');
@@ -1638,7 +2625,14 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
 
     this.updateWizardIndicators(clampedStep);
 
-    if (clampedStep === 5) {
+    // Ajustement de la géométrie FullCalendar lors du passage à l'étape 2
+    if (clampedStep === 2 && this.bookingCalendarInstance) {
+      setTimeout(() => {
+        this.bookingCalendarInstance.updateSize();
+      }, 80);
+    }
+
+    if (clampedStep === 4) {
       this.populateBookingWizardRecap();
     }
   }
@@ -1674,10 +2668,6 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
         this.showToast('Veuillez choisir une date pour votre rendez-vous.');
         return false;
       }
-      return true;
-    }
-
-    if (step === 3) {
       if (!this.selectedTimeSlot) {
         this.showToast('Veuillez sélectionner un créneau horaire.');
         return false;
@@ -1685,7 +2675,7 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       return true;
     }
 
-    if (step === 4) {
+    if (step === 3) {
       const clientName = document.getElementById('modalClientName');
       const clientPhone = document.getElementById('modalClientPhone');
       if (!clientName || !clientName.value.trim() || !clientPhone || !clientPhone.value.trim()) {
@@ -1717,11 +2707,33 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     const clientName = document.getElementById('modalClientName')?.value.trim() || 'Non renseigné';
     const clientPhone = document.getElementById('modalClientPhone')?.value.trim() || 'Non renseigné';
 
+    // Construction hiérarchique pour le récapitulatif
+    const isHair = service && (service.levels === 3 || service.category === 'coiffure-tresses' || Boolean(service.hairCatalogId));
+    let prestationHierarchy = service ? service.name : 'Non sélectionnée';
+    if (this.bookingFamily && this.bookingCategory && (this.bookingModelNum || this.bookingModelName)) {
+      const modelPart = this.bookingModelNum ? `Modèle #${this.bookingModelNum} (${this.bookingModelName || ''})` : this.bookingModelName;
+      prestationHierarchy = `${this.bookingFamily} › ${this.bookingCategory} › ${modelPart}`;
+    } else if (this.bookingFamily && this.bookingCategory && this.bookingFamily !== this.bookingCategory) {
+      prestationHierarchy = `${this.bookingFamily} › ${this.bookingCategory}${isHair ? ' › Modèle : N.A' : ''}`;
+    } else if (this.bookingFamily && service && this.bookingFamily !== service.name) {
+      prestationHierarchy = `${this.bookingFamily} › ${service.name}${isHair ? ' › Modèle : N.A' : ''}`;
+    } else if (isHair && !this.bookingModelNum && !this.bookingModelName) {
+      prestationHierarchy = `${prestationHierarchy} › Modèle : N.A`;
+    }
+
     recapBox.innerHTML = `
       <div class="recap-row">
         <span class="recap-label">Prestation :</span>
-        <strong class="recap-value">${service ? service.name : 'Non sélectionnée'}</strong>
+        <strong class="recap-value" style="color: var(--text-main); font-size: 0.96rem;">${prestationHierarchy}</strong>
       </div>
+      ${isHair ? `
+        <div class="recap-row">
+          <span class="recap-label">Modèle choisi :</span>
+          <strong class="recap-value" style="color: ${this.bookingModelNum ? 'var(--color-gold-700)' : 'var(--text-muted)'};">
+            ${this.bookingModelNum ? `N°${this.bookingModelNum} ${this.bookingModelName || ''}` : 'N.A (à choisir au salon ou dans le Lookbook)'}
+          </strong>
+        </div>
+      ` : ''}
       <div class="recap-row">
         <span class="recap-label">Responsable &amp; Cadre :</span>
         <span class="recap-value">${service ? service.responsible : '-'}</span>
@@ -1749,9 +2761,41 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     `;
   }
 
-  openBookingModal(serviceId = null) {
+  openBookingModal(serviceId = null, meta = {}) {
     const dialog = document.getElementById('bookingDialog');
     if (!dialog) return;
+
+    // Si le choix d'un modèle précis vient du Lookbook, fermer le Lookbook pour revenir au tunnel
+    const hairModal = document.getElementById('hairCatalogModalDialog');
+    if (hairModal && hairModal.open && meta && (meta.modelNum || meta.modelName)) {
+      hairModal.close();
+    }
+
+    // Détection de la modale précédente encore ouverte pour configurer le bouton Retour
+    const openModals = Array.from(document.querySelectorAll('dialog[open]')).filter(d => d !== dialog && d !== hairModal);
+    const prevModal = openModals.length > 0 ? openModals[openModals.length - 1] : null;
+
+    const backBtn = document.getElementById('btnBookingBackToPreviousModal');
+    const backLabel = document.getElementById('bookingBackPrevLabel');
+
+    if (backBtn && backLabel) {
+      if (prevModal) {
+        let labelText = 'Retour';
+        if (prevModal.id === 'catalogModalDialog') {
+          labelText = 'Catalogue';
+        } else if (prevModal.id === 'hairCatalogModalDialog') {
+          labelText = 'Lookbook';
+        } else if (prevModal.id === 'serviceDetailDialog') {
+          labelText = 'Prestation';
+        } else if (prevModal.id === 'eventModalDialog') {
+          labelText = 'Événements';
+        }
+        backLabel.textContent = labelText;
+        backBtn.style.display = 'inline-flex';
+      } else {
+        backBtn.style.display = 'none';
+      }
+    }
 
     const dateInput = document.getElementById('modalBookingDate');
     const todayStr = new Date().toISOString().split('T')[0];
@@ -1760,7 +2804,15 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       dateInput.value = todayStr;
     }
 
-    this.renderTimeSlots();
+    this.selectBookingDate(dateInput.value || todayStr);
+
+    // Mémorisation des métadonnées hiérarchiques
+    if (meta && (meta.family || meta.category || meta.modelNum || meta.modelName)) {
+      this.bookingFamily = meta.family || null;
+      this.bookingCategory = meta.category || null;
+      this.bookingModelNum = meta.modelNum || null;
+      this.bookingModelName = meta.modelName || null;
+    }
 
     if (serviceId) {
       const hiddenInput = document.getElementById('modalServiceSelect');
@@ -1769,31 +2821,71 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       cards.forEach(c => {
         c.classList.toggle('selected', c.dataset.serviceId === serviceId);
       });
+      const s = SERVICES_DATA.find(serv => serv.id === serviceId);
+      if (s && !this.bookingFamily) {
+        this.bookingFamily = s.familyName || null;
+        this.bookingCategory = s.name;
+      }
       this.updateSelectedService(serviceId);
     }
 
-    dialog.showModal();
-    this.goToBookingStep(1);
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+
+    // Actualisation géométrique FullCalendar et vue Mois par défaut
+    if (this.bookingCalendarInstance) {
+      this.bookingCalendarInstance.changeView('dayGridMonth');
+      document.querySelectorAll('.btn-cal-view').forEach(b => {
+        b.classList.toggle('active', b.dataset.calView === 'dayGridMonth');
+      });
+      setTimeout(() => {
+        this.bookingCalendarInstance.updateSize();
+      }, 100);
+    }
+
+    // Si le service est déjà spécifié (venant du catalogue ou lookbook), amener directement à l'étape 2 (Date & Heure)
+    if (serviceId) {
+      this.goToBookingStep(2);
+    } else {
+      this.goToBookingStep(1);
+    }
   }
 
-  renderTimeSlots() {
+  renderTimeSlots(selectedDate = null) {
     const container = document.getElementById('timeSlotsContainer');
     if (!container) return;
 
-    const slots = generateTimeSlots();
-    container.innerHTML = slots.map(slot => `
-      <div class="time-slot-chip ${this.selectedTimeSlot === slot ? 'selected' : ''}" data-slot="${slot}">
-        ${slot}
-      </div>
-    `).join('');
+    const dateStr = selectedDate || document.getElementById('modalBookingDate')?.value || this.selectedBookingDate;
+    const appointments = this.dashboardManager ? this.dashboardManager.getAppointments() : [];
+    const bookedForDay = new Set(
+      appointments
+        .filter(a => a.date === dateStr && a.status !== 'cancelled')
+        .map(a => a.timeSlot)
+    );
 
-    container.querySelectorAll('.time-slot-chip').forEach(chip => {
+    const slots = generateTimeSlots();
+    container.innerHTML = slots.map(slot => {
+      const isBooked = bookedForDay.has(slot);
+      const isSelected = this.selectedTimeSlot === slot;
+      const chipClasses = ['time-slot-chip'];
+      if (isSelected) chipClasses.push('selected');
+      if (isBooked) chipClasses.push('booked');
+
+      return `
+        <div class="${chipClasses.join(' ')}" data-slot="${slot}" ${isBooked ? 'title="Créneau déjà réservé au salon"' : ''}>
+          ${slot}
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.time-slot-chip:not(.booked)').forEach(chip => {
       chip.addEventListener('click', () => {
         container.querySelectorAll('.time-slot-chip').forEach(c => c.classList.remove('selected'));
         chip.classList.add('selected');
         this.selectedTimeSlot = chip.dataset.slot;
-        // Défilement automatique doux vers l'étape suivante (Coordonnées)
-        setTimeout(() => this.goToBookingStep(4), 220);
+        // Défilement automatique doux vers l'étape suivante (Étape 3 : Coordonnées)
+        setTimeout(() => this.goToBookingStep(3), 220);
       });
     });
   }
@@ -1811,13 +2903,18 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
       this.showToast('Veuillez sélectionner une prestation.');
       return;
     }
+    if (!date) {
+      this.goToBookingStep(2);
+      this.showToast('Veuillez choisir une date pour votre rendez-vous.');
+      return;
+    }
     if (!this.selectedTimeSlot) {
-      this.goToBookingStep(3);
+      this.goToBookingStep(2);
       this.showToast('Veuillez sélectionner un créneau horaire.');
       return;
     }
     if (!clientName || !clientPhone) {
-      this.goToBookingStep(4);
+      this.goToBookingStep(3);
       this.showToast('Veuillez renseigner votre nom et votre numéro de téléphone.');
       return;
     }
@@ -1827,6 +2924,10 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     const bookingPayload = {
       serviceId,
       serviceName: service.name,
+      family: this.bookingFamily || service.familyName || null,
+      category: this.bookingCategory || service.name,
+      modelNum: this.bookingModelNum || null,
+      modelName: this.bookingModelName || null,
       specialist: service.responsible,
       price: service.price,
       priceLabel: service.priceLabel,
@@ -1846,6 +2947,10 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
     document.getElementById('bookingForm').reset();
     this.selectedTimeSlot = null;
     this.selectedService = null;
+    this.bookingFamily = null;
+    this.bookingCategory = null;
+    this.bookingModelNum = null;
+    this.bookingModelName = null;
     this.goToBookingStep(1);
     const summaryBox = document.getElementById('bookingSummaryBox');
     if (summaryBox) summaryBox.style.display = 'none';
@@ -1957,10 +3062,1071 @@ Pouvez-vous m'en dire plus sur la disponibilité ?`;
   }
 
   /* ==========================================================================
+     9B. MODALE CATALOGUE VISUEL DES COIFFURES & PLANCHES DE MODÈLES
+     ========================================================================== */
+  setupHairCatalogModal() {
+    const dialog = document.getElementById('hairCatalogModalDialog');
+    if (!dialog || typeof HAIR_CATALOG_DATA === 'undefined') return;
+
+    // Fallback light-dismiss pour les navigateurs ne supportant pas nativement closedby="any"
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+          dialog.close();
+        }
+      });
+    }
+
+    this.renderHairCatalogCategoryTabs();
+
+    // Recherche rapide de modèles dans l'en-tête (Raccourci escamotable)
+    const searchWrap = document.getElementById('hairHeaderSearchWrap');
+    const toggleSearchBtn = document.getElementById('btnToggleHairSearch');
+    const clearSearchBtn = document.getElementById('btnClearHairSearch');
+    const searchInput = document.getElementById('hairCatalogSearchInput');
+
+    if (toggleSearchBtn && searchWrap && searchInput) {
+      toggleSearchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        searchWrap.classList.toggle('active');
+        if (searchWrap.classList.contains('active')) {
+          setTimeout(() => searchInput.focus(), 80);
+        } else {
+          searchInput.value = '';
+          this.hairSearchQuery = '';
+          this.renderHairCatalogContent();
+        }
+      });
+    }
+
+    if (clearSearchBtn && searchInput) {
+      clearSearchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        searchInput.value = '';
+        this.hairSearchQuery = '';
+        this.renderHairCatalogContent();
+        searchInput.focus();
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        this.hairSearchQuery = searchInput.value.trim().toLowerCase();
+        if (this.hairSearchQuery && searchWrap) {
+          searchWrap.classList.add('active');
+        }
+        this.renderHairCatalogContent();
+      });
+    }
+
+    // Bouton Prendre RDV depuis le pied de modale
+    const bookBtn = document.getElementById('btnBookFromHairCatalog');
+    if (bookBtn) {
+      bookBtn.addEventListener('click', () => {
+        const catToServiceMap = {
+          cat1: 'tresses-cat1-nattes-collees',
+          cat2: 'tresses-cat2-box-knotless',
+          cat3: 'tresses-cat3-tribales',
+          cat4: 'tresses-cat4-vanilles-twists',
+          cat5: 'tresses-cat5-boho-goddess',
+          cat6: 'tresses-cat6-sculpturales-locs'
+        };
+        const activeCat = HAIR_CATALOG_DATA.find(c => c.id === this.activeHairCatId);
+        this.openBookingModal(catToServiceMap[this.activeHairCatId] || 'tresses-cat1-nattes-collees', {
+          family: 'Nattes, Tresses & Vanilles',
+          category: activeCat ? activeCat.shortTitle : null
+        });
+      });
+    }
+
+    // Contrôles de la visionneuse plein écran (Lightbox)
+    const lbClose = document.getElementById('hairLightboxCloseBtn');
+    const lbPrev = document.getElementById('hairLightboxPrevBtn');
+    const lbNext = document.getElementById('hairLightboxNextBtn');
+    const lbStage = document.getElementById('hairLightboxStage');
+
+    if (lbClose) lbClose.addEventListener('click', () => this.closeHairBoardLightbox());
+    if (lbPrev) lbPrev.addEventListener('click', () => this.stepHairBoardLightbox(-1));
+    if (lbNext) lbNext.addEventListener('click', () => this.stepHairBoardLightbox(1));
+    if (lbStage) {
+      lbStage.addEventListener('click', (e) => {
+        if (e.target === lbStage) this.closeHairBoardLightbox();
+      });
+    }
+  }
+
+  openHairCatalogModal(categoryId = 'overview') {
+    const dialog = document.getElementById('hairCatalogModalDialog');
+    if (!dialog || typeof HAIR_CATALOG_DATA === 'undefined') return;
+
+    this.activeHairCatId = categoryId || 'overview';
+    this.selectedBoardIdx = null; // Réinitialiser le choix de planche pour montrer les planches d'abord
+    this.isBannerUnfolded = false; // Bannière foldée par défaut
+    this.hairSearchQuery = '';
+    const searchInput = document.getElementById('hairCatalogSearchInput');
+    if (searchInput) searchInput.value = '';
+    const searchWrap = document.getElementById('hairHeaderSearchWrap');
+    if (searchWrap) searchWrap.classList.remove('active');
+
+    this.closeHairBoardLightbox();
+    this.renderHairCatalogCategoryTabs();
+    this.renderHairCatalogContent();
+    dialog.showModal();
+  }
+
+  renderHairCatalogCategoryTabs() {
+    const tabsContainer = document.getElementById('hairCatalogCategoryTabs');
+    if (!tabsContainer || typeof HAIR_CATALOG_DATA === 'undefined') return;
+
+    tabsContainer.innerHTML = HAIR_CATALOG_DATA.map(cat => {
+      const isActive = cat.id === this.activeHairCatId;
+      const totalBoards = (cat.boards || []).length;
+      const badgeLabel = cat.id === 'overview'
+        ? 'Panorama'
+        : (totalBoards > 0 ? `${totalBoards} planches` : '51 fiches');
+
+      return `
+        <button type="button" class="hair-cat-tab-btn ${isActive ? 'active' : ''}"
+          role="tab" aria-selected="${isActive ? 'true' : 'false'}"
+          data-hair-cat-id="${cat.id}">
+          <span>${cat.id === 'overview' ? '🌟 ' : ''}${cat.shortTitle}</span>
+          <span class="hair-cat-tab-count">${badgeLabel}</span>
+        </button>
+      `;
+    }).join('');
+
+    tabsContainer.querySelectorAll('.hair-cat-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.activeHairCatId = btn.dataset.hairCatId;
+        this.selectedBoardIdx = null; // Revenir à la vue des planches de la nouvelle catégorie
+        this.isBannerUnfolded = false; // Foldé par défaut
+        this.closeHairBoardLightbox();
+        this.renderHairCatalogCategoryTabs();
+        this.renderHairCatalogContent();
+        const body = document.getElementById('hairCatalogModalBody');
+        if (body) body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  }
+
+  renderHairCatalogContent() {
+    const body = document.getElementById('hairCatalogModalBody');
+    if (!body || typeof HAIR_CATALOG_DATA === 'undefined') return;
+
+    const cat = HAIR_CATALOG_DATA.find(c => c.id === this.activeHairCatId) || HAIR_CATALOG_DATA[0];
+    if (!cat) return;
+
+    const query = this.hairSearchQuery;
+    const isFolded = !this.isBannerUnfolded;
+
+    // 1. Bannière de la catégorie : Foldable & Foldée par défaut, metrics inline compactes
+    let html = `
+      <div class="hair-cat-banner ${isFolded ? 'folded' : 'unfolded'}" id="hairCatBanner">
+        <div class="hair-cat-banner-header">
+          <div class="hair-cat-banner-title-wrap">
+            <h3 style="margin: 0; font-family: var(--font-heading); font-size: 1.25rem; color: #f7d794;">${cat.title}</h3>
+            <button type="button" class="hair-banner-toggle-btn" id="hairBannerToggleBtn" title="${isFolded ? 'Afficher la description complète' : 'Réduire la bannière'}">
+              <span>${isFolded ? 'En savoir plus ▾' : 'Réduire ▴'}</span>
+            </button>
+          </div>
+          <div class="hair-cat-metrics compact">
+            <span class="hair-metric-chip-inline" title="Temps moyen de réalisation">
+              <span class="chip-label">Pose :</span> <strong>⏱️ ${cat.avgPose}</strong>
+            </span>
+            <span class="hair-metric-chip-inline" title="Durée de conservation conseillée">
+              <span class="chip-label">Tenue :</span> <strong>📅 ${cat.avgTenue}</strong>
+            </span>
+            <span class="hair-metric-chip-inline" title="Niveau de tension sur le cuir chevelu">
+              <span class="chip-label">Tension :</span> <strong>💆🏾‍♀️ ${cat.tension}</strong>
+            </span>
+          </div>
+        </div>
+        <div class="hair-cat-banner-info">
+          <p>${cat.description}</p>
+        </div>
+      </div>
+    `;
+
+    // 2. Traitement selon la catégorie
+    const defaultCatBadge = `Cat. ${cat.number} • ${cat.shortTitle.replace(/^\d+\.\s*/, '')}`;
+    const gearSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+
+    // CAS SPÉCIAL : Vue d'ensemble (Overview)
+    if (cat.id === 'overview') {
+      const subCats = HAIR_CATALOG_DATA.filter(c => c.id !== 'overview');
+      html += `
+        <section>
+          <div class="hair-cat-banner overview-banner" style="margin-bottom: 1.25rem;">
+            <div class="hair-cat-banner-header">
+              <div class="hair-cat-banner-title-wrap">
+                <h4 style="margin: 0; font-family: var(--font-heading); font-size: 1.15rem; color: #f7d794;">🌟 Panorama Complet • Les 6 Catégories de Coiffures</h4>
+              </div>
+              <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Cliquez sur une catégorie pour afficher ses planches</span>
+            </div>
+          </div>
+          <div class="hair-models-grid">
+            ${subCats.map(sc => {
+        const scBadge = sc.categoryBadge || `Cat. ${sc.number} • ${sc.shortTitle.replace(/^\d+\.\s*/, '')}`;
+        return `
+                <div class="hair-model-card">
+                  ${sc.coverImage ? `
+                    <div class="hair-model-img-wrap" data-jump-hair-cat="${sc.id}" title="Ouvrir ${sc.shortTitle}">
+                      <span class="hair-model-cat-badge">${scBadge}</span>
+                      <img src="${sc.coverImage}" alt="${sc.title.replace(/"/g, '&quot;')}" loading="lazy" />
+                      <span class="hair-model-zoom-pill">📂 Voir les planches</span>
+                    </div>
+                  ` : ''}
+                  <div class="hair-model-card-body">
+                    <div>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.45rem;">
+                        <span class="hair-model-cat-inline-badge">🏷️ ${scBadge}</span>
+                        <button type="button" class="card-gear-edit-btn"
+                          data-edit-overview-cat="${sc.id}"
+                          title="Modifier le contenu de cette catégorie"
+                          aria-label="Modifier la catégorie ${sc.shortTitle.replace(/"/g, '&quot;')}">
+                          ${gearSvg}
+                        </button>
+                      </div>
+                      <div class="hair-model-top">
+                        <span class="hair-model-num">${sc.number}</span>
+                        <div class="hair-model-title-box">
+                          <strong>${sc.title}</strong>
+                          <span class="hair-model-style-tag">${sc.boards.length} planches • 51 modèles</span>
+                        </div>
+                      </div>
+                      <p class="hair-model-desc" style="margin-top: 0.45rem;">${sc.description}</p>
+                    </div>
+                    <div class="hair-model-bottom">
+                      <div class="hair-model-badges">
+                        <span class="hair-badge-chip">⏱️ ${sc.avgPose}</span>
+                        <span class="hair-badge-chip">📅 ${sc.avgTenue}</span>
+                      </div>
+                      <button type="button" class="hair-model-choose-btn" data-jump-hair-cat="${sc.id}">
+                        Consulter les planches →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+      }).join('')}
+          </div>
+        </section>
+      `;
+    } else if (query) {
+      // CAS DE RECHERCHE : L'utilisateur recherche un modèle précis par mot-clé
+      const allCategoryModels = [
+        ...(cat.style1Models || []).map(m => ({ ...m, styleType: 'Style 1 Mannequin', styleKey: 'style1Models' })),
+        ...(cat.style2Models || []).map(m => ({ ...m, styleType: 'Style 2 Lookbook', styleKey: 'style2Models' }))
+      ];
+      const matchedModels = allCategoryModels.filter(m =>
+        m.name.toLowerCase().includes(query) ||
+        m.desc.toLowerCase().includes(query) ||
+        String(m.num) === query
+      );
+
+      html += `
+        <section>
+          <div class="hair-cat-banner search-banner" style="margin-bottom: 1.25rem;">
+            <div class="hair-cat-banner-header">
+              <div class="hair-cat-banner-title-wrap">
+                <h4 style="margin: 0; font-family: var(--font-heading); font-size: 1.15rem; color: #f7d794;">🔍 Résultats de recherche pour « ${query} » (${matchedModels.length} modèle${matchedModels.length > 1 ? 's' : ''})</h4>
+              </div>
+              <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Effacez la recherche pour revenir aux planches</span>
+            </div>
+          </div>
+          ${matchedModels.length === 0 ? `
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+              <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.4rem;">Aucun modèle trouvé pour cette recherche</p>
+              <p style="font-size: 0.88rem;">Essayez un autre mot-clé ou effacez la recherche pour parcourir les planches.</p>
+            </div>
+          ` : `
+            <div class="hair-models-grid">
+              ${matchedModels.map(m => {
+        const badgeText = m.categoryBadge || defaultCatBadge;
+        return `
+                  <div class="hair-model-card">
+                    ${m.image ? `
+                      <div class="hair-model-img-wrap" data-zoom-single-img="${m.image}"
+                        data-zoom-single-title="Modèle N°${m.num} — ${m.name.replace(/"/g, '&quot;')}"
+                        data-zoom-single-sub="${badgeText} • ${m.styleType} • Pose : ${m.pose} • Tenue : ${m.tenue}">
+                        <img src="${m.image}" alt="Modèle ${m.num} - ${m.name.replace(/"/g, '&quot;')}" loading="lazy" />
+                        <span class="hair-model-zoom-pill">🔍 Zoom</span>
+                      </div>
+                    ` : ''}
+                    <div class="hair-model-card-body">
+                      <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.45rem;">
+                          <span class="hair-model-cat-inline-badge">🏷️ ${badgeText}</span>
+                          <button type="button" class="card-gear-edit-btn"
+                            data-edit-hair-model="${m.num}"
+                            data-edit-hair-cat="${cat.id}"
+                            data-edit-hair-style="${m.styleKey}"
+                            title="Modifier le contenu de cette carte"
+                            aria-label="Modifier le modèle ${m.num} ${m.name.replace(/"/g, '&quot;')}">
+                            ${gearSvg}
+                          </button>
+                        </div>
+                        <div class="hair-model-top">
+                          <span class="hair-model-num">${m.num}</span>
+                          <div class="hair-model-title-box">
+                            <strong>${m.name}</strong>
+                            <span class="hair-model-style-tag">${m.styleType} • Modèle N°${m.num}</span>
+                          </div>
+                        </div>
+                        <p class="hair-model-desc" style="margin-top: 0.45rem;">${m.desc}</p>
+                      </div>
+                      <div class="hair-model-bottom">
+                        <div class="hair-model-badges">
+                          <span class="hair-badge-chip">⏱️ ${m.pose}</span>
+                          <span class="hair-badge-chip">📅 ${m.tenue}</span>
+                        </div>
+                        <button type="button" class="hair-model-choose-btn"
+                          data-choose-hair-model="${m.name.replace(/"/g, '&quot;')}"
+                          data-choose-hair-num="${m.num}"
+                          data-choose-hair-style="${m.styleType}"
+                          data-choose-hair-cat="${cat.id}">
+                          Choisir ce modèle →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+      }).join('')}
+            </div>
+          `}
+        </section>
+      `;
+    } else if (this.selectedBoardIdx === null) {
+      // CAS PRINCIPAL 1 : L'utilisateur choisit d'abord une planche (pas de fiches affichées dessous)
+      const boards = cat.boards || [];
+      this.currentLightboxBoards = boards;
+
+      html += `
+        <section>
+          <div class="hair-cat-banner planches-banner" style="margin-bottom: 1.25rem;">
+            <div class="hair-cat-banner-header">
+              <div class="hair-cat-banner-title-wrap">
+                <h4 style="margin: 0; font-family: var(--font-heading); font-size: 1.15rem; color: #f7d794;">🖼️ Planches Visuelles (${boards.length} planches disponibles)</h4>
+              </div>
+              <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Cliquez sur une planche pour révéler ses fiches modèles individuelles</span>
+            </div>
+          </div>
+          ${boards.length === 0 ? `
+            <div style="background: #fff9f2; border: 1.5px dashed var(--color-gold-600); border-radius: 12px; padding: 1.25rem; color: var(--text-main); font-size: 0.9rem;">
+              <strong>✨ Planches en cours de finalisation studio</strong> — Les planches visuelles haute résolution pour cette catégorie sont en cours d'optimisation.
+            </div>
+          ` : `
+            <div class="hair-boards-grid">
+              ${boards.map((b, idx) => `
+                <article class="hair-board-card" data-select-board-card="${idx}" style="cursor: pointer;" title="Cliquer pour afficher les fiches modèles de ${b.title}">
+                  <div class="hair-board-img-wrap" data-select-board-card="${idx}">
+                    <button type="button" class="board-eye-zoom-btn" data-zoom-board="${idx}" title="Aperçu grand format (Zoom plein écran)" aria-label="Agrandir la planche ${b.title}">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <img src="${b.image}" alt="${b.title}" loading="lazy" />
+                    <span class="hair-board-click-tag">📂 Voir les fiches modèles</span>
+                  </div>
+                  <div class="hair-board-meta">
+                    <strong>${b.title}</strong>
+                    <span>${b.subtitle}</span>
+                  </div>
+                </article>
+              `).join('')}
+            </div>
+          `}
+        </section>
+      `;
+    } else {
+      // CAS PRINCIPAL 2 : Une planche est sélectionnée -> Vue détaillée avec bouton retour sticky et fiches modèles
+      const boards = cat.boards || [];
+      const selectedBoard = boards[this.selectedBoardIdx] || boards[0];
+      this.currentLightboxBoards = [selectedBoard];
+
+      // Extraction des modèles correspondant précisément à cette planche
+      let relevantModels = [];
+      const isStyle1 = selectedBoard.style === 'style1';
+      const modelsSource = isStyle1 ? (cat.style1Models || []) : (cat.style2Models || []);
+
+      // Calcul de la tranche selon l'index de la planche
+      if (isStyle1) {
+        // Style 1 (3x3 = 9 modèles par planche)
+        const startNum = (this.selectedBoardIdx * 9) + 1;
+        const endNum = startNum + 8;
+        relevantModels = modelsSource.filter(m => m.num >= startNum && m.num <= endNum);
+        if (relevantModels.length === 0) relevantModels = modelsSource; // fallback
+      } else {
+        // Style 2 (3x2 = 6 modèles par planche)
+        const s2Index = Math.max(0, this.selectedBoardIdx - (cat.boards.filter(b => b.style === 'style1').length));
+        const startNum = (s2Index * 6) + 1;
+        const endNum = startNum + 5;
+        relevantModels = modelsSource.filter(m => m.num >= startNum && m.num <= endNum);
+        if (relevantModels.length === 0) relevantModels = modelsSource; // fallback
+      }
+
+      html += `
+        <div class="hair-board-detail-view">
+          <!-- 1. En-tête collant (Sticky Top) sous la navigation sticky du Lookbook -->
+          <div class="hair-board-sticky-header">
+            <button type="button" class="btn-back-to-boards" id="btnBackToBoards" title="Revenir aux planches de la catégorie">
+              ← Revenir aux planches
+            </button>
+            <div class="hair-board-sticky-title">
+              <span class="hair-board-sticky-badge">${selectedBoard.styleBadge || 'Planche'}</span>
+              <strong>${selectedBoard.title}</strong>
+            </div>
+            <button type="button" class="btn-secondary hair-board-sticky-zoom-btn" id="btnZoomCurrentBoard" title="Agrandir la planche en plein écran">
+              👁️ Plein Écran
+            </button>
+          </div>
+
+          <!-- 2. Hero fusionné compact (fusion de l'ancienne barre et du mini hero) -->
+          <div class="hair-board-hero-unified">
+            <div class="hair-board-hero-thumb-wrap" id="miniBoardImg" title="Cliquer pour inspecter en plein écran">
+              <img src="${selectedBoard.image}" alt="${selectedBoard.title}" />
+              <span class="hair-board-hero-zoom-badge">👁️ Agrandir</span>
+            </div>
+            <div class="hair-board-hero-content">
+              <div class="hair-board-hero-tags">
+                <span class="badge-gold">${selectedBoard.styleBadge || 'Planche Visuelle'}</span>
+                <span class="badge-subtle">${selectedBoard.modelsRange || `${relevantModels.length} modèles`}</span>
+              </div>
+              <h3>${selectedBoard.title}</h3>
+              <p>${selectedBoard.subtitle} — Sélectionnez ci-dessous la fiche du modèle de votre choix pour valider votre réservation immédiate.</p>
+            </div>
+          </div>
+
+          <section>
+            <div class="hair-cat-banner models-banner" style="margin-bottom: 1.25rem;">
+              <div class="hair-cat-banner-header">
+                <div class="hair-cat-banner-title-wrap">
+                  <h4 style="margin: 0; font-family: var(--font-heading); font-size: 1.15rem; color: #f7d794;">📋 Fiches Modèles de cette planche (${relevantModels.length} modèles)</h4>
+                </div>
+                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Cliquez sur « Choisir ce modèle » pour réserver</span>
+              </div>
+            </div>
+            <div class="hair-models-grid">
+              ${relevantModels.map(m => {
+        const badgeText = m.categoryBadge || defaultCatBadge;
+        const styleLabel = isStyle1 ? 'Style 1 Mannequin' : 'Style 2 Lookbook';
+        return `
+                  <div class="hair-model-card">
+                    ${m.image ? `
+                      <div class="hair-model-img-wrap" data-zoom-single-img="${m.image}"
+                        data-zoom-single-title="Modèle N°${m.num} — ${m.name.replace(/"/g, '&quot;')}"
+                        data-zoom-single-sub="${badgeText} • ${styleLabel} • Pose : ${m.pose} • Tenue : ${m.tenue}">
+                        <img src="${m.image}" alt="Modèle ${m.num} - ${m.name.replace(/"/g, '&quot;')}" loading="lazy" />
+                        <span class="hair-model-zoom-pill">🔍 Zoom</span>
+                      </div>
+                    ` : ''}
+                    <div class="hair-model-card-body">
+                      <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.45rem;">
+                          <span class="hair-model-cat-inline-badge">🏷️ ${badgeText}</span>
+                          <button type="button" class="card-gear-edit-btn"
+                            data-edit-hair-model="${m.num}"
+                            data-edit-hair-cat="${cat.id}"
+                            data-edit-hair-style="${isStyle1 ? 'style1Models' : 'style2Models'}"
+                            title="Modifier le contenu de cette carte"
+                            aria-label="Modifier le modèle ${m.num} ${m.name.replace(/"/g, '&quot;')}">
+                            ${gearSvg}
+                          </button>
+                        </div>
+                        <div class="hair-model-top">
+                          <span class="hair-model-num">${m.num}</span>
+                          <div class="hair-model-title-box">
+                            <strong>${m.name}</strong>
+                            <span class="hair-model-style-tag">${styleLabel} • N°${m.num}${m.packs ? ' • ' + m.packs : ''}</span>
+                          </div>
+                        </div>
+                        <p class="hair-model-desc" style="margin-top: 0.45rem;">${m.desc}</p>
+                      </div>
+                      <div class="hair-model-bottom">
+                        <div class="hair-model-badges">
+                          <span class="hair-badge-chip">⏱️ ${m.pose}</span>
+                          <span class="hair-badge-chip">📅 ${m.tenue}</span>
+                        </div>
+                        <button type="button" class="hair-model-choose-btn"
+                          data-choose-hair-model="${m.name.replace(/"/g, '&quot;')}"
+                          data-choose-hair-num="${m.num}"
+                          data-choose-hair-style="${styleLabel}"
+                          data-choose-hair-cat="${cat.id}">
+                          Choisir ce modèle →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+      }).join('')}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    body.innerHTML = html;
+
+    // Mise à jour du texte explicatif du pied de modale selon la vue
+    const footerText = document.getElementById('hairCatalogFooterText');
+    if (footerText) {
+      if (cat.id === 'overview') {
+        footerText.innerHTML = '✦ <strong>Panorama Général</strong> : 6 grandes familles de tresses africaines. Cliquez sur une catégorie pour découvrir ses planches.';
+      } else if (this.selectedBoardIdx !== null) {
+        const board = cat.boards?.[this.selectedBoardIdx] || cat.boards?.[0];
+        footerText.innerHTML = `✦ Planche : <strong>${board ? board.title : ''}</strong> • Cliquez sur « Choisir ce modèle » pour réserver immédiatement.`;
+      } else {
+        footerText.innerHTML = '✦ Cliquez sur l\'icône <strong>œil 👁️</strong> pour agrandir en plein écran, ou <strong>cliquez sur la carte</strong> pour révéler ses fiches modèles.';
+      }
+    }
+
+    // --- GESTIONNAIRES D'ÉVÉNEMENTS LOOKBOOK ---
+
+    // 1. Bouton Toggle Bannière Foldable
+    const toggleBannerBtn = body.querySelector('#hairBannerToggleBtn');
+    if (toggleBannerBtn) {
+      toggleBannerBtn.addEventListener('click', () => {
+        this.isBannerUnfolded = !this.isBannerUnfolded;
+        const bannerEl = body.querySelector('#hairCatBanner');
+        if (bannerEl) {
+          bannerEl.classList.toggle('unfolded', this.isBannerUnfolded);
+          bannerEl.classList.toggle('folded', !this.isBannerUnfolded);
+          toggleBannerBtn.querySelector('span').textContent = this.isBannerUnfolded ? 'Réduire ▴' : 'En savoir plus ▾';
+        }
+      });
+    }
+
+    // 2. Sélection d'une Planche (affiche la vue détail des fiches)
+    body.querySelectorAll('[data-select-board-card], [data-select-board-btn]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        // Si clic sur l'icône zoom ou image directe, zoomer
+        if (e.target.closest('[data-zoom-board]')) return;
+        const idxStr = el.dataset.selectBoardCard || el.dataset.selectBoardBtn;
+        this.selectedBoardIdx = parseInt(idxStr, 10) || 0;
+        this.renderHairCatalogContent();
+        body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // 3. Bouton Retour aux Planches
+    const backToBoardsBtn = body.querySelector('#btnBackToBoards');
+    if (backToBoardsBtn) {
+      backToBoardsBtn.addEventListener('click', () => {
+        this.selectedBoardIdx = null;
+        this.renderHairCatalogContent();
+        body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // 4. Zoom sur la planche depuis la vue détail
+    const zoomCurrentBoardBtn = body.querySelector('#btnZoomCurrentBoard');
+    const miniBoardImg = body.querySelector('#miniBoardImg');
+    if (zoomCurrentBoardBtn) {
+      zoomCurrentBoardBtn.addEventListener('click', () => this.openHairBoardLightbox(0));
+    }
+    if (miniBoardImg) {
+      miniBoardImg.addEventListener('click', () => this.openHairBoardLightbox(0));
+    }
+
+    // 5. Zoom plein écran sur les planches de la vue générale
+    body.querySelectorAll('[data-zoom-board]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(el.dataset.zoomBoard, 10) || 0;
+        this.openHairBoardLightbox(idx);
+      });
+    });
+
+    // 6. Zoom plein écran sur une vignette individuelle de modèle
+    const singleImgEls = Array.from(body.querySelectorAll('[data-zoom-single-img]'));
+    singleImgEls.forEach((el, idx) => {
+      el.addEventListener('click', () => {
+        this.currentLightboxBoards = singleImgEls.map(item => ({
+          image: item.dataset.zoomSingleImg,
+          title: item.dataset.zoomSingleTitle,
+          styleBadge: 'Modèle Individuel',
+          subtitle: item.dataset.zoomSingleSub
+        }));
+        this.openHairBoardLightbox(idx);
+      });
+    });
+
+    // 7. Navigation vers une catégorie depuis le panorama
+    body.querySelectorAll('[data-jump-hair-cat]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.activeHairCatId = btn.dataset.jumpHairCat;
+        this.selectedBoardIdx = null;
+        this.isBannerUnfolded = false;
+        this.renderHairCatalogCategoryTabs();
+        this.renderHairCatalogContent();
+        body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // 8. Roue dentée (⚙️) sur les modèles
+    body.querySelectorAll('[data-edit-hair-model]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openCardEditorModal({
+          kind: 'hair-model',
+          catId: btn.dataset.editHairCat,
+          styleKey: btn.dataset.editHairStyle,
+          targetId: btn.dataset.editHairModel
+        });
+      });
+    });
+
+    // 9. Roue dentée (⚙️) sur les catégories de l'overview
+    body.querySelectorAll('[data-edit-overview-cat]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openCardEditorModal({
+          kind: 'hair-category',
+          targetId: btn.dataset.editOverviewCat
+        });
+      });
+    });
+
+    // 10. Bouton "Choisir ce modèle →" : ouverture de la réservation avec passage des 3 niveaux complets
+    const catToServiceMap = {
+      cat1: 'tresses-cat1-nattes-collees',
+      cat2: 'tresses-cat2-box-knotless',
+      cat3: 'tresses-cat3-tribales',
+      cat4: 'tresses-cat4-vanilles-twists',
+      cat5: 'tresses-cat5-boho-goddess',
+      cat6: 'tresses-cat6-sculpturales-locs'
+    };
+
+    body.querySelectorAll('[data-choose-hair-model]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modelName = btn.dataset.chooseHairModel;
+        const modelNum = btn.dataset.chooseHairNum;
+        const modelStyle = btn.dataset.chooseHairStyle;
+        const targetCatId = btn.dataset.chooseHairCat || cat.id;
+        const targetCat = HAIR_CATALOG_DATA.find(c => c.id === targetCatId) || cat;
+
+        const targetServiceId = catToServiceMap[targetCatId] || 'tresses-cat1-nattes-collees';
+        this.openBookingModal(targetServiceId, {
+          family: 'Nattes, Tresses & Vanilles',
+          category: targetCat.shortTitle,
+          modelNum,
+          modelName,
+          modelStyle
+        });
+
+        const notesInput = document.getElementById('modalClientNotes');
+        if (notesInput) {
+          notesInput.value = `Modèle choisi dans le Catalogue : ${targetCat.shortTitle} — Modèle N°${modelNum} ${modelName} (${modelStyle})`;
+        }
+        this.showToast(`Modèle sélectionné : N°${modelNum} ${modelName}`);
+      });
+    });
+  }
+
+  /* ==========================================================================
+     9C. ÉDITEUR UNIVERSEL DE CARTE (BOUTON ROUE DENTÉE ⚙️ + LOCALSTORAGE)
+     ========================================================================== */
+  snapshotOriginalCardsData() {
+    this.originalServicesSnapshot = typeof SERVICES_DATA !== 'undefined'
+      ? JSON.parse(JSON.stringify(SERVICES_DATA))
+      : [];
+    this.originalProductsSnapshot = typeof PRODUCTS_DATA !== 'undefined'
+      ? JSON.parse(JSON.stringify(PRODUCTS_DATA))
+      : [];
+    this.originalHairCatalogSnapshot = typeof HAIR_CATALOG_DATA !== 'undefined'
+      ? JSON.parse(JSON.stringify(HAIR_CATALOG_DATA))
+      : [];
+  }
+
+  getStoredCardOverrides() {
+    try {
+      const raw = localStorage.getItem(this.cardOverridesKey);
+      return raw ? JSON.parse(raw) : { services: {}, products: {}, hairModels: {}, hairCategories: {} };
+    } catch (e) {
+      return { services: {}, products: {}, hairModels: {}, hairCategories: {} };
+    }
+  }
+
+  saveStoredCardOverrides(overrides) {
+    try {
+      localStorage.setItem(this.cardOverridesKey, JSON.stringify(overrides));
+    } catch (e) {
+      console.warn('Impossible de sauvegarder dans localStorage:', e);
+    }
+  }
+
+  loadCardOverrides() {
+    const ov = this.getStoredCardOverrides();
+
+    if (typeof SERVICES_DATA !== 'undefined' && ov.services) {
+      SERVICES_DATA.forEach(s => {
+        const custom = ov.services[s.id];
+        if (custom) Object.assign(s, custom);
+      });
+    }
+
+    if (typeof PRODUCTS_DATA !== 'undefined' && ov.products) {
+      PRODUCTS_DATA.forEach(p => {
+        const custom = ov.products[p.id];
+        if (custom) Object.assign(p, custom);
+      });
+    }
+
+    if (typeof HAIR_CATALOG_DATA !== 'undefined') {
+      HAIR_CATALOG_DATA.forEach(cat => {
+        if (ov.hairCategories && ov.hairCategories[cat.id]) {
+          Object.assign(cat, ov.hairCategories[cat.id]);
+        }
+        ['style1Models', 'style2Models'].forEach(styleKey => {
+          (cat[styleKey] || []).forEach(m => {
+            const key = `${cat.id}__${styleKey}__${m.num}`;
+            if (ov.hairModels && ov.hairModels[key]) {
+              Object.assign(m, ov.hairModels[key]);
+            }
+          });
+        });
+      });
+    }
+  }
+
+  setupCardEditorModal() {
+    const dialog = document.getElementById('cardEditorModalDialog');
+    const form = document.getElementById('cardEditorForm');
+    const resetBtn = document.getElementById('cardEditorResetBtn');
+    const fileInput = document.getElementById('cardEditorFileInput');
+    const imageInput = document.getElementById('cardEditorImageInput');
+
+    if (!dialog || !form) return;
+
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+    }
+
+    if (fileInput && imageInput) {
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          imageInput.value = ev.target.result;
+          this.showToast('Photo chargée ! Cliquez sur Enregistrer pour valider.');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleCardEditorSave();
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.handleCardEditorReset();
+      });
+    }
+  }
+
+  openCardEditorModal({ kind, targetId, catId = '', styleKey = '' }) {
+    const dialog = document.getElementById('cardEditorModalDialog');
+    if (!dialog) return;
+
+    document.getElementById('cardEditorKind').value = kind;
+    document.getElementById('cardEditorTargetId').value = targetId;
+    document.getElementById('cardEditorCatId').value = catId;
+    document.getElementById('cardEditorStyleKey').value = styleKey;
+
+    const typeTag = document.getElementById('cardEditorModalTypeTag');
+    const nameInput = document.getElementById('cardEditorNameInput');
+    const badgeInput = document.getElementById('cardEditorBadgeInput');
+    const priceWrap = document.getElementById('cardEditorPriceWrap');
+    const priceInput = document.getElementById('cardEditorPriceLabelInput');
+    const taglineWrap = document.getElementById('cardEditorTaglineWrap');
+    const taglineInput = document.getElementById('cardEditorTaglineInput');
+    const poseWrap = document.getElementById('cardEditorPoseWrap');
+    const poseInput = document.getElementById('cardEditorPoseInput');
+    const tenueWrap = document.getElementById('cardEditorTenueWrap');
+    const tenueInput = document.getElementById('cardEditorTenueInput');
+    const packsWrap = document.getElementById('cardEditorPacksWrap');
+    const packsInput = document.getElementById('cardEditorPacksInput');
+    const descInput = document.getElementById('cardEditorDescInput');
+    const imageInput = document.getElementById('cardEditorImageInput');
+
+    if (kind === 'service') {
+      const s = SERVICES_DATA.find(item => item.id === targetId);
+      if (!s) return;
+      if (typeTag) typeTag.textContent = '⚙️ Édition d’une Prestation du Salon';
+      nameInput.value = s.name || '';
+      badgeInput.value = s.categoryBadge || (s.category === 'coiffure-tresses' ? 'Tresses & Tissages' : 'Soin Salon');
+      priceWrap.style.display = 'block';
+      priceInput.value = s.priceLabel || '';
+      taglineWrap.style.display = 'block';
+      taglineInput.value = s.tagline || '';
+      poseWrap.style.display = 'none';
+      tenueWrap.style.display = 'none';
+      packsWrap.style.display = 'none';
+      descInput.value = s.description || '';
+      imageInput.value = s.customImage || s.image || '';
+    } else if (kind === 'product') {
+      const p = PRODUCTS_DATA.find(item => item.id === targetId);
+      if (!p) return;
+      if (typeTag) typeTag.textContent = '⚙️ Édition d’un Produit de la Boutique';
+      nameInput.value = p.name || '';
+      badgeInput.value = p.categoryBadge || p.subCategory || 'Produit Phare';
+      priceWrap.style.display = 'block';
+      priceInput.value = p.priceLabel || '';
+      taglineWrap.style.display = 'block';
+      taglineInput.value = p.volume || p.tagline || '';
+      poseWrap.style.display = 'none';
+      tenueWrap.style.display = 'none';
+      packsWrap.style.display = 'none';
+      descInput.value = p.description || '';
+      imageInput.value = p.customImage || p.image || '';
+    } else if (kind === 'hair-model') {
+      const cat = HAIR_CATALOG_DATA.find(c => c.id === catId);
+      if (!cat) return;
+      const m = (cat[styleKey] || []).find(item => String(item.num) === String(targetId));
+      if (!m) return;
+      const defaultCatBadge = `Cat. ${cat.number} • ${cat.shortTitle.replace(/^\d+\.\s*/, '')}`;
+      if (typeTag) typeTag.textContent = `⚙️ Édition Modèle N°${m.num} (${cat.shortTitle})`;
+      nameInput.value = m.name || '';
+      badgeInput.value = m.categoryBadge || defaultCatBadge;
+      priceWrap.style.display = 'none';
+      taglineWrap.style.display = 'none';
+      poseWrap.style.display = 'block';
+      poseInput.value = m.pose || '';
+      tenueWrap.style.display = 'block';
+      tenueInput.value = m.tenue || '';
+      packsWrap.style.display = styleKey === 'style2Models' ? 'block' : 'none';
+      packsInput.value = m.packs || '';
+      descInput.value = m.desc || '';
+      imageInput.value = m.image || '';
+    } else if (kind === 'hair-category') {
+      const cat = HAIR_CATALOG_DATA.find(c => c.id === targetId);
+      if (!cat) return;
+      const defaultCatBadge = `Cat. ${cat.number} • ${cat.shortTitle.replace(/^\d+\.\s*/, '')}`;
+      if (typeTag) typeTag.textContent = `⚙️ Édition Catégorie ${cat.number}`;
+      nameInput.value = cat.title || '';
+      badgeInput.value = cat.categoryBadge || defaultCatBadge;
+      priceWrap.style.display = 'none';
+      taglineWrap.style.display = 'none';
+      poseWrap.style.display = 'block';
+      poseInput.value = cat.avgPose || '';
+      tenueWrap.style.display = 'block';
+      tenueInput.value = cat.avgTenue || '';
+      packsWrap.style.display = 'none';
+      descInput.value = cat.description || '';
+      imageInput.value = cat.coverImage || '';
+    }
+
+    dialog.showModal();
+  }
+
+  handleCardEditorSave() {
+    const kind = document.getElementById('cardEditorKind').value;
+    const targetId = document.getElementById('cardEditorTargetId').value;
+    const catId = document.getElementById('cardEditorCatId').value;
+    const styleKey = document.getElementById('cardEditorStyleKey').value;
+
+    const name = document.getElementById('cardEditorNameInput').value.trim();
+    const categoryBadge = document.getElementById('cardEditorBadgeInput').value.trim();
+    const priceLabel = document.getElementById('cardEditorPriceLabelInput').value.trim();
+    const tagline = document.getElementById('cardEditorTaglineInput').value.trim();
+    const pose = document.getElementById('cardEditorPoseInput').value.trim();
+    const tenue = document.getElementById('cardEditorTenueInput').value.trim();
+    const packs = document.getElementById('cardEditorPacksInput').value.trim();
+    const desc = document.getElementById('cardEditorDescInput').value.trim();
+    const imgVal = document.getElementById('cardEditorImageInput').value.trim();
+
+    const ov = this.getStoredCardOverrides();
+
+    if (kind === 'service') {
+      const s = SERVICES_DATA.find(item => item.id === targetId);
+      if (s) {
+        const patch = {
+          name,
+          categoryBadge,
+          priceLabel: priceLabel || s.priceLabel,
+          tagline,
+          description: desc
+        };
+        if (imgVal) {
+          patch.customImage = imgVal;
+          patch.image = imgVal;
+        }
+        Object.assign(s, patch);
+        ov.services = ov.services || {};
+        ov.services[targetId] = patch;
+        this.saveStoredCardOverrides(ov);
+        this.renderCatalogItems();
+        this.populateServiceDropdown();
+      }
+    } else if (kind === 'product') {
+      const p = PRODUCTS_DATA.find(item => item.id === targetId);
+      if (p) {
+        const patch = {
+          name,
+          categoryBadge,
+          priceLabel: priceLabel || p.priceLabel,
+          volume: tagline || p.volume,
+          description: desc
+        };
+        if (imgVal) {
+          patch.customImage = imgVal;
+          patch.image = imgVal;
+        }
+        Object.assign(p, patch);
+        ov.products = ov.products || {};
+        ov.products[targetId] = patch;
+        this.saveStoredCardOverrides(ov);
+        this.renderCatalogItems();
+      }
+    } else if (kind === 'hair-model') {
+      const cat = HAIR_CATALOG_DATA.find(c => c.id === catId);
+      const m = cat ? (cat[styleKey] || []).find(item => String(item.num) === String(targetId)) : null;
+      if (m) {
+        const patch = {
+          name,
+          categoryBadge,
+          pose: pose || m.pose,
+          tenue: tenue || m.tenue,
+          packs: packs || m.packs,
+          desc
+        };
+        if (imgVal) patch.image = imgVal;
+        Object.assign(m, patch);
+        ov.hairModels = ov.hairModels || {};
+        ov.hairModels[`${catId}__${styleKey}__${targetId}`] = patch;
+        this.saveStoredCardOverrides(ov);
+        this.renderHairCatalogContent();
+      }
+    } else if (kind === 'hair-category') {
+      const cat = HAIR_CATALOG_DATA.find(c => c.id === targetId);
+      if (cat) {
+        const patch = {
+          title: name,
+          categoryBadge,
+          avgPose: pose || cat.avgPose,
+          avgTenue: tenue || cat.avgTenue,
+          description: desc
+        };
+        if (imgVal) patch.coverImage = imgVal;
+        Object.assign(cat, patch);
+        ov.hairCategories = ov.hairCategories || {};
+        ov.hairCategories[targetId] = patch;
+        this.saveStoredCardOverrides(ov);
+        this.renderHairCatalogContent();
+      }
+    }
+
+    const dialog = document.getElementById('cardEditorModalDialog');
+    if (dialog) dialog.close();
+    this.showToast('Carte mise à jour avec succès !');
+  }
+
+  handleCardEditorReset() {
+    const kind = document.getElementById('cardEditorKind').value;
+    const targetId = document.getElementById('cardEditorTargetId').value;
+    const catId = document.getElementById('cardEditorCatId').value;
+    const styleKey = document.getElementById('cardEditorStyleKey').value;
+
+    const ov = this.getStoredCardOverrides();
+
+    if (kind === 'service') {
+      const orig = this.originalServicesSnapshot.find(item => item.id === targetId);
+      const cur = SERVICES_DATA.find(item => item.id === targetId);
+      if (orig && cur) {
+        delete cur.customImage;
+        Object.assign(cur, JSON.parse(JSON.stringify(orig)));
+      }
+      if (ov.services) delete ov.services[targetId];
+      this.saveStoredCardOverrides(ov);
+      this.renderCatalogItems();
+      this.populateServiceDropdown();
+    } else if (kind === 'product') {
+      const orig = this.originalProductsSnapshot.find(item => item.id === targetId);
+      const cur = PRODUCTS_DATA.find(item => item.id === targetId);
+      if (orig && cur) {
+        delete cur.customImage;
+        Object.assign(cur, JSON.parse(JSON.stringify(orig)));
+      }
+      if (ov.products) delete ov.products[targetId];
+      this.saveStoredCardOverrides(ov);
+      this.renderCatalogItems();
+    } else if (kind === 'hair-model') {
+      const origCat = this.originalHairCatalogSnapshot.find(c => c.id === catId);
+      const origM = origCat ? (origCat[styleKey] || []).find(item => String(item.num) === String(targetId)) : null;
+      const curCat = HAIR_CATALOG_DATA.find(c => c.id === catId);
+      const curM = curCat ? (curCat[styleKey] || []).find(item => String(item.num) === String(targetId)) : null;
+      if (origM && curM) {
+        delete curM.categoryBadge;
+        Object.assign(curM, JSON.parse(JSON.stringify(origM)));
+      }
+      if (ov.hairModels) delete ov.hairModels[`${catId}__${styleKey}__${targetId}`];
+      this.saveStoredCardOverrides(ov);
+      this.renderHairCatalogContent();
+    } else if (kind === 'hair-category') {
+      const origCat = this.originalHairCatalogSnapshot.find(c => c.id === targetId);
+      const curCat = HAIR_CATALOG_DATA.find(c => c.id === targetId);
+      if (origCat && curCat) {
+        delete curCat.categoryBadge;
+        Object.assign(curCat, JSON.parse(JSON.stringify(origCat)));
+      }
+      if (ov.hairCategories) delete ov.hairCategories[targetId];
+      this.saveStoredCardOverrides(ov);
+      this.renderHairCatalogContent();
+    }
+
+    const dialog = document.getElementById('cardEditorModalDialog');
+    if (dialog) dialog.close();
+    this.showToast('Carte réinitialisée à ses valeurs d’origine.');
+  }
+
+  openHairBoardLightbox(index) {
+    const lightbox = document.getElementById('hairBoardLightbox');
+    const img = document.getElementById('hairLightboxImg');
+    const caption = document.getElementById('hairLightboxCaption');
+    if (!lightbox || !img || !this.currentLightboxBoards.length) return;
+
+    this.currentLightboxIndex = Math.max(0, Math.min(index, this.currentLightboxBoards.length - 1));
+    const board = this.currentLightboxBoards[this.currentLightboxIndex];
+
+    img.src = board.image;
+    img.alt = board.title;
+    if (caption) {
+      caption.innerHTML = `
+        <strong>${board.title}</strong>
+        <span>${board.styleBadge} • ${board.subtitle} (${this.currentLightboxIndex + 1}/${this.currentLightboxBoards.length})</span>
+      `;
+    }
+    lightbox.hidden = false;
+  }
+
+  stepHairBoardLightbox(delta) {
+    if (!this.currentLightboxBoards.length) return;
+    const total = this.currentLightboxBoards.length;
+    const nextIdx = (this.currentLightboxIndex + delta + total) % total;
+    this.openHairBoardLightbox(nextIdx);
+  }
+
+  closeHairBoardLightbox() {
+    const lightbox = document.getElementById('hairBoardLightbox');
+    if (lightbox) lightbox.hidden = true;
+  }
+
+  /* ==========================================================================
      10. ÉCOUTEURS D'ÉVÉNEMENTS GLOBAUX & DÉCLENCHEURS DE MODALES
      ========================================================================== */
   setupEventListeners() {
-    // Boutons flottants bas-gauche
+    // Boutons flottants bas-gauche (3 boutons : Catalogue Coiffures, Soins & Produits, Mariée & Événements)
+    const floatHairCatBtn = document.getElementById('btnFloatingHairCatalogModal');
+    if (floatHairCatBtn) {
+      floatHairCatBtn.addEventListener('click', () => this.openHairCatalogModal('overview'));
+    }
+
     const floatProdBtn = document.getElementById('btnFloatingProductsModal');
     if (floatProdBtn) {
       floatProdBtn.addEventListener('click', () => this.openCatalogModal('coiffure'));

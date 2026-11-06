@@ -18,16 +18,16 @@ const INITIAL_DEMO_APPOINTMENTS = [
     id: 'apt-101',
     clientName: 'Aminata Touré',
     clientPhone: '+225 07 45 12 89 00',
-    serviceId: 'tresses-marcoussis',
-    serviceName: 'Tresses Marcoussis',
+    serviceId: 'tresses-cat1-nattes-collees',
+    serviceName: '1. Nattes Collées (Cornrows, Stitch & Ghana)',
     specialist: 'Blandine Youbouet',
     price: 5000,
     priceLabel: '5 000 FCFA',
     date: getRelativeDateStr(0), // Aujourd'hui
     timeSlot: '09:00',
-    durationMinutes: 90,
+    durationMinutes: 150,
     status: 'confirmed',
-    notes: 'Cheveux naturels mi-longs',
+    notes: 'Modèle N°3 Stitch Braids Fines',
     createdAt: new Date(Date.now() - 3600000 * 4).toISOString()
   },
   {
@@ -66,16 +66,16 @@ const INITIAL_DEMO_APPOINTMENTS = [
     id: 'apt-103',
     clientName: 'Priscille Bamba',
     clientPhone: '+225 01 22 90 77 33',
-    serviceId: 'tresses-non-coupees',
-    serviceName: 'Tresses Non Coupées (Longues)',
+    serviceId: 'tresses-cat5-boho-goddess',
+    serviceName: '5. Tresses Bohèmes & Hybrides (Boho / Goddess)',
     specialist: 'Blandine Youbouet',
-    price: 15000,
-    priceLabel: '15 000 FCFA',
+    price: 12000,
+    priceLabel: '12 000 FCFA',
     date: getRelativeDateStr(1), // Demain
     timeSlot: '14:30',
-    durationMinutes: 180,
+    durationMinutes: 330,
     status: 'confirmed',
-    notes: 'Modèle avec perles dorées au bout',
+    notes: 'Modèle N°1 Boho Knotless Moyennes',
     createdAt: new Date(Date.now() - 3600000 * 8).toISOString()
   },
   {
@@ -146,14 +146,14 @@ const INITIAL_DEMO_APPOINTMENTS = [
     id: 'apt-109',
     clientName: 'Estelle N’Guessan',
     clientPhone: '+225 05 99 88 77 66',
-    serviceId: 'tresses-classiques',
-    serviceName: 'Tresses Classiques (Box Braids)',
+    serviceId: 'tresses-cat2-box-knotless',
+    serviceName: '2. Tresses Libres (Box Braids & Knotless)',
     specialist: 'Blandine Youbouet',
     price: 10000,
     priceLabel: '10 000 FCFA',
     date: getRelativeDateStr(5),
     timeSlot: '09:30',
-    durationMinutes: 120,
+    durationMinutes: 300,
     status: 'confirmed',
     notes: 'Mèches couleur #30',
     createdAt: new Date(Date.now() - 3600000 * 30).toISOString()
@@ -272,14 +272,17 @@ class DashboardManager {
   }
 
   exportCSV() {
-    const headers = ['ID', 'Date', 'Heure', 'Client', 'Telephone', 'Prestation', 'Specialiste', 'Prix (FCFA)', 'Statut', 'Notes'];
+    const headers = ['ID', 'Date', 'Heure', 'Client', 'Telephone', 'Famille', 'Catégorie', 'Prestation', 'Modèle', 'Specialiste', 'Prix (FCFA)', 'Statut', 'Notes'];
     const rows = this.appointments.map(a => [
       a.id,
       a.date,
       a.timeSlot,
-      `"${a.clientName.replace(/"/g, '""')}"`,
-      `"${a.clientPhone}"`,
-      `"${a.serviceName.replace(/"/g, '""')}"`,
+      `"${(a.clientName || '').replace(/"/g, '""')}"`,
+      `"${a.clientPhone || ''}"`,
+      `"${(a.family || '').replace(/"/g, '""')}"`,
+      `"${(a.category || '').replace(/"/g, '""')}"`,
+      `"${(a.serviceName || '').replace(/"/g, '""')}"`,
+      `"${(a.modelNum ? '#' + a.modelNum + (a.modelName ? ' ' + a.modelName : '') : a.modelName || '').replace(/"/g, '""')}"`,
       `"${a.specialist || ''}"`,
       a.price,
       a.status,

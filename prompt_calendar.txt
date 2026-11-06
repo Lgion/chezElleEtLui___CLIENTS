@@ -1,0 +1,23 @@
+je vais te demander une tache un peu simple en aparence, mais il me semble assez complexe a implementer (car il n'y a aucun code natif qui l'a déjà implménté alors que il s'agit de l'affichage simple d'un calendrier, mais un calendrier 2.0). Alors je vais te demander de te concentrer à fond pour produire quelque chose de parfait.
+Dans le tunnel de paiement, on doit y choisir la date de la réservation. Pour l'instant c'est un date picker, seulement moi je veux un vrai calendrier en vue mensuelle par défaut, mais option vue jounaliere mais aussi  hebdomadaire.
+En cliquant sur une case (correspojndant donc à un jour), cela déclenche par défaut une modale pour y rendre un composant, ou éxécuter un bloc d'instructions (callabck).
+Concernant la sélection de dates, il doit etre possible d'avoir des options comme: 
+- de selectionner une palge de date
+- de sélectionner plusieurs dates non consécutive (picked dates=
+- de faire une sélection récurrente, càd de choisir un motif de répétition  sur une plage de dates  (tous les lunfis, ou, tous les 15 jours, etc mais au choix du user
+- une sélection basé sur le prompt
+Sinon pour la navigation, il doit etre possible de: 
+- changer de vue simplement (vue jour, vue semaine, vue mois
+- changer facilement de jour, de semaine, ou de mois selon la vue en cours
+- Retour rapide: Un bouton pour ramener instantanément la vue sur la date courante.
+- Saut direct: Taper une date au clavier (année, numéro semaine, numero jour dans l'année) pour aller directement à une date lointaine.
+Pour la gestion  des contraintes & validations: 
+- Désactivation de dates: ex: les weekends, les jours fériés, ou les dates passées
+- marquage de dates: ex: indiquer visuellement la sélection de dates déjà réservées
+- Limites de plage (Min/Max Dates): ex: pas de réservation possible avant aujourd'hui ou après un an
+- Validation dynamique de règles métier : Par exemple, obliger un séjour d'au moins 3 nuits, ou interdire l'arrivée un dimanche.
+Internationalisation et localisation:
+- Changement de format de date : Adapter l'affichage selon les conventions locales (ex: JJ/MM/AAAA en Europe vs MM/JJ/AAAA aux États-Unis), la convention utilisée doit etre précisé qlqpart dans le calandrier, et il doit etre facile de pourvoir la changer
+
+
+Bref en gros, je veux un datepicker qui affiche directement le calendrier que les datepicker actuels demandent à cliquer sur un input pour faire apparaitre le datepicker, moi je ne veux pas d'input nécessaire, juste le date picker. Du coup essaie de voir le fonctionnement et l'apparence des datepickers html pour t'en inspirer et créer un n'affichant pas un input mais seulement le datepicker
